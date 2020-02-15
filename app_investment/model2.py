@@ -17,6 +17,7 @@ from pyspark.sql.functions import lit, col, array, explode, struct
 spark = SparkSession.builder.appName('Rank_Mean').getOrCreate()
 sc = spark.sparkContext
 
+num_of_assets = 10
 monthly_data = pd.read_csv("data1.csv")
 
 benchmark_month = monthly_data.loc[0:monthly_data.shape[0], monthly_data.columns[1]]
