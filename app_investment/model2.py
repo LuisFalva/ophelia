@@ -98,25 +98,40 @@ def shape_long_format(dataframe, pivot_col):
 
 asset_ranking_df = shape_long_format(worse_better, ["closing_id"]).where(col("top_rank") <= 10).orderBy("closing_id", "top_rank")
 asset_ranking_df.show(100000)
-#rankedasset = df = pd.DataFrame(asset_ranking_df, columns=columns)
-#name = "name"
-#asset_ranking_df.to_excel(name +".xlsx")
-#assetrank = asset_ranking_df
+
 pandas_df = asset_ranking_df.select("*").toPandas()
+pandas_df = pandas_df.astype({'asset_id':'int32'})
+newselect = pandas_df[["closing_id","asset_id"]]
 
-
-#asset_ranking_df.coalesce(1).write.csv(C\Users\s4661708\Desktop\PY\model,header=True)#format('overwrite').option("header","true").save("asset_ranking.csv")
-#
-#mdt_path = "C:\Users\s4661708\Desktop\PY\model\asset_ranking_csv\_temporary\0"
-#median_down_pd = pd.read_csv(mdt_path)
-#median_down_pd
-
-selection = np.zeros((investment_universe_month.shape[0],10))
+indexed = np.zeros((investment_universe_month.shape[0],num_of_assets))
 
 for q in range(1,investment_universe_month.shape[0]):
-    if pandas_df["closing_id"] == q:
-        selection[q] = pandas_df["asset_id"].T
-        
+    selection = newselect.loc[pandas_df["closing_id"]==q]
+    newselect_transpose = selection.T
+    newpdf = newselect_transpose['asset_id':].head()
+    indexed[q] = newpdf
+
+indexed = indexed[1:investment_universe_month.shape[0]+1]
+
+index_row = indexed.astype(np.int64)
+newrow = np.zeros((1,num_of_assets))
+index_row = np.vstack([index_row,newrow])
+portfolio = np.zeros((investment_universe_month.shape[0],num_of_assets))
+
+for r in range(0,investment_universe_month.shape[0]-1):
+    s = r+1
+    columns = index_row[s]
+    print(columns)
+    portfolio[s] = pct_investment_month_array[s,[columns]]
+    
+    
+    
+performance = np.dot(portfolio,(1/num_of_assets))
+returns = np.zeros((investment_universe_month.shape[0]-1,1))
+
+for x in range (1,investment_universe_month.shape[0]):
+    returns[x-1] = sum(performance[x])
+
     
 
 
