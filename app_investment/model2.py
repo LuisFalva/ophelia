@@ -7,6 +7,7 @@ Created on Thu Feb  6 11:47:19 2020
 
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 import pyspark
 from pyspark.sql import SparkSession
