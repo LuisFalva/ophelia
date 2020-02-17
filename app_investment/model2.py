@@ -115,24 +115,62 @@ for q in range(1,investment_universe_month.shape[0]):
 indexed = indexed[1:investment_universe_month.shape[0]+1]
 
 index_row = indexed.astype(np.int64)
-newrow = np.zeros((1,num_of_assets))
+newrow = [0]*num_of_assets
 index_row = np.vstack([index_row,newrow])
 portfolio = np.zeros((investment_universe_month.shape[0],num_of_assets))
 
 for r in range(0,investment_universe_month.shape[0]-1):
     s = r+1
     columns = index_row[s]
-    print(columns)
     portfolio[s] = pct_investment_month_array[s,[columns]]
     
     
-    
+means = portfolio[1:146]
 performance = np.dot(portfolio,(1/num_of_assets))
 returns = np.zeros((investment_universe_month.shape[0]-1,1))
+equalw = np.zeros((investment_universe_month.shape[0]-1,1))
+eweights = 1/(pct_investment_month_array.shape[1])
+eweighted = np.dot(pct_investent_month_array,eweights)
 
 for x in range (1,investment_universe_month.shape[0]):
     returns[x-1] = sum(performance[x])
+    equalw[x-1] = sum(eweighted[x])
+    
+beg = 100
+start = 100
+commence = 100
+bench = pct_benchmark_month_array[1:investment_universe_month.shape[0]]
+bmk = np.zeros((investment_universe_month.shape[0]-1,))
+port = np.zeros((investment_universe_month.shape[0]-1,))
+ew = np.zeros((investment_universe_month.shape[0]-1,))
 
+for i in range (0,146):
+    bmk[i] = beg*(1+bench[i])
+    beg = bmk[i]
+    port[i] = start*(1+returns[i])
+    start = port[i]
+    ew[i] = commence*(1+equalw[i])
+    commence = ew[i]
+    
+plt.plot(bmk)
+plt.plot(port)
+plt.plot(ew)
+
+performancef = performance[1:146]
+
+cov_matrix = np.cov(means.T)
+
+initial_investment = 100
+
+weights = np.full((1,num_of_assets),1/num_of_assets)
+avg_rets = means.mean()
+port_mean = np.dot(avg_rets,1/num_of_assets)
+port_stdev = np.sqrt(weights.dot(cov_matrix).dot(weights.T))
+avg_bmk = pct_benchmark_month.mean()
+avg_bmk_vol = np.std(pct_benchmark_month)
+
+
+                     
     
 
 
