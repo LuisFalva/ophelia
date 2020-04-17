@@ -113,7 +113,7 @@ class DataFrame(object):
         elif is_min == True:
             lag_date = min(df.select(col_lag).distinct().collect())[0]
 
-        lag_data = df.where(col(col_lag) < lag_date).select([col(c).alias(c+"_lag") for c in df.columns])
+        lag_data = df.where(col(col_lag) < lag_date).select([col(c).alias("{0}_lag".format(c)) for c in df.columns])
         print("-Ophelia[INFO]: Lag-Over Dates In Dataframe [...]")
         print("===="*18)
         return lag_data

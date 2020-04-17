@@ -24,6 +24,12 @@ class MazterizeData(object):
             print("-Ophelia[INFO]: Read Parquet Successfully From Path:", path_source, "[...]")
             print("===="*18)
             return file_df
+        if source == "csv":
+            print("-Ophelia[INFO]: Reading Spark File [...]")
+            file_df = spark_session.read.csv(path_source, header = True, inferSchema = True)
+            print("-Ophelia[INFO]: Read CSV Successfully From Path:", path_source, "[...]")
+            print("===="*18)
+            return file_df
         
         print("-Ophelia[INFO]: Reading Spark File [...]")
         file_df = spark_session.read.format(source).options(header="true").load(path_source)
