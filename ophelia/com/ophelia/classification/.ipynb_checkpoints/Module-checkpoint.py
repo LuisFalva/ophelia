@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class KeyNameStructure:
+class KeyStructure:
     
     def __init__(self):
         """
@@ -31,7 +31,7 @@ class KeyNameStructure:
                          self.occupation]
 
 
-class WeightLabelClass:
+class WeightLabel:
     
     def __init__(self, W=None):
         """
@@ -51,7 +51,7 @@ class WeightLabelClass:
         self.marital = self.W[4]
     
 
-class RiskLabelClass:
+class RiskLabel:
     
     def __init__(self):
         """
@@ -64,7 +64,7 @@ class RiskLabelClass:
         self.ModerateConservative = "MC"
         self.Conservative = "C"
         
-class DemographFeature:
+class Feature:
     
     def __init__(self):
         """

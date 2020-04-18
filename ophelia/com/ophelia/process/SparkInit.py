@@ -1,7 +1,7 @@
 import sys
 from pyspark.sql import SparkSession
 
-class OpheliaSparkInit(object):
+class Spark(object):
     """
     Class object for input parameters.
     :param NAME_PARAM: "DESCRIPTION HERE"

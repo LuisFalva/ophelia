@@ -1,8 +1,8 @@
-from com.ophelia.process.SparkInit import OpheliaSparkInit
-from com.ophelia.process.DataTransform import MazterizeData
+from com.ophelia.process.SparkInit import Spark
+from com.ophelia.process.DataTransform import Transform
 from com.ophelia.functions import Arrays, Parse, DataFrame, RDD
-from com.ophelia.classification.ClassificationUtils import DemographicScoring
-from com.ophelia.classification.Module import WeightLabelClass, KeyNameStructure, RiskLabelClass
+from com.ophelia.classification.ClassificationUtils import Classification
+from com.ophelia.classification.Module import WeightLabel, KeyStructure, RiskLabel
 
 
 class Ophelia(object):
@@ -51,21 +51,21 @@ class Ophelia(object):
         print("      █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █")
         print("\n========================================================================")
         
-        ophelia_spark = OpheliaSparkInit()
+        ophelia_spark = Spark()
         spark = ophelia_spark.spark_session(app_name)
         sc = ophelia_spark.start_spark_context(spark)
         
-        self.spark = spark
+        self.spk = spark
         self.sc = sc
-        self.mazterize = MazterizeData()
-        self.arrays = Arrays()
-        self.parse = Parse()
-        self.dataframe = DataFrame()
-        self.rdd = RDD()
-        self.demograph = DemographicScoring()
-        self.key = KeyNameStructure()
-        self.risk = RiskLabelClass()
-        self.weight = WeightLabelClass(W)
+        self.tr = Transform()
+        self.arr = Arrays()
+        self.prs = Parse()
+        self.df = DataFrame()
+        self.ordd = RDD()
+        self.clss = Classification()
+        self.key = KeyStructure()
+        self.rsk = RiskLabel()
+        self.wgt = WeightLabel(W)
         
         self.greetings = "¡Hullo! I Am Ophelia The Very First AI Investment Assistant, Pleased To Meet You [...]"
         self.whoAreYou = "I Am British, From A Little Town Called Ely, East Of England. ¿Do You Want A Cup Of Tee? [...]"

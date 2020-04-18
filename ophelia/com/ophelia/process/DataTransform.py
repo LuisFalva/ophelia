@@ -1,6 +1,6 @@
 from pyspark.sql.functions import date_format, to_date, col
 
-class MazterizeData(object):
+class Transform(object):
     """
     """
     @staticmethod
