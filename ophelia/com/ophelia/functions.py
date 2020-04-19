@@ -1,4 +1,4 @@
-from pyspark.sql.functions import col, year, month, dayofmonth, udf
+from pyspark.sql.functions import col, year, month, dayofmonth, udf, desc, asc
 from pyspark.sql.types import IntegerType, LongType, StructType, StructField
 from pyspark.sql import Row
 
@@ -122,22 +122,13 @@ class DataFrame(object):
 class RDD(object):
     
     @staticmethod
-    def row_indexing(df, desc=True, sort_by="operation_date"):
-        """
-        METHOD DESCRIPTION
-        :param [PARAM]: [DESCRIPTION]
-        :return: [RETURN TYPE]
-        """
-        if desc == True:
-            df = df.orderBy(col(sort_by).desc())
-        else:
-            df = df.orderBy(col(sort_by))
-        schema  = StructType(df.schema.fields[:] + [StructField(name=sort_by[:9]+"_index", dataType=LongType(), nullable=False)])
-        row_indexation = Row()
+    def row_indexing(data_frame, is_desc=True, sort_by="operation_date"):
+        df = data_frame.orderBy(desc(sort_by)) if is_desc else data_frame.orderBy(asc(sort_by))
         rdd_index = df.rdd.zipWithIndex()
-        
+
+        new_field_name = sort_by.split("_")[0]+"_index"
+        schema = StructType(df.schema.fields + [StructField(name=new_field_name, dataType=LongType(), nullable=False)])
+
         print("-Ophelia[INFO]: Indexing Row RDD [...]")
-        indexed_df = rdd_index.map(lambda row: row_indexation(*list(row[0]) + [row[1]])).toDF(schema)
-        print("-Ophelia[INFO]: Indexing Row RDD Quite Good [...]")
-        print("===="*18)
-        return indexed_df
+        print("="*72)
+        return rdd_index.map(lambda row: Row(*list(row[0]) + [row[1]])).toDF(schema)
