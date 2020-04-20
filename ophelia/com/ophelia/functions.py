@@ -139,11 +139,10 @@ class RDD(object):
         else:
             df = df.orderBy(col(sort_by))
         schema  = StructType(df.schema.fields[:] + [StructField(name=sort_by[:9]+"_index", dataType=LongType(), nullable=False)])
-        row_indexation = Row()
         rdd_index = df.rdd.zipWithIndex()
         
         print("-Ophelia[INFO]: Indexing Row RDD [...]")
-        indexed_df = rdd_index.map(lambda row: row_indexation(*list(row[0]) + [row[1]])).toDF(schema)
+        indexed_df = rdd_index.map(lambda row: Row(*list(row[0]) + [row[1]])).toDF(schema)
         print("-Ophelia[INFO]: Indexing Row RDD Quite Good [...]")
         print("===="*18)
         return indexed_df
