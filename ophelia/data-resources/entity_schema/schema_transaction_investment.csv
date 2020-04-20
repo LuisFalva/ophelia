@@ -1,0 +1,11 @@
+root
+ |-- information_date: date (nullable = false)
+ |-- customer_id: string (nullable = false)
+ |-- fund_id: string (nullable = false)
+ |-- price_buy: double (nullable = false)
+ |-- input_amount_mxn: double (nullable = false)
+ |-- input_percentage: double (nullable = false)
+ |-- input_amount_date: double (nullable = false)
+ |-- closing_price: double (nullable = false)
+ |-- closing_delta: double (nullable = false)
+ |-- fund_yield: double (nullable = false)
