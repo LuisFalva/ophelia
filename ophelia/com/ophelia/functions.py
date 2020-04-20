@@ -129,6 +129,14 @@ class RDD(object):
 
     @staticmethod
     def row_indexing(data, sort_by="operation_date", is_desc=True):
+        """
+        Adds the index of every row as a new column for a given DataFrame
+
+        :param data: DataFrame. Data to index.
+        :param sort_by: string. Name of the column to sort.
+        :param is_desc: bool. Indicate if the data will be sorted in ascending or descending order.
+        :return: DataFrame
+        """
         data = data.orderBy(desc(sort_by)) if is_desc else data.orderBy(asc(sort_by))
         field_name = sort_by.split("_")[0] + "_index"
         schema = StructType(data.schema.fields + [StructField(name=field_name, dataType=LongType(), nullable=False)])
