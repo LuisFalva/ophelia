@@ -40,7 +40,7 @@ class Transform(object):
     @staticmethod
     def write_parquet(dataframe, name_directory, partition_field, mode="overwrite", repartition=1):
         partition = [partition_field]
-        path = "/data/core/fince/data/portfolioOptimization/"+str(name_directory)+"/"
+        path = "data/master/ophelia/data/OpheliaData/"+str(name_directory)+"/"
         print("-Ophelia[INFO]: Writing Parquet [...]")
         dataframe.repartition(int(repartition)).write.mode(mode).parquet(path, partitionBy=partition)
         print("-Ophelia[INFO]: Writing Root Parquet Successfully [...]")
