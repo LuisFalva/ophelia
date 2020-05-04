@@ -14,4 +14,4 @@ __pycache__/
 .ipynb_checkpoints
 
 # tmp directory
-scripts
+scripts/
