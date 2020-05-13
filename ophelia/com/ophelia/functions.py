@@ -71,8 +71,8 @@ class Arrays(object):
         for i in range(len(columns)):
             categorical.append(columns[i]) if df.dtypes[i][1] == "string" else \
                 numerical.append(columns[i]) if df.dtypes[i][1] == "int" else \
-                    decimal.append(columns[i]) if df.dtypes[i][1] == "float" else \
-                        date.append(columns[i])
+                decimal.append(columns[i]) if df.dtypes[i][1] == "float" else \
+                date.append(columns[i])
         logger.info("Feature Picking Quite Well...")
         logger.warning("You Must Choose Between Them {'string', 'int', 'float', 'date'}...")
         return {"string": categorical, "int": numerical, "float": decimal, "date": date}
