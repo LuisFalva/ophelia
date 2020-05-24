@@ -8,7 +8,7 @@ from com.ophelia.utils.logger import OpheliaLogger
 logger = OpheliaLogger()
 
 
-class Arrays(object):
+class Arrays:
 
     @staticmethod
     def year_array(from_year, to_year):
@@ -78,14 +78,14 @@ class Arrays(object):
         return {"string": categorical, "int": numerical, "float": decimal, "date": date}
 
 
-class Parse(object):
+class Parse:
 
     @staticmethod
     def str_to_date(string):
         pass
 
 
-class DataFrame(object):
+class DataFrame:
 
     @staticmethod
     def split_date_columns(df, col_date):
@@ -133,7 +133,7 @@ class DataFrame(object):
         return lag_data
 
 
-class RDD(object):
+class RDD:
 
     @staticmethod
     def row_indexing(data, sort_by="operation_date", is_desc=True):
