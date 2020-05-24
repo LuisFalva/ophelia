@@ -4,7 +4,7 @@ from pyspark.sql.window import Window
 from pyspark.sql import Row
 
 
-class Arrays:
+class Arrays(object):
     
     @staticmethod
     def year_array(from_year, to_year):
