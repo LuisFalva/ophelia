@@ -1,149 +1,68 @@
-from collections import Counter
-from .Module import KeyStructure, RiskLabel, Feature, WeightLabel
+import operator
+from .Config import ModelParameters
+from .Module import RiskLabel, KeyStructure
+from .ScrutinyFeatures import Scrutiny
 
 
-class Classification(object):
-    
-    key = KeyStructure()
-    rsk = RiskLabel()
-    feat = Feature()
-    wgt = WeightLabel()
+class Classification:
 
-    small_weight = feat.small_weight
-    mid_weight = feat.mid_weight
-    big_weight = feat.big_weight
+    rl = RiskLabel()
+    ks = KeyStructure()
+    mp = ModelParameters()
 
     @staticmethod
-    def score_gender(gender, w):
-        if gender in Classification.feat.female:
-            return dict({Classification.key.vote: 1,
-                         Classification.key.weight: w,
-                         Classification.key.risk_label: Classification.rsk.ModerateAggresive})
-        elif gender in Classification.feat.male:
-            return dict({Classification.key.vote: 1,
-                         Classification.key.weight: w,
-                         Classification.key.risk_label: Classification.rsk.Aggresive})
-    
-    @staticmethod
-    def score_age(age, w):
-        if age > 60:
-            return {Classification.key.vote: 1, 
-                    Classification.key.weight: w+Classification.big_weight, 
-                    Classification.key.risk_label: Classification.rsk.Conservative}
-        elif 50 < age <= 60:
-            return {Classification.key.vote: 1, 
-                    Classification.key.weight: w+Classification.mid_weight, 
-                    Classification.key.risk_label: Classification.rsk.ModerateConservative}
-        elif 40 < age <= 50:
-            return {Classification.key.vote: 1, 
-                    Classification.key.weight: w+Classification.small_weight, 
-                    Classification.key.risk_label: Classification.rsk.Moderate}
-        elif 30 < age <= 40:
-            return {Classification.key.vote: 1, 
-                    Classification.key.weight: w, 
-                    Classification.key.risk_label: Classification.rsk.ModerateAggresive}
-        else:
-            return {Classification.key.vote: 1, 
-                    Classification.key.weight: w, 
-                    Classification.key.risk_label: Classification.rsk.Aggresive}
-    
-    @staticmethod
-    def score_marital(marital, w):
-        if marital in Classification.feat.married:
-            return {Classification.key.vote: 1, 
-                    Classification.key.weight: w, 
-                    Classification.key.risk_label: Classification.rsk.ModerateAggresive}
-        if marital in Classification.feat.single:
-            return {Classification.key.vote: 1, 
-                    Classification.key.weight: w, 
-                    Classification.key.risk_label: Classification.rsk.Aggresive}
-        else:
-            return {Classification.key.vote: 1, 
-                    Classification.key.weight: w, 
-                    Classification.key.risk_label: Classification.rsk.Moderate}
-    
-    @staticmethod
-    def score_education(education, w):
-        if education in Classification.feat.primary:
-            return {Classification.key.vote: 1, 
-                    Classification.key.weight: w, 
-                    Classification.key.risk_label: Classification.rsk.Conservative}
-        elif education in Classification.feat.secondary:
-            return {Classification.key.vote: 1, 
-                    Classification.key.weight: w, 
-                    Classification.key.risk_label: Classification.rsk.ModerateConservative}
-        elif education in Classification.feat.middle:
-            return {Classification.key.vote: 1, 
-                    Classification.key.weight: w, 
-                    Classification.key.risk_label: Classification.rsk.Moderate}
-        elif education in Classification.feat.bachelor:
-            return {Classification.key.vote: 1, 
-                    Classification.key.weight: w, 
-                    Classification.key.risk_label: Classification.rsk.ModerateAggresive}
-        else:
-            return {Classification.key.vote: 1, 
-                    Classification.key.weight: w, 
-                    Classification.key.risk_label: Classification.rsk.Aggresive}
-    
-    @staticmethod
-    def score_occupation(occupation, w):
-        if (occupation in Classification.feat.retired) | (occupation in Classification.feat.unemployed):
-            return {Classification.key.vote: 1, 
-                    Classification.key.weight: w+Classification.big_weight, 
-                    Classification.key.risk_label: Classification.rsk.Conservative}
-        elif (occupation in Classification.feat.housemaid) | (occupation in Classification.feat.student):
-            return {Classification.key.vote: 1, 
-                    Classification.key.weight: w+Classification.mid_weight, 
-                    Classification.key.risk_label: Classification.rsk.ModerateConservative}
-        elif (occupation in Classification.feat.self_employed) | (occupation in Classification.feat.blue_collar):
-            return {Classification.key.vote: 1, 
-                    Classification.key.weight: w+Classification.small_weight, 
-                    Classification.key.risk_label: Classification.rsk.Moderate}
-        elif occupation in Classification.feat.employee:
-            return {Classification.key.vote: 1, 
-                    Classification.key.weight: w, 
-                    Classification.key.risk_label: Classification.rsk.ModerateAggresive}
-        else:
-            return {Classification.key.vote: 1, 
-                    Classification.key.weight: w, 
-                    Classification.key.risk_label: Classification.rsk.Aggresive}
-    
-    @staticmethod
-    def __label_picking(tree):
-        label_picking = [tree[i][Classification.key.risk_label] for i in range(len(tree))]
-        return label_picking
+    def factor_weights(**kargs):
+        none = float(0.0)
+        gender = float(kargs.get(Classification.ks.gender))
+        age = float(kargs.get(Classification.ks.age))
+        education = float(kargs.get(Classification.ks.education))
+        job = float(kargs.get(Classification.ks.job))
+        marital = float(kargs.get(Classification.ks.marital))
+        child = float(kargs.get(Classification.ks.child))
+        saving = float(kargs.get(Classification.ks.saving))
+        insight = float(kargs.get(Classification.ks.insight))
+        backup = float(kargs.get(Classification.ks.backup))
 
-    @staticmethod
-    def __count_elements(tree):
-        c = Counter()
-        for v in tree:
-            c[v[Classification.key.risk_label]] += v[Classification.key.vote]
-        return {riskLabel: round(vote) for riskLabel, vote in c.items()}
-    
-    @staticmethod
-    def probability_label(tree):
-        label_list = Classification.__label_picking(tree)
-        probability = Classification.__count_elements(tree)
-        for p in set(label_list):
-            probability[p] /= len(label_list)
-        return probability
-    
+        dict_weight = {
+            Classification.ks.gender: none if gender is None else gender,
+            Classification.ks.age: none if age is None else age,
+            Classification.ks.education: none if education is None else education,
+            Classification.ks.job: none if job is None else job,
+            Classification.ks.marital: none if marital is None else marital,
+            Classification.ks.child: none if child is None else child,
+            Classification.ks.saving: none if saving is None else saving,
+            Classification.ks.insight: none if insight is None else insight,
+            Classification.ks.backup: none if backup is None else backup
+        }
+        return dict_weight
+
     @staticmethod
     def tree_generator(obj):
-        
-        first_round_dtree = [
-            Classification.score_gender(obj.gender, Classification.wgt.gender),
-            Classification.score_age(obj.age, Classification.wgt.age),
-            Classification.score_education(obj.education, Classification.wgt.education),
-            Classification.score_occupation(obj.job, Classification.wgt.occupation),
-            Classification.score_marital(obj.marital, Classification.wgt.marital)
-        ]
+        w = Classification.factor_weights(
+            gender=Classification.mp.gender,
+            age=Classification.mp.age,
+            education=Classification.mp.education,
+            job=Classification.mp.job,
+            marital=Classification.mp.marital,
+            child=Classification.mp.child,
+            saving=Classification.mp.saving,
+            insight=Classification.mp.insight,
+            backup=Classification.mp.backup
+        )
 
-        second_round_dtree = [{"Second tree empty"}]
-        third_round_dtree = [{"Third tree empty"}]
-        
-        return first_round_dtree
-    
+        tree = [
+            Scrutiny.score_gender(gender=obj.gender, w=w),
+            Scrutiny.score_age(age=obj.age, w=w),
+            Scrutiny.score_education(education=obj.education, w=w),
+            Scrutiny.score_occupation(occupation=obj.job, w=w),
+            Scrutiny.score_marital(marital=obj.marital, w=w),
+            Scrutiny.score_child(child=obj.child, w=w),
+            Scrutiny.score_saving(saving=obj.saving, w=w),
+            Scrutiny.score_insight(insight=obj.insight, w=w),
+            Scrutiny.score_backup(backup=obj.backup, w=w)
+        ]
+        return tree
+
     @staticmethod
     def dict_filter(dic):
         filter_dic = {}
@@ -151,90 +70,109 @@ class Classification(object):
             if dic[item] > 0:
                 filter_dic[item] = dic[item]
         return filter_dic
-    
+
     @staticmethod
-    def groupBy_key(tree, key, a=0, ma=0, m=0, mc=0, c=0, counter=0):
+    def group_key(a, ma, m, mc, c, counter=0.0):
+        group_key_value = {
+            Classification.rl.Aggressive: float(a),
+            Classification.rl.ModerateAggressive: float(ma),
+            Classification.rl.Moderate: float(m),
+            Classification.rl.ModerateConservative: float(mc),
+            Classification.rl.Conservative: float(c),
+            "tot": float(counter)
+        }
+        return group_key_value
+
+    @staticmethod
+    def group_by_key(tree, key, a=0.0, ma=0.0, m=0.0, mc=0.0, c=0.0, counter=0.0):
         for item in tree:
-            counter += tree.count(item) 
-            if item["risk_label"] == "A":
+            counter += tree.count(item)
+            if item[Classification.ks.risk_label] == Classification.rl.Aggressive:
                 a += item[key]
-            elif item["risk_label"] == "MA":
+            elif item[Classification.ks.risk_label] == Classification.rl.ModerateAggressive:
                 ma += item[key]
-            elif item["risk_label"] == "M":
+            elif item[Classification.ks.risk_label] == Classification.rl.Moderate:
                 m += item[key]
-            elif item["risk_label"] == "MC":
+            elif item[Classification.ks.risk_label] == Classification.rl.ModerateConservative:
                 mc += item[key]
-            elif item["risk_label"] == "C":
+            elif item[Classification.ks.risk_label] == Classification.rl.Conservative:
                 c += item[key]
-        return Classification.dict_filter({"A": a, "MA": ma, "M": m, "MC": mc, "C": c, "tot": counter})
-    
+
+        return Classification.dict_filter(Classification.group_key(a, ma, m, mc, c, counter))
+
     @staticmethod
-    def prob_label(dic, a=0, ma=0, m=0, mc=0, c=0):
+    def prob_label(dic, a=0.0, ma=0.0, m=0.0, mc=0.0, c=0.0):
         for item in dic:
-            if item == "A":
+            if item == Classification.rl.Aggressive:
                 a = dic[item] / dic["tot"]
-            elif item == "MA":
+            elif item == Classification.rl.ModerateAggressive:
                 ma = dic[item] / dic["tot"]
-            elif item == "M":
+            elif item == Classification.rl.Moderate:
                 m = dic[item] / dic["tot"]
-            elif item == "MC":
+            elif item == Classification.rl.ModerateConservative:
                 mc = dic[item] / dic["tot"]
-            elif item == "C":
+            elif item == Classification.rl.Conservative:
                 c = dic[item] / dic["tot"]
-        return Classification.dict_filter({"A": a, "MA": ma, "M": m, "MC": mc, "C": c})
-    
+
+        return Classification.dict_filter(Classification.group_key(a, ma, m, mc, c))
+
     @staticmethod
-    def solver(w):
-        N = len(w)-1
-        if N is 0:
-            return float(1.0)
-        return float(1 / N)
-    
-    @staticmethod
-    def matmul_dict(weight, prob, w_a=0, w_ma=0, w_m=0, w_mc=0, w_c=0):
+    def matmul_dict(weight, prob, w_a=0.0, w_ma=0.0, w_m=0.0, w_mc=0.0, w_c=0.0):
         for item in weight:
-            if item == "A":
+            if item == Classification.rl.Aggressive:
                 w_a = (weight[item] * prob[item]) + weight[item]
-            elif item == "MA":
+            elif item == Classification.rl.ModerateAggressive:
                 w_ma = (weight[item] * prob[item]) + weight[item]
-            elif item == "M":
+            elif item == Classification.rl.Moderate:
                 w_m = (weight[item] * prob[item]) + weight[item]
-            elif item == "MC":
+            elif item == Classification.rl.ModerateConservative:
                 w_mc = (weight[item] * prob[item]) + weight[item]
-            elif item == "C":
+            elif item == Classification.rl.Conservative:
                 w_c = (weight[item] * prob[item]) + weight[item]
-        return Classification.dict_filter({"A": w_a, "MA": w_ma, "M": w_m, "MC": w_mc, "C": w_c})
-    
+
+        return Classification.dict_filter(Classification.group_key(w_a, w_ma, w_m, w_mc, w_c))
+
     @staticmethod
-    def truncate(x, threshold=0.6, truncate=0.5):
-        return round(x - threshold + truncate)
-    
-    @staticmethod
-    def consensus(dot, freq, w_a=0, w_ma=0, w_m=0, w_mc=0, w_c=0):
+    def consensus(dot, freq, threshold=0.6, truncate=0.5, w_a=0.0, w_ma=0.0, w_m=0.0, w_mc=0.0, w_c=0.0):
+
+        def activation_func(x, thr=threshold, trunc=truncate):
+            return round(x - thr + trunc)
+
         for item in dot:
-            if item == "A":
-                w_a = Classification.truncate(dot[item] + freq[item])
-            elif item == "MA":
-                w_ma = Classification.truncate(dot[item] + freq[item])
-            elif item == "M":
-                w_m = Classification.truncate(dot[item] + freq[item])
-            elif item == "MC":
-                w_mc = Classification.truncate(dot[item] + freq[item])
-            elif item == "C":
-                w_c = Classification.truncate(dot[item] + freq[item])
-        return Classification.dict_filter({"A": w_a, "MA": w_ma, "M": w_m, "MC": w_mc, "C": w_c})
-    
+            if item == Classification.rl.Aggressive:
+                w_a = activation_func(dot[item] + freq[item])
+            elif item == Classification.rl.ModerateAggressive:
+                w_ma = activation_func(dot[item] + freq[item])
+            elif item == Classification.rl.Moderate:
+                w_m = activation_func(dot[item] + freq[item])
+            elif item == Classification.rl.ModerateConservative:
+                w_mc = activation_func(dot[item] + freq[item])
+            elif item == Classification.rl.Conservative:
+                w_c = activation_func(dot[item] + freq[item])
+
+        return Classification.dict_filter(Classification.group_key(w_a, w_ma, w_m, w_mc, w_c))
+
     @staticmethod
-    def assign_label(dic):
+    def validate_values(dic):
+        equal_validation = len(dic.values()) == len(set(dic.values()))
+        if equal_validation is False:
+            return str(1)
+        return str(0)
+
+    @staticmethod
+    def assign_label(dic, dot_dic):
         if len(dic) is 0:
             return str("null")
-        return str(max(dic))
-    
+        if Classification.validate_values(dic) is "1":
+            return str(max(dot_dic.items(), key=operator.itemgetter(1))[0])
+        else:
+            return str(max(dic.items(), key=operator.itemgetter(1))[0])
+
     @staticmethod
     def run_classification_risk(tree):
-        aggregate_weight = Classification.groupBy_key(tree, "weight")
-        label_frequency = Classification.groupBy_key(tree, "vote")
+        aggregate_weight = Classification.group_by_key(tree, "weight")
+        label_frequency = Classification.group_by_key(tree, "vote")
         label_probability = Classification.prob_label(label_frequency)
         dot = Classification.matmul_dict(aggregate_weight, label_probability)
         consensus_vote = Classification.consensus(dot, label_frequency)
-        return Classification.assign_label(consensus_vote)
+        return str(Classification.assign_label(consensus_vote, dot))
