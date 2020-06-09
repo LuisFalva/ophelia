@@ -1,32 +1,40 @@
 from pyspark.sql.functions import date_format, to_date, col
 
+
 class Transform(object):
-    """
-    """
+
     @staticmethod
     def read_file(path_source=None, source=None, spark_session=None):
         """
-        Class object for input parameters.
-        :param NAME_PARAM: "DESCRIPTION HERE"
+        Computes the histogram frequency table from a column with continuous values for a table Dataframe
+
+        :param path_source: str
+        :param source: str
+        :param spark_session: spark object
+        :return:
         """
         if path_source is None:
-            print("-Ophelia[FAIL]: Please, set path source argument [...]")
+            TypeError("-Ophelia[FAIL]: Please, set path source argument [...]")
             return None
+
         if source is None:
-            print("-Ophelia[FAIL]: Please, set source file argument [...]")
+            TypeError("-Ophelia[FAIL]: Please, set source file argument [...]")
             return None
+
         if spark_session is None:
-            print("-Ophelia[FAIL]: Please, set spark session argument [...]")
+            TypeError("-Ophelia[FAIL]: Please, set spark session argument [...]")
             return None
+
         if source == "parquet":
             print("-Ophelia[INFO]: Reading Spark File [...]")
             file_df = spark_session.read.parquet(path_source)
             print("-Ophelia[INFO]: Read Parquet Successfully From Path:", path_source, "[...]")
             print("===="*18)
             return file_df
+
         if source == "csv":
             print("-Ophelia[INFO]: Reading Spark File [...]")
-            file_df = spark_session.read.csv(path_source, header = True, inferSchema = True)
+            file_df = spark_session.read.csv(path_source, header=True, inferSchema=True)
             print("-Ophelia[INFO]: Read CSV Successfully From Path:", path_source, "[...]")
             print("===="*18)
             return file_df
@@ -38,13 +46,23 @@ class Transform(object):
         return file_df
     
     @staticmethod
-    def write_parquet(dataframe, name_directory, partition_field, mode="overwrite", repartition=1):
-        partition = [partition_field]
+    def write_parquet(dataframe, name_directory, partition_field=None, mode="overwrite", repartition=1):
+
         path = "data/master/ophelia/data/OpheliaData/"+str(name_directory)+"/"
+        if partition_field is None:
+            print("-Ophelia[INFO]: Writing Parquet [...]")
+            dataframe.repartition(int(repartition)).write.mode(mode).parquet(path)
+            print("-Ophelia[INFO]: Writing Parquet Successfully [...]")
+            print("-Ophelia[INFO]: Parquet Parts With No Partition Field [...]")
+            print("-Ophelia[INFO]: This is Your New Parquet Path:", path+"operation_date=yyy-MM-dd [...]")
+            print("===="*18)
+            return str(path)
+
+        partition = [partition_field]
         print("-Ophelia[INFO]: Writing Parquet [...]")
         dataframe.repartition(int(repartition)).write.mode(mode).parquet(path, partitionBy=partition)
-        print("-Ophelia[INFO]: Writing Root Parquet Successfully [...]")
-        print("-Ophelia[INFO]: Parquet Parts Partitioned By:", partition,"[...]")
+        print("-Ophelia[INFO]: Writing Parquet Successfully [...]")
+        print("-Ophelia[INFO]: Parquet Parts Partitioned By:", partition, "[...]")
         print("-Ophelia[INFO]: This is Your New Parquet Path:", path+"operation_date=yyy-MM-dd [...]")
         print("===="*18)
         return str(path)
