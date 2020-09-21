@@ -116,3 +116,13 @@ class OpheliaLogisticRegression:
     def auc_train(model_train: LogisticRegressionModel) -> DataFrame:
         summary = OpheliaLogisticRegression.summary(model_train)
         return summary.areaUnderROC
+
+
+class RandomForest:
+
+    @staticmethod
+    def create_model():
+        a
+        b
+        c
+        return d

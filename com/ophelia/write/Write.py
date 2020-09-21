@@ -1,11 +1,12 @@
 from pyspark.sql import DataFrame
 from com.ophelia.utils.logger import OpheliaLogger
-from com.ophelia import Path, BuildOut
+from com.ophelia.write import PathWrite, WritePath
 
 
 class Write:
 
     __logger = OpheliaLogger()
+    __path = PathWrite()
 
     @staticmethod
     def write_parquet(df: DataFrame, output_type: str, project: str,
@@ -20,23 +21,23 @@ class Write:
         :param rep: int, number of parts in each partition
         :return: spark DataFrame
         """
-        if output_type not in Path.process_type:
+        if output_type not in [Write.__path.model, Write.__path.engine]:
             Write.__logger.error("output '" + output_type + "' type not allowed")
             raise ValueError("you must choose 'engine' or 'model' for output type")
         else:
-            path = BuildOut(output_type, project)
+            path = WritePath(output_type, project)
             mode = "overwrite" if not mode else mode
             rep = 5 if not rep else rep
             partition = [part]
             if not part:
                 Write.__logger.info("Write Parquet")
-                df.repartition(rep).write.mode(mode).parquet(path)
+                df.coalesce(rep).write.mode(mode).parquet(path)
                 Write.__logger.info("Write Parquet Successfully")
                 Write.__logger.warning("Parquet Parts With No Name Partition...")
                 Write.__logger.info("New Parquet Path: " + path)
                 return path
             Write.__logger.info("Write Parquet")
-            df.repartition(rep).write.mode(mode).parquet(path, partitionBy=partition)
+            df.coalesce(rep).write.mode(mode).parquet(path, partitionBy=partition)
             Write.__logger.info("Write Parquet Successfully")
             Write.__logger.info("New Parquet Path: " + path + part + "=yyy-MM-dd")
             return path
@@ -44,7 +45,7 @@ class Write:
     @staticmethod
     def write_json(df: DataFrame, output_type: str, project: str,
                    part: str = None, mode: str = None, rep: int = None) -> str:
-        path = BuildOut(output_type, project)
+        path = WritePath(output_type, project)
         df.repartition(rep).write.mode(mode).partitionBy(part).json(path)
         Write.__logger.info("Write Json")
         return path
@@ -52,7 +53,7 @@ class Write:
     @staticmethod
     def write_csv(df: DataFrame, output_type: str, project: str,
                   part: str = None, mode: str = None, rep: int = None) -> str:
-        path = BuildOut(output_type, project)
+        path = WritePath(output_type, project)
         df.repartition(rep).write.mode(mode).partitionBy(part).csv(path)
         Write.__logger.info("Write CSV")
         return path

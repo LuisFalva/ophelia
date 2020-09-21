@@ -1,14 +1,14 @@
 from pyspark.sql.functions import udf, col, lit
 from pyspark.sql.types import ArrayType, StructField, StructType, StringType, DoubleType, IntegerType
 from com.ophelia.OpheliaVendata import OpheliaVendata
-from com.ophelia import BuildLoad
+from com.ophelia import ReadPath
 
 
 class OpheliaRiskClassifier:
     # TODO: se necesita más código para tener el módulo completo
     ophelia = OpheliaVendata("Ophelia Risk Classifier")
     spark = ophelia.ophelia_session
-    BuildLoad()
+    ReadPath()
     path = "data/master/ophelia/data/OpheliaData/risk_classification/"
     random_sample_df = spark.read.parquet(path)
     schema_tree = ArrayType(StructType([

@@ -1,5 +1,5 @@
-from .OpheliaModule import Feature, RiskLabel, Voting
-from com.ophelia import Row
+from pyspark.sql.types import Row
+from enquire.engine.OpheliaModule import Feature, RiskLabel, Voting
 
 
 class OpheliaEngine:
@@ -13,7 +13,7 @@ class OpheliaEngine:
 
     @staticmethod
     def key_value(vote: float, w: float, cls: str) -> Row:
-        return Row(vote=round(vote), weight=float(w), risk_label=str(cls))
+        return Row(vote=float(vote), weight=float(w), risk_label=str(cls))
 
     @staticmethod
     def score_gender(gender: str, w: dict) -> Row:
@@ -134,65 +134,65 @@ class OpheliaEngine:
             return OpheliaEngine.key_value(mid_vote, w_i, OpheliaEngine.risk.ModerateConservative)
 
     @staticmethod
-    def score_child(child: int, w: dict) -> Row:
+    def score_child(child: float, w: dict) -> Row:
         """
         Score child function helps to impute scoring ratio for child factor analysis
-        :param child: int, 1 for yes 0 for no
+        :param child: float, 1.0 for yes 0.0 for no
         :param w: dict, with weight factor for child
         :return: Row, with one node of information from child tree
         """
         w_i = w["child"]
         vote = OpheliaEngine.vote.unit
         min_vote = OpheliaEngine.vote.min_vote(w)
-        if child == 1:
+        if child == float(1.0):
             return OpheliaEngine.key_value(min_vote, w_i, OpheliaEngine.risk.ModerateConservative)
         else:
             return OpheliaEngine.key_value(vote, w_i, OpheliaEngine.risk.ModerateAggressive)
 
     @staticmethod
-    def score_saving(saving: int, w: dict) -> Row:
+    def score_saving(saving: float, w: dict) -> Row:
         """
         Score saving function helps to impute scoring ratio for saving factor analysis
-        :param saving: int, 1 for yes 0 for no
+        :param saving: float, 1.0 for yes 0.0 for no
         :param w: dict, with weight factor for saving
         :return: Row, with one node of information from saving tree
         """
         w_i = w["saving"]
         vote = OpheliaEngine.vote.unit
         min_vote = OpheliaEngine.vote.min_vote(w)
-        if saving == 1:
+        if saving == float(1.0):
             return OpheliaEngine.key_value(min_vote, w_i, OpheliaEngine.risk.ModerateConservative)
         else:
             return OpheliaEngine.key_value(vote, w_i, OpheliaEngine.risk.ModerateAggressive)
 
     @staticmethod
-    def score_insight(insight: int, w: dict) -> Row:
+    def score_insight(insight: float, w: dict) -> Row:
         """
         Score insight function helps to impute scoring ratio for insight factor analysis
-        :param insight: int, 1 for yes 0 for no
+        :param insight: float, 1.0 for yes 0.0 for no
         :param w: dict, with weight factor for insight
         :return: Row, with one node of information from insight tree
         """
         w_i = w["insight"]
         vote = OpheliaEngine.vote.unit
         min_vote = OpheliaEngine.vote.min_vote(w)
-        if insight == 1:
+        if insight == float(1.0):
             return OpheliaEngine.key_value(min_vote, w_i, OpheliaEngine.risk.Aggressive)
         else:
             return OpheliaEngine.key_value(vote, w_i, OpheliaEngine.risk.Moderate)
 
     @staticmethod
-    def score_backup(backup: int, w: dict) -> Row:
+    def score_backup(backup: float, w: dict) -> Row:
         """
         Score backup function helps to impute scoring ratio for backup factor analysis
-        :param backup: int, 1 for yes 0 for no
+        :param backup: float, 1.0 for yes 0.0 for no
         :param w: dict, with weight factor for backup
         :return: Row, with one node of information from backup tree
         """
         w_i = w["backup"]
         vote = OpheliaEngine.vote.unit
         min_vote = OpheliaEngine.vote.min_vote(w)
-        if backup == 1:
+        if backup == float(1.0):
             return OpheliaEngine.key_value(min_vote, w_i, OpheliaEngine.risk.Aggressive)
         else:
             return OpheliaEngine.key_value(vote, w_i, OpheliaEngine.risk.Moderate)

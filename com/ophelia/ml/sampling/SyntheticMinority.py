@@ -1,10 +1,11 @@
 import random
 import numpy as np
 from sklearn import neighbors
-from com.ophelia import DataFrame, SparkSession, Any
-from com.ophelia.ml.OpheliaBuilder import OpheliaBuilder
+from typing import Any, Dict, List
+from com import ClassName
+from pyspark.sql import DataFrame, SparkSession, Column
+from com.ophelia.ml.Builder import Builder
 from com.ophelia.OpheliaTools import ParseUtils
-from com.ophelia import ClassName
 
 
 class SmoteSampling:
@@ -12,7 +13,7 @@ class SmoteSampling:
     Docstring class
     """
 
-    ophelia = OpheliaBuilder()
+    ophelia = Builder()
 
     @staticmethod
     def vector_assembling(df: DataFrame, target_name: str) -> DataFrame:
@@ -33,7 +34,7 @@ class SmoteSampling:
         return vec_transform.select('features', (vec_transform[target_name]).alias("label"))
 
     @staticmethod
-    def split_target(df: DataFrame, field: str, minor: Any = 1, major: Any = 0) -> dict:
+    def split_target(df: DataFrame, field: str, minor: Any = 1, major: Any = 0) -> Dict[str, Column]:
         """
         Split target will split in two distinct DataFrame from label '1' and '0'
 
@@ -53,9 +54,9 @@ class SmoteSampling:
         return {"minor": minor_df, "major": major_df}
 
     @staticmethod
-    def spark_to_numpy(df, columns, spark_session):
+    def spark_to_numpy(df: DataFrame, columns: List, spark_session: SparkSession) -> np.array:
         """
-        Spark to numpy function will help to parse from spark DataFrame to numpy array
+        Spark to numpy function will help to dask_spark.py from spark DataFrame to numpy array
         in a distributed manner
 
         :param df: DataFrame, spark DataFrame with features column
@@ -75,9 +76,9 @@ class SmoteSampling:
         return numpy_array
 
     @staticmethod
-    def numpy_to_spark(spark_session, feature_array, label_type=1):
+    def numpy_to_spark(spark_session: SparkSession, feature_array, label_type=1):
         """
-        Numpy to spark function will help to parse from numpy array to spark DataFrame
+        Numpy to spark function will help to dask_spark.py from numpy array to spark DataFrame
         in a distributed manner
 
         :param spark_session: spark session object

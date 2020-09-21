@@ -1,12 +1,13 @@
+from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.functions import date_format, to_date, col
-from com.ophelia import DataFrame, SparkSession
 from com.ophelia.utils.logger import OpheliaLogger
-from com.ophelia.read import Format
+from com.ophelia.read import FormatRead
 
 
 class Read:
 
     __logger = OpheliaLogger()
+    __format = FormatRead()
 
     @staticmethod
     def build_params(params) -> dict:
@@ -85,14 +86,14 @@ class Read:
         if path_source is None or source is None or spark_session is None:
             Read.__logger.error("read file need 'path', 'source' and 'spark' arguments must not be None")
             raise TypeError("params must not be None")
-        if source not in Format.format:
+        if source not in Read.__format.all:
             Read.__logger.error("reader type '" + source + "' not available in spark")
             raise ValueError("'source' must be in list: {'parquet', 'excel', 'csv', 'json'}")
         read_object = {
-            Format.parquet: None if source != "parquet" else Read.read_parquet(spark_session, path_source),
-            Format.csv: None if source != "csv" else Read.read_csv(spark_session, path_source),
-            Format.excel: None if source != "excel" else Read.read_excel(spark_session, path_source, source),
-            Format.json: None if source != "json" else Read.read_json(spark_session, path_source)
+            Read.__format.parquet: None if source != "parquet" else Read.read_parquet(spark_session, path_source),
+            Read.__format.csv: None if source != "csv" else Read.read_csv(spark_session, path_source),
+            Read.__format.excel: None if source != "excel" else Read.read_excel(spark_session, path_source, source),
+            Read.__format.json: None if source != "json" else Read.read_json(spark_session, path_source)
         }
         df = read_object[source]
         return df

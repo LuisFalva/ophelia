@@ -6,8 +6,8 @@ from pyspark.ml import classification, clustering, evaluation, feature, fpm, \
 from pyspark.ml.feature import Binarizer, BucketedRandomProjectionLSH, BucketedRandomProjectionLSHModel, Bucketizer, \
     ChiSqSelector, ChiSqSelectorModel, CountVectorizer, CountVectorizerModel, DCT, ElementwiseProduct, FeatureHasher, \
     HashingTF, IDF, IDFModel, Imputer, ImputerModel, IndexToString, MaxAbsScaler, MaxAbsScalerModel, MinHashLSH, \
-    MinHashLSHModel, MinMaxScaler, MinMaxScalerModel, NGram, Normalizer, OneHotEncoder, OneHotEncoderEstimator, \
-    OneHotEncoderModel, PCA, PCAModel, PolynomialExpansion, QuantileDiscretizer, RegexTokenizer, RFormula, \
+    MinHashLSHModel, MinMaxScaler, MinMaxScalerModel, NGram, Normalizer, OneHotEncoder, OneHotEncoderModel, PCA, \
+    PCAModel, PolynomialExpansion, QuantileDiscretizer, RegexTokenizer, RFormula, \
     RFormulaModel, StringIndexer, StringIndexerModel, VectorSlicer, Word2Vec, VectorSizeHint, StopWordsRemover, \
     StandardScalerModel, StandardScaler, SQLTransformer, Tokenizer, VectorAssembler, VectorIndexer, \
     VectorIndexerModel, Word2VecModel
@@ -19,7 +19,7 @@ class OpheliaMLObjects:
                Bucketizer, ChiSqSelector, ChiSqSelectorModel, CountVectorizer, CountVectorizerModel,
                DCT, ElementwiseProduct, FeatureHasher, HashingTF, IDF, IDFModel, Imputer, ImputerModel,
                IndexToString, MaxAbsScaler, MaxAbsScalerModel, MinHashLSH, MinHashLSHModel, MinMaxScaler,
-               MinMaxScalerModel, NGram, Normalizer, OneHotEncoder, OneHotEncoderEstimator, OneHotEncoderModel,
+               MinMaxScalerModel, NGram, Normalizer, OneHotEncoder, OneHotEncoderModel,
                PCA, PCAModel, PolynomialExpansion, QuantileDiscretizer, RegexTokenizer, RFormula, RFormulaModel,
                SQLTransformer, StandardScaler, StandardScalerModel, StopWordsRemover, StringIndexer, StringIndexerModel,
                Tokenizer, VectorAssembler, VectorIndexer, VectorIndexerModel, VectorSizeHint, VectorSlicer, Word2Vec,

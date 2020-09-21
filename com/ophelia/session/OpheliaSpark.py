@@ -7,16 +7,16 @@ class OpheliaSpark:
 
     __logger = OpheliaLogger()
 
-    @staticmethod
-    def __build_spark_app(app_name):
-        return SparkSession.builder.appName(app_name).getOrCreate()
+    def __init__(self):
+        self.ophelia_spark = None
 
-    @staticmethod
-    def __build_spark():
-        return SparkSession.builder.appName("No 'appName' configured").getOrCreate()
+    def __build_spark_app(self, app_name):
+        self.ophelia_spark = SparkSession.builder.appName(app_name).getOrCreate()
 
-    @staticmethod
-    def build_spark_session(app_name: str = None) -> SparkSession:
+    def __build_spark(self):
+        self.ophelia_spark = SparkSession.builder.appName("No 'appName' configured").getOrCreate()
+
+    def build_spark_session(self, app_name: str = None) -> SparkSession:
         """
         Build spark session is the builder method to initialize spark session under the hood of Ophelia
         :param app_name: str, app name description for spark job name
@@ -24,28 +24,25 @@ class OpheliaSpark:
         """
         if not app_name:
             OpheliaSpark.__logger.info("Build OpheliaSpark Session")
-            ophelia_spark = OpheliaSpark.__build_spark()
-            OpheliaSpark.__logger.info("OpheliaSpark Session Version: " + ophelia_spark.version)
+            self.__build_spark()
+            OpheliaSpark.__logger.info("OpheliaSpark Session Version: " + self.ophelia_spark.version)
             OpheliaSpark.__logger.warning("Please, Be Aware To Set App Name Next Time...")
-            return ophelia_spark
+            return self.ophelia_spark
         else:
             OpheliaSpark.__logger.info("Initializing OpheliaSpark Session")
-            ophelia_spark = OpheliaSpark.__build_spark_app(app_name=app_name)
-            OpheliaSpark.__logger.info("OpheliaSpark Session Version: " + ophelia_spark.version)
-            OpheliaSpark.__logger.info("This Is: '" + ophelia_spark.sparkContext.appName + "' Project")
-            return ophelia_spark
+            self.__build_spark_app(app_name=app_name)
+            OpheliaSpark.__logger.info("OpheliaSpark Session Version: " + self.ophelia_spark.version)
+            OpheliaSpark.__logger.info("This Is: '" + self.ophelia_spark.sparkContext.appName + "' Project")
+            return self.ophelia_spark
 
-    @staticmethod
-    def build_spark_context() -> SparkContext:
+    def build_spark_context(self) -> SparkContext:
         """
         Build spark context is the builder method to initialize spark context given a spark session
         :return: spark context
         """
-        OpheliaSpark.__logger.info("OpheliaSpark Context Initialized Successfully")
-        return OpheliaSpark.build_spark_session().sparkContext
+        OpheliaSpark.__logger.info("OpheliaSpark Context Initialized Success")
+        return self.ophelia_spark.sparkContext
 
-    @staticmethod
-    def clear_cache():
-        spark = OpheliaSpark.__build_spark()
-        spark.catalog.clearCache()
-        OpheliaSpark.__logger.info("Clear Spark Cache")
+    def clear_cache(self):
+        self.ophelia_spark.catalog.clearCache()
+        OpheliaSpark.__logger.info("Clear Spark Cache Success")

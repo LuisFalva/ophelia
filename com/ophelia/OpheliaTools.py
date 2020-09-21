@@ -1,10 +1,13 @@
 import numpy as np
+import pandas as pd
 import datetime as dt
 from numpy import double
-from com.ophelia.ml import DenseVector
-from com.ophelia.utils.logger import OpheliaLogger
-from com.ophelia import Window, Row, DataFrame, IntegerType, MethodType, LongType, StructField, StructType
+from typing import Dict, List, Callable
+from pyspark.ml.linalg import DenseVector
+from pyspark.sql import DataFrame, Window
+from pyspark.sql.types import IntegerType, LongType, StructField, StructType, Row
 from pyspark.sql.functions import col, year, month, dayofmonth, udf, row_number, desc, asc
+from com.ophelia.utils.logger import OpheliaLogger
 
 logger = OpheliaLogger()
 
@@ -12,7 +15,7 @@ logger = OpheliaLogger()
 class ListUtils:
 
     @staticmethod
-    def year_array(from_year, to_year) -> list:
+    def year_array(from_year, to_year) -> List:
         """
         Gets every year number between a range, including the upper limit
         :param from_year: start year number
@@ -24,13 +27,13 @@ class ListUtils:
         return year_array
 
     @staticmethod
-    def dates_index(dates_list: list) -> MethodType:
+    def dates_index(dates_list: List) -> Callable:
         """
         Dates parser function, transform a list of dates in a dictionary
         :param dates_list: sequence of date values
-        :return: function
+        :return: callable function
         """
-        if not isinstance(dates_list, list):
+        if not isinstance(dates_list, List):
             raise TypeError("Invalid Parameters Array")
         elif len(dates_list) == 0:
             raise ValueError("Empty Parameters Array")
@@ -40,7 +43,7 @@ class ListUtils:
         return result
 
     @staticmethod
-    def sorted_date_list(df: DataFrame, col_collect: str) -> list:
+    def sorted_date_list(df: DataFrame, col_collect: str) -> List:
         """
         Builds a sorted list of every value for a date column in a given DataFrame
         :param df: data to analyze
@@ -52,7 +55,7 @@ class ListUtils:
         return dates_list
 
     @staticmethod
-    def feature_picking(df: DataFrame) -> dict:
+    def feature_picking(df: DataFrame) -> Dict[str, List]:
         """
         Feature picking function helps to split variable names from spark DataFrame
         into 'string', 'int', 'float' and 'date' type in separated list
@@ -196,6 +199,23 @@ class DataFrameUtils:
         lag_data = df.where(col(col_lag) < lag_date).select([col(c).alias("{0}_lag".format(c)) for c in df.columns])
         logger.info("Lag-Over Dates In DataFrame")
         return lag_data
+
+    @staticmethod
+    def __corr(pair):
+        (prod1, series1), (prod2, series2) = pair
+        corr = pd.Series(series1).corr(pd.Series(series2))
+        return prod1, prod2, float(corr)
+
+    @staticmethod
+    def add_corr():
+        def corr(self, pivot_col):
+            numerical_cols = self.columns[1:]
+            to_wide_rdd = self.rdd.map(lambda x: (x[pivot_col], [x[c] for c in numerical_cols]))
+            cartesian_rdd = to_wide_rdd.cartesian(to_wide_rdd)
+            new_col_list = [pivot_col+'_m_dim', pivot_col+'_n_dim', 'pearson_coefficient']
+            return cartesian_rdd.map(DataFrameUtils.__corr).toDF(schema=new_col_list)
+        DataFrame.corr = corr
+        DataFrame.cart = corr
 
 
 class RDDUtils:

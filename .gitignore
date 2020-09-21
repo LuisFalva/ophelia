@@ -11,14 +11,14 @@
 __pycache__/
 
 # Jupyter Notebook
-.ipynb_checkpoints*
+.ipynb_checkpoints/
 
 # Spark environment
-spark-warehouse
+spark-warehouse/
 
 # tmp directory
-ophelia/data/master/*
-ophelia/data/ophelia/*
-ophelia/data/raw/resoruces/*
-ophelia/data/raw/format/*
-ophelia/develop/*
+ophelia/data/master/
+ophelia/data/ophelia/
+ophelia/data/raw/resoruces/
+ophelia/data/raw/format/
+ophelia/develop/

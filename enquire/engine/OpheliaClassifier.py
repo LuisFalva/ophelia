@@ -1,37 +1,37 @@
 import operator
-from .OpheliaModule import RiskLabel, KeyStructure, ModelParameters
-from .OpheliaEngine import OpheliaEngine
+from enquire.engine.OpheliaModule import RiskLabel, KeyStructure, ModelParameters
+from enquire.engine.OpheliaEngine import OpheliaEngine
 
 
 class OpheliaClassifier:
 
-    rl = RiskLabel()
-    ks = KeyStructure()
+    label = RiskLabel()
+    key = KeyStructure()
     mp = ModelParameters()
 
     @staticmethod
     def factor_weights(**kargs):
         none = float(0.0)
-        gender = float(kargs.get(OpheliaClassifier.ks.gender))
-        age = float(kargs.get(OpheliaClassifier.ks.age))
-        education = float(kargs.get(OpheliaClassifier.ks.education))
-        job = float(kargs.get(OpheliaClassifier.ks.job))
-        marital = float(kargs.get(OpheliaClassifier.ks.marital))
-        child = float(kargs.get(OpheliaClassifier.ks.child))
-        saving = float(kargs.get(OpheliaClassifier.ks.saving))
-        insight = float(kargs.get(OpheliaClassifier.ks.insight))
-        backup = float(kargs.get(OpheliaClassifier.ks.backup))
+        gender = float(kargs.get(OpheliaClassifier.key.gender))
+        age = float(kargs.get(OpheliaClassifier.key.age))
+        education = float(kargs.get(OpheliaClassifier.key.education))
+        job = float(kargs.get(OpheliaClassifier.key.job))
+        marital = float(kargs.get(OpheliaClassifier.key.marital))
+        child = float(kargs.get(OpheliaClassifier.key.child))
+        saving = float(kargs.get(OpheliaClassifier.key.saving))
+        insight = float(kargs.get(OpheliaClassifier.key.insight))
+        backup = float(kargs.get(OpheliaClassifier.key.backup))
 
         dict_weight = {
-            OpheliaClassifier.ks.gender: none if gender is None else gender,
-            OpheliaClassifier.ks.age: none if age is None else age,
-            OpheliaClassifier.ks.education: none if education is None else education,
-            OpheliaClassifier.ks.job: none if job is None else job,
-            OpheliaClassifier.ks.marital: none if marital is None else marital,
-            OpheliaClassifier.ks.child: none if child is None else child,
-            OpheliaClassifier.ks.saving: none if saving is None else saving,
-            OpheliaClassifier.ks.insight: none if insight is None else insight,
-            OpheliaClassifier.ks.backup: none if backup is None else backup
+            OpheliaClassifier.key.gender: none if gender is None else gender,
+            OpheliaClassifier.key.age: none if age is None else age,
+            OpheliaClassifier.key.education: none if education is None else education,
+            OpheliaClassifier.key.job: none if job is None else job,
+            OpheliaClassifier.key.marital: none if marital is None else marital,
+            OpheliaClassifier.key.child: none if child is None else child,
+            OpheliaClassifier.key.saving: none if saving is None else saving,
+            OpheliaClassifier.key.insight: none if insight is None else insight,
+            OpheliaClassifier.key.backup: none if backup is None else backup
         }
         return dict_weight
 
@@ -73,44 +73,44 @@ class OpheliaClassifier:
     @staticmethod
     def group_key(a, ma, m, mc, c, counter=0.0):
         group_key_value = {
-            OpheliaClassifier.rl.Aggressive: float(a),
-            OpheliaClassifier.rl.ModerateAggressive: float(ma),
-            OpheliaClassifier.rl.Moderate: float(m),
-            OpheliaClassifier.rl.ModerateConservative: float(mc),
-            OpheliaClassifier.rl.Conservative: float(c),
+            OpheliaClassifier.label.Aggressive: float(a),
+            OpheliaClassifier.label.ModerateAggressive: float(ma),
+            OpheliaClassifier.label.Moderate: float(m),
+            OpheliaClassifier.label.ModerateConservative: float(mc),
+            OpheliaClassifier.label.Conservative: float(c),
             "tot": float(counter)
         }
         return group_key_value
 
     @staticmethod
-    def group_by_key(tree, key, a=0.0, ma=0.0, m=0.0, mc=0.0, c=0.0, counter=0.0):
+    def group_by_key(tree, ky, a=0.0, ma=0.0, m=0.0, mc=0.0, c=0.0, counter=0.0):
         for item in tree:
             counter += tree.count(item)
-            if item[OpheliaClassifier.ks.risk_label] == OpheliaClassifier.rl.Aggressive:
-                a += item[key]
-            elif item[OpheliaClassifier.ks.risk_label] == OpheliaClassifier.rl.ModerateAggressive:
-                ma += item[key]
-            elif item[OpheliaClassifier.ks.risk_label] == OpheliaClassifier.rl.Moderate:
-                m += item[key]
-            elif item[OpheliaClassifier.ks.risk_label] == OpheliaClassifier.rl.ModerateConservative:
-                mc += item[key]
-            elif item[OpheliaClassifier.ks.risk_label] == OpheliaClassifier.rl.Conservative:
-                c += item[key]
+            if item[OpheliaClassifier.key.risk_label] == OpheliaClassifier.label.Aggressive:
+                a += item[ky]
+            elif item[OpheliaClassifier.key.risk_label] == OpheliaClassifier.label.ModerateAggressive:
+                ma += item[ky]
+            elif item[OpheliaClassifier.key.risk_label] == OpheliaClassifier.label.Moderate:
+                m += item[ky]
+            elif item[OpheliaClassifier.key.risk_label] == OpheliaClassifier.label.ModerateConservative:
+                mc += item[ky]
+            elif item[OpheliaClassifier.key.risk_label] == OpheliaClassifier.label.Conservative:
+                c += item[ky]
 
         return OpheliaClassifier.dict_filter(OpheliaClassifier.group_key(a, ma, m, mc, c, counter))
 
     @staticmethod
     def prob_label(dic, a=0.0, ma=0.0, m=0.0, mc=0.0, c=0.0):
         for item in dic:
-            if item == OpheliaClassifier.rl.Aggressive:
+            if item == OpheliaClassifier.label.Aggressive:
                 a = dic[item] / dic["tot"]
-            elif item == OpheliaClassifier.rl.ModerateAggressive:
+            elif item == OpheliaClassifier.label.ModerateAggressive:
                 ma = dic[item] / dic["tot"]
-            elif item == OpheliaClassifier.rl.Moderate:
+            elif item == OpheliaClassifier.label.Moderate:
                 m = dic[item] / dic["tot"]
-            elif item == OpheliaClassifier.rl.ModerateConservative:
+            elif item == OpheliaClassifier.label.ModerateConservative:
                 mc = dic[item] / dic["tot"]
-            elif item == OpheliaClassifier.rl.Conservative:
+            elif item == OpheliaClassifier.label.Conservative:
                 c = dic[item] / dic["tot"]
 
         return OpheliaClassifier.dict_filter(OpheliaClassifier.group_key(a, ma, m, mc, c))
@@ -118,15 +118,15 @@ class OpheliaClassifier:
     @staticmethod
     def matmul_dict(weight, prob, w_a=0.0, w_ma=0.0, w_m=0.0, w_mc=0.0, w_c=0.0):
         for item in weight:
-            if item == OpheliaClassifier.rl.Aggressive:
+            if item == OpheliaClassifier.label.Aggressive:
                 w_a = (weight[item] * prob[item]) + weight[item]
-            elif item == OpheliaClassifier.rl.ModerateAggressive:
+            elif item == OpheliaClassifier.label.ModerateAggressive:
                 w_ma = (weight[item] * prob[item]) + weight[item]
-            elif item == OpheliaClassifier.rl.Moderate:
+            elif item == OpheliaClassifier.label.Moderate:
                 w_m = (weight[item] * prob[item]) + weight[item]
-            elif item == OpheliaClassifier.rl.ModerateConservative:
+            elif item == OpheliaClassifier.label.ModerateConservative:
                 w_mc = (weight[item] * prob[item]) + weight[item]
-            elif item == OpheliaClassifier.rl.Conservative:
+            elif item == OpheliaClassifier.label.Conservative:
                 w_c = (weight[item] * prob[item]) + weight[item]
 
         return OpheliaClassifier.dict_filter(OpheliaClassifier.group_key(w_a, w_ma, w_m, w_mc, w_c))
@@ -138,15 +138,15 @@ class OpheliaClassifier:
             return round(x - thr + trunc)
 
         for item in dot:
-            if item == OpheliaClassifier.rl.Aggressive:
+            if item == OpheliaClassifier.label.Aggressive:
                 w_a = activation_func(dot[item] + freq[item])
-            elif item == OpheliaClassifier.rl.ModerateAggressive:
+            elif item == OpheliaClassifier.label.ModerateAggressive:
                 w_ma = activation_func(dot[item] + freq[item])
-            elif item == OpheliaClassifier.rl.Moderate:
+            elif item == OpheliaClassifier.label.Moderate:
                 w_m = activation_func(dot[item] + freq[item])
-            elif item == OpheliaClassifier.rl.ModerateConservative:
+            elif item == OpheliaClassifier.label.ModerateConservative:
                 w_mc = activation_func(dot[item] + freq[item])
-            elif item == OpheliaClassifier.rl.Conservative:
+            elif item == OpheliaClassifier.label.Conservative:
                 w_c = activation_func(dot[item] + freq[item])
 
         return OpheliaClassifier.dict_filter(OpheliaClassifier.group_key(w_a, w_ma, w_m, w_mc, w_c))
@@ -160,9 +160,9 @@ class OpheliaClassifier:
 
     @staticmethod
     def assign_label(dic, dot_dic):
-        if len(dic) is 0:
+        if len(dic) == 0:
             return str("null")
-        if OpheliaClassifier.validate_values(dic) is "1":
+        if OpheliaClassifier.validate_values(dic) == "1":
             return str(max(dot_dic.items(), key=operator.itemgetter(1))[0])
         else:
             return str(max(dic.items(), key=operator.itemgetter(1))[0])
