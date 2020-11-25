@@ -7,7 +7,7 @@ Ophelia is the epitome of goodness.
 That would be pretending too much. But it certainly amounts to excluding the character of Ophelia. This simile is particularly accurate. Ophelia is essential in the drama, she is very charming, and a little crazy.
 Let us then admit that the study of mathematics is a divine folly of the human spirit, a refuge from the atrocious urgency of contingent events.*
 
-*-Alfred North Whitehead-*
+*- Alfred North Whitehead -*
 
 # Motivation
 
@@ -23,3 +23,45 @@ Now is the turn of a new smart and very extravaganza Ophelia serving to optimize
 It is time for Ophelia's vendetta and claim for her brightness...
 
 ![](/docs/img/vendetta-gentlemen.png)
+
+# Getting Started
+
+## Requirements
+Before starting, you'll need to have installed pyspark >= 3.0.x, pandas >= 1.1.3, numpy >= 1.19.1, dask >= 2.30.x, scikit-learn >= 0.23.x 
+Additionally, if you want to use the Ophelia API, you'll also need Python (supported 3.7 and 3.8 versions) and pip installed.
+
+## Building from source
+Just clone the ophelia repo and import Ophelia:
+   
+    git clone https://github.com/LuisFalva/ophelia.git
+
+To import we do:
+    
+    from ophelia.ophelib.OpheliaMain import Ophelia
+    
+For initialize Ophelia with Spark embedded session we use:
+
+    ophelia = Ophelia("Set Your Spark App Name")
+    spark = ophelia.SparkSession
+    
+Principle class functions:
+
+    * OpheliaSpark
+    * MLMiner
+    * FeatureEngine
+    * SmoteSampling
+    * ShapeDF
+    * TransposeDF
+    * PctChangeDF
+    * CorrDF
+    * DaskSpark
+    * Joins
+    * Selects
+    * Whens
+    * DynamicPivot
+    * DynamicSampling
+    * Rollings
+    * ListUtils
+    * DataSUtils
+    * DataFrameUtils
+    * RDDUtils
