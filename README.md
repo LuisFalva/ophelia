@@ -10,7 +10,7 @@ Let us then admit that the study of mathematics is a divine folly of the human s
 *- Alfred North Whitehead -*
 
 <p align="center">
-  <img src="/docs/img/ophelia-mask.png" width="250" title="hover text">
+  <img src="/docs/img/ophelia-mask.png" width="750" title="ophelia mask">
 </p>
 
 # Motivation
@@ -42,7 +42,7 @@ To import we do:
     from ophelia.ophelib.OpheliaMain import Ophelia
     
 <p align="center">
-  <img src="/docs/img/vendetta-ophelia.png" width="750" title="hover text">
+  <img src="/docs/img/vendetta-ophelia.png" width="750" title="ophelia session">
 </p>
     
 For initialize Ophelia with Spark embedded session we use:
