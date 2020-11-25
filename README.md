@@ -1,7 +1,7 @@
 # Ophelia
 
 *Ophel'IA* ("Hamlet's beloved beautiful woman") she's known because of her madness and immortal love for Hamlet, but the full Shakespeare's mastery piece does not favor to her magnificent character.
-Ophelia is the epitome of goodness.
+Ophelia is the epitome of goodness, the brightness and the elegance of simplicity.
 
 *I will not go so far as to affirm that to construct a history of human thought without a deep study of mathematical ideas in successive ages is like omitting Hamlet from the drama that bears his name.
 That would be pretending too much. But it certainly amounts to excluding the character of Ophelia. This simile is particularly accurate. Ophelia is essential in the drama, she is very charming, and a little crazy.
@@ -15,14 +15,17 @@ Let us then admit that the study of mathematics is a divine folly of the human s
 
 # Motivation
 
-As Data Scientist or Data Analyst we don't want to waist too much time guessing how damn we may use PySpark API in the correct way, sometimes we just want a prompt answer instead of a full nicely code. So for that, this project
-wants to help making the analytical lifecycle much easier fore every DA and DS who's uses PySpark frequently
+As Data Scientist or Data Analyst don't want to waist too much time guessing how damn we may use PySpark's API in a correct and optimized way, sometimes we just want a prompt answer instead of a full nicely code. With the intent of that, this project
+aims to help to reduce the complexity of the analytical lifecycle for every DA or DS who uses PySpark frequently.
 
 Now is the turn of a new smart and very extravaganza Ophelia serving to optimize the learning curve with PySpark's must common functionality features such as:
-- Easy to use and code your models and data mining pipelines with PySpark using Ophelia wrappers
-- Security usage and exploring with new features for data mining must commonly used functions in libraries such as Pandas and Numpy
-- Simple *Pythonic* syntax, not too fancy things to do the hard work
-- Time series treatments and portfolio optimization with different techniques based on Portfolio Theory such as Risk Parity, Efficient Frontier, Clustering by Sortion's ratio and Sharpe's ratio, among others
+- Build PySpark *ML & Mllib* pipelines in a simplified replicable and secure way
+- Embedded optimized techniques helping users struggling with *data skewness problems*
+- Easy to use and build your own models and data mining pipelines with PySpark using *Ophelia spark wrappers*
+- Security and simplified usage for exploring new *PySpark features* for data mining replicating the most commonly used functionality in libraries such as Pandas and Numpy
+- Simple *Pythonic* syntax: *'Not too fancy things to do the hard work'*
+- Utility for *RDD level pre-processing* data in a simple manner
+- Time series treatment and portfolio optimization with different techniques based on Portfolio Theory such as Risk Parity, Efficient Frontier, Clustering by Sortion's ratio and Sharpe's ratio, among others
 
 It is time for Ophelia's vendetta and claim for her brightness...
 
