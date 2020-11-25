@@ -18,5 +18,6 @@ __pycache__/
 spark-warehouse/
 
 # tmp directory
-ophelia_dev/data
+ophelia_dev/data/master
+ophelia_dev/data/raw
 ophelia_dev/develop
