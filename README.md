@@ -22,7 +22,7 @@ Now is the turn of a new smart and very extravaganza Ophelia serving to optimize
 
 It is time for Ophelia's vendetta and claim for her brightness...
 
-![](/docs/img/vendetta-gentlemen.png)
+![](/docs/img/anonymous-mask.png)
 
 # Getting Started
 
@@ -38,6 +38,8 @@ Just clone the ophelia repo and import Ophelia:
 To import we do:
     
     from ophelia.ophelib.OpheliaMain import Ophelia
+    
+![](/docs/img/vendetta-gentlemen.png)
     
 For initialize Ophelia with Spark embedded session we use:
 
