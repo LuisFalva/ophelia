@@ -6,8 +6,8 @@ Ophelia description
 '''
 
 requirements = [
-    "pyspark==2.4.5",
-    "numpy==1.18.3"
+    "pyspark==3.0.0",
+    "numpy==1.19.1"
 ]
 
 requirements_test = [
@@ -20,9 +20,9 @@ requirements_test = [
 
 setup(name='Ophelia',
       version='0.0.1',
-      description='Artificial Assistant For Intelligent Investment',
+      description='Artificial assistant for machine learning applications in Spark',
       long_description=long_description,
-      author='Vendetta Gentleman Club',
+      author='Luis Vargas',
       author_email='luis.vargasfavero@gmail.com',
       url='https://github.com/Vendetta-Gentleman-Club/ophelia',
       download_url='https://github.com/Vendetta-Gentleman-Club/ophelia/tarball/0.0.1',
