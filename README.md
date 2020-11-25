@@ -42,7 +42,7 @@ To import we do:
     from ophelia.ophelib.OpheliaMain import Ophelia
     
 <p align="center">
-  <img src="/docs/img/ophelia-welcome.png" width="350" title="hover text">
+  <img src="/docs/img/ophelia-welcome.png" width="550" title="hover text">
 </p>
     
 For initialize Ophelia with Spark embedded session we use:
