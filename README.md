@@ -22,7 +22,6 @@ Now is the turn of a new smart and very extravaganza Ophelia serving to optimize
 
 It is time for Ophelia's vendetta and claim for her brightness...
 
-![](/docs/img/vendetta-mask.png)
 <p align="center">
   <img src="/docs/img/vendetta-mask.png" width="350" title="hover text">
 </p>
