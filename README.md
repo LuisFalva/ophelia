@@ -9,6 +9,10 @@ Let us then admit that the study of mathematics is a divine folly of the human s
 
 *- Alfred North Whitehead -*
 
+<p align="center">
+  <img src="/docs/img/vendetta-mask.png" width="250" title="hover text">
+</p>
+
 # Motivation
 
 As Data Scientist or Data Analyst we don't want to waist too much time guessing how damn we may use PySpark API in the correct way, sometimes we just want a prompt answer instead of a full nicely code. So for that, this project
@@ -21,8 +25,6 @@ Now is the turn of a new smart and very extravaganza Ophelia serving to optimize
 - Time series treatments and portfolio optimization with different techniques based on Portfolio Theory such as Risk Parity, Efficient Frontier, Clustering by Sortion's ratio and Sharpe's ratio, among others
 
 It is time for Ophelia's vendetta and claim for her brightness...
-
-![](/docs/img/vendetta-gentlemen.png)
 
 # Getting Started
 
@@ -38,6 +40,8 @@ Just clone the ophelia repo and import Ophelia:
 To import we do:
     
     from ophelia.ophelib.OpheliaMain import Ophelia
+    
+![](/docs/img/vendetta-gentlemen.png)
     
 For initialize Ophelia with Spark embedded session we use:
 
