@@ -1,4 +1,4 @@
-# Ophelia
+# Ophelia 
 
 *Ophel'IA* ("Hamlet's beloved beautiful woman") she's known because of her madness and immortal love for Hamlet, but the full Shakespeare's mastery piece does not favor to her magnificent character.
 Ophelia is the epitome of goodness, the brightness and the elegance of simplicity.
@@ -32,12 +32,12 @@ It is time for Ophelia's vendetta and claim for her brightness...
 # Getting Started:
 
 
-## Requirements 📜
+### Requirements 📜
 
 Before starting, you'll need to have installed pyspark >= 3.0.x, pandas >= 1.1.3, numpy >= 1.19.1, dask >= 2.30.x, scikit-learn >= 0.23.x 
 Additionally, if you want to use the Ophelia API, you'll also need Python (supported 3.7 and 3.8 versions) and pip installed.
 
-## Building from source 🛠️
+### Building from source 🛠️
 
 Just clone the ophelia repo and import Ophelia:
    
