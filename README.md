@@ -85,7 +85,7 @@ Cheers 🍻!
 
 ### Support or Contact 📠
 
-Having trouble with Ophelia? Yo can [DM me](falvaluis@gmail.com) and I’ll help you sort it out.
+Having trouble with Ophelia? Yo can DM me to falvaluis@gmail.com and I’ll help you sort it out.
 
 ### License 📃
 
