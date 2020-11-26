@@ -10,7 +10,7 @@ Let us then admit that the study of mathematics is a divine folly of the human s
 *- Alfred North Whitehead -*
 
 <p align="center">
-  <img src="/docs/img/ophelia-mask.png" width="450" title="ophelia mask">
+  <img src="https://raw.githubusercontent.com/LuisFalva/ophelia/gh-pages/docs/img/ophelia-mask.png" width="450" title="ophelia mask">
 </p>
 
 # Motivation 🚀
