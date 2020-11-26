@@ -13,9 +13,9 @@ Let us then admit that the study of mathematics is a divine folly of the human s
   <img src="/docs/img/ophelia-mask.png" width="450" title="ophelia mask">
 </p>
 
-# Motivation
+# Motivation 🚀
 
-As Data Scientist or Data Analyst don't want to waist too much time guessing how damn we may use PySpark's API in a correct and optimized way, sometimes we just want a prompt answer instead of a full nicely code. With the intent of that, this project
+As Data Scientist or Data Analyst don't want to waist too much time guessing how damn 😬 we may use PySpark's API in a correct and optimized way, sometimes we just want a prompt answer instead of a full nicely code. With the intent of that, this project
 aims to help to reduce the complexity of the analytical lifecycle for every DA or DS who uses PySpark frequently.
 
 Now is the turn of a new smart and very extravaganza Ophelia serving to optimize the learning curve with PySpark's must common functionality features such as:
@@ -29,13 +29,16 @@ Now is the turn of a new smart and very extravaganza Ophelia serving to optimize
 
 It is time for Ophelia's vendetta and claim for her brightness...
 
-# Getting Started
+# Getting Started:
 
-## Requirements
+
+## Requirements 📜
+
 Before starting, you'll need to have installed pyspark >= 3.0.x, pandas >= 1.1.3, numpy >= 1.19.1, dask >= 2.30.x, scikit-learn >= 0.23.x 
 Additionally, if you want to use the Ophelia API, you'll also need Python (supported 3.7 and 3.8 versions) and pip installed.
 
-## Building from source
+## Building from source 🛠️
+
 Just clone the ophelia repo and import Ophelia:
    
     git clone https://github.com/LuisFalva/ophelia.git
@@ -76,9 +79,10 @@ Main class functions:
     * RDDUtils
     
 ### Planning to contribute? 🤔
-Bring it on! If you have any idea or want to ask something or there is a bug you may want to fix you can open an [issue ticket](https://github.com/LuisFalva/ophelia/issues), there you will find all the alignments to make an issue request. Also here you can get a glimpse on [Open Source Contribution Guide best practicies](https://opensource.guide/)
+
+Bring it on! If you have any idea or want to ask something or there is a bug you may want to fix you can open an [issue ticket](https://github.com/LuisFalva/ophelia/issues), there you will find all the alignments to make an issue request. Also here you can get a glimpse on [Open Source Contribution Guide best practicies](https://opensource.guide/).
 Cheers 🍻!
 
-### Support or Contact
+### Support or Contact 📠
 
 Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
