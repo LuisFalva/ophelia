@@ -1,6 +1,6 @@
-# Ophelia 
+# [Ophel.ia](https://luisfalva.github.io/ophelia/)
 
-*Ophel'IA* ("Hamlet's beloved beautiful woman") she's known because of her madness and immortal love for Hamlet, but the full Shakespeare's mastery piece does not favor to her magnificent character.
+*Ophelia* ("Hamlet's beloved beautiful woman") she's known because of her madness and immortal love for Hamlet, but the full Shakespeare's mastery piece does not favor to her magnificent character.
 Ophelia is the epitome of goodness, the brightness and the elegance of simplicity.
 
 *I will not go so far as to affirm that to construct a history of human thought without a deep study of mathematical ideas in successive ages is like omitting Hamlet from the drama that bears his name.
