@@ -13,7 +13,7 @@ Let us then admit that the study of mathematics is a divine folly of the human s
   <img src="https://github.com/LuisFalva/ophelia/blob/master/docs/img/ophelia-mask.png?raw=true" width="450" title="ophelia mask">
 </p>
 
-# Motivation 🚀
+# Motivations 🚀
 
 As Data Scientist or Data Analyst don't want to waist too much time guessing how damn 😬 we may use PySpark's API in a correct and optimized way, sometimes we just want a prompt answer instead of a full nicely code. With the intent of that, this project
 aims to help to reduce the complexity of the analytical lifecycle for every DA or DS who uses PySpark frequently.
