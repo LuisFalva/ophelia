@@ -45,7 +45,7 @@ To import we do:
     from ophelia.ophelib.OpheliaMain import Ophelia
     
 <p align="center">
-  <img src="/docs/img/ophelia-session.png" width="850" title="ophelia session">
+  <img src="https://github.com/LuisFalva/ophelia/blob/master/docs/img/ophelia-session.png" width="850" title="ophelia session">
 </p>
     
 For initialize Ophelia with Spark embedded session we use:
@@ -74,6 +74,10 @@ Principle class functions:
     * DataSUtils
     * DataFrameUtils
     * RDDUtils
+    
+## Planning to contribute? 🤔
+Bring it on! If you have any idea or want to ask something or there is a bug you may want to fix you can open an issue ticket, there you will find all the alignments to make an issue request. Also here you can get a glimpse on [Open Source Contribution Guide best practicies](https://opensource.guide/)
+Cheers 🍻!
 
 ### Support or Contact
 
