@@ -81,7 +81,7 @@ Main class functions:
 ### Planning to contribute? 🤔
 
 Bring it on! If you have any idea or want to ask something or there is a bug you may want to fix you can open an [issue ticket](https://github.com/LuisFalva/ophelia/issues), there you will find all the alignments to make an issue request. Also here you can get a glimpse on [Open Source Contribution Guide best practicies](https://opensource.guide/).
-Cheers 🍻!
+Cheers! 🍻
 
 ### Support or Contact 📠
 
