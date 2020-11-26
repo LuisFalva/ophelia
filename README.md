@@ -53,7 +53,7 @@ For initialize Ophelia with Spark embedded session we use:
     ophelia = Ophelia("Set Your Spark App Name")
     spark = ophelia.SparkSession
     
-Principle class functions:
+Main class functions:
 
     * OpheliaSpark
     * MLMiner
@@ -74,3 +74,11 @@ Principle class functions:
     * DataSUtils
     * DataFrameUtils
     * RDDUtils
+    
+### Planning to contribute? 🤔
+Bring it on! If you have any idea or want to ask something or there is a bug you may want to fix you can open an [issue ticket](https://github.com/LuisFalva/ophelia/issues), there you will find all the alignments to make an issue request. Also here you can get a glimpse on [Open Source Contribution Guide best practicies](https://opensource.guide/)
+Cheers 🍻!
+
+### Support or Contact
+
+Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
