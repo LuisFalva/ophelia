@@ -1,2 +1,0 @@
-class OpheliaStudio:
-    pass

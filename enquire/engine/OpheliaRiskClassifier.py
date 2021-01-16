@@ -1,6 +1,6 @@
 from pyspark.sql.functions import udf, col
 from pyspark.sql.types import ArrayType, StructField, StructType, StringType, DoubleType, IntegerType
-from ophelia.ophelib.OpheliaMain import Ophelia
+from ophelia.spark.OpheliaMain import Ophelia
 from enquire.engine.OpheliaClassifier import OpheliaClassifier
 
 
