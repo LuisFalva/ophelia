@@ -25,6 +25,9 @@ class OpheliaLogger:
     def error(self, message):
         print(self.get_message(message, "ERROR"))
 
+    def mask(self, message):
+        print(self.get_message(message, "MASK"))
+
     def tape(self, message, adjust_tape=1):
         length = len(message) - adjust_tape
         print(self.get_message("+"+"-"*length+"+", "TAPE"))
