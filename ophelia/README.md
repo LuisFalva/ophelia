@@ -53,7 +53,6 @@ from ophelia.spark.start import Ophelia
 ophelia = Ophelia("Set Your Own Spark App Name")
 sc = ophelia.Spark.build_spark_context()
 
-"""
 >>> 02:22:03.992 Ophelia [TAPE] +---------------------------------------------------------------------+
 >>> 02:22:03.992 Ophelia [INFO] | My name is Ophelia Vendata                                          |
 >>> 02:22:03.992 Ophelia [INFO] | I am an artificial assistant for data mining & ML engine with spark |
@@ -65,12 +64,7 @@ sc = ophelia.Spark.build_spark_context()
 >>> 01:56:56.867 Ophelia [INFO] Spark Version: 3.0.0
 >>> 01:56:56.867 Ophelia [INFO] This Is: 'Set Your Own Spark App Name' App
 >>> 01:56:56.867 Ophelia [INFO] Spark Context Initialized Success
-"""
 ```
-    
-<p align="center">
-  <img src="/docs/img/ophelia-session.png" width="850" title="ophelia session">
-</p>
     
 Main class functions:
 
