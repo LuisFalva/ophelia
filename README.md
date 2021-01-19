@@ -38,10 +38,9 @@ git clone https://github.com/LuisFalva/ophelia.git
 To initialize Ophelia with Spark embedded session we use:
 
 ```python
-from ophelia.spark.start import Ophelia
-
-ophelia = Ophelia("Set Your Own Spark App Name")
-sc = ophelia.Spark.build_spark_context()
+>>> from ophelia.spark.start import Ophelia
+>>> ophelia = Ophelia("Set Your Own Spark App Name")
+>>> sc = ophelia.Spark.build_spark_context()
 
 13:17:48.840 Ophelia [TAPE] +----------------------------------------------------------------+
 13:17:48.840 Ophelia [INFO] | Hello! This API builds data mining & ml pipelines with pyspark |
@@ -95,12 +94,12 @@ sc = ophelia.Spark.build_spark_context()
 Main class functions:
 
 ```python
-from ophelia.spark.read.spark_read import Read
-from ophelia.spark.ml.feature_miner import FeatureMiner
-from ophelia.spark.ml.unsupervised.featured import SingularVD
-from ophelia.spark.ml.sampling.synthetic_sample import SyntheticSample
-from ophelia.spark.functions import Shape, Rolling, Reshape, CorrMat, CrossTabular, PctChange, Selects, DynamicSampling
-from ophelia.spark.func_utils import DataFrameUtils, ListUtils, RDDUtils
+>>> from ophelia.spark.read.spark_read import Read
+>>> from ophelia.spark.ml.feature_miner import FeatureMiner
+>>> from ophelia.spark.ml.unsupervised.featured import SingularVD
+>>> from ophelia.spark.ml.sampling.synthetic_sample import SyntheticSample
+>>> from ophelia.spark.functions import Shape, Rolling, Reshape, CorrMat, CrossTabular, PctChange, Selects, DynamicSampling
+>>> from ophelia.spark.func_utils import DataFrameUtils, ListUtils, RDDUtils
 ```
 
 Lets show you some application examples:
@@ -108,22 +107,20 @@ Lets show you some application examples:
 The `Read` class implements Spark reading object in multiple formats `{'csv', 'parquet', 'excel', 'json'}`
 
 ```python
-spark_df = spark.readFile(path, 'csv', header=True, infer_schema=True)
+>>> spark_df = spark.readFile(path, 'csv', header=True, infer_schema=True)
 ```
 
 Also we can import class `Shape` from factory `functions` in order to see the dimension of our spark DataFrame such like numpy style.
 
 ```python
-from ophelia.spark.functions import Shape
-
-dic = {
+>>> from ophelia.spark.functions import Shape
+>>> dic = {
     'Product': ['A', 'B', 'C', 'A', 'B', 'C', 'A', 'B', 'C'],
     'Year': [2010, 2010, 2010, 2011, 2011, 2011, 2012, 2012, 2012],
     'Revenue': [100, 200, 300, 110, 190, 320, 120, 220, 350]
 }
-
-dic_to_df = spark.createDataFrame(pd.DataFrame(data=dic))
-dic_to_df.show(10, False)
+>>> dic_to_df = spark.createDataFrame(pd.DataFrame(data=dic))
+>>> dic_to_df.show(10, False)
 +-------+----+-------+
 |Product|Year|Revenue|
 +-------+----+-------+
@@ -138,8 +135,8 @@ dic_to_df.show(10, False)
 |C      |2012|350    |
 +-------+----+-------+
 
-dic_to_df.Shape
->>> (9, 3)
+>>> dic_to_df.Shape
+(9, 3)
 ```
 
 The `pct_change` wrapper is added to the Spark `DataFrame` class in order to have the must commonly used method in Pandas
@@ -147,7 +144,7 @@ objects, this is for getting the relative percentage change between one observat
 date-type column and lagged by some laggable numeric-type column.
 
 ```python
-dic_to_df.pctChange().show(10, False)
+>>> dic_to_df.pctChange().show(10, False)
 +-------------------+
 |Revenue            |
 +-------------------+
