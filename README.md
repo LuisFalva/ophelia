@@ -3,12 +3,6 @@
 *Ophelia* ("Hamlet's beloved beautiful woman") she's known because of her madness and immortal love for Hamlet, but the full Shakespeare's mastery piece does not favor to her magnificent character.
 Ophelia is the epitome of goodness, the brightness and the elegance of simplicity.
 
-*I will not go so far as to affirm that to construct a history of human thought without a deep study of mathematical ideas in successive ages is like omitting Hamlet from the drama that bears his name.
-That would be pretending too much. But it certainly amounts to excluding the character of Ophelia. This simile is particularly accurate. Ophelia is essential in the drama, she is very charming, and a little crazy.
-Let us then admit that the study of mathematics is a divine folly of the human spirit, a refuge from the atrocious urgency of contingent events.*
-
-*- Alfred North Whitehead -*
-
 ```python
 ===================================================================================================
                                      - Vendetta Gentlemen -                                        
@@ -134,10 +128,6 @@ dic = {
 }
 
 dic_to_df = spark.createDataFrame(pd.DataFrame(data=dic))
-
-dic_to_df.Shape
->>> (9, 3)
-
 dic_to_df.show(10, False)
 +-------+----+-------+
 |Product|Year|Revenue|
@@ -152,6 +142,9 @@ dic_to_df.show(10, False)
 |B      |2012|220    |
 |C      |2012|350    |
 +-------+----+-------+
+
+dic_to_df.Shape
+>>> (9, 3)
 ```
 
 The `pct_change` wrapper is added to the Spark `DataFrame` class in order to have the must commonly used method in Pandas
