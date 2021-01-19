@@ -1,0 +1,9 @@
+root
+ |-- information_date: date (nullable = false)
+ |-- customer_id: string (nullable = false)
+ |-- account_id: string (nullable = false)
+ |-- contract_type: string (nullable = false)
+ |-- contract_no: string (nullable = false)
+ |-- global_investment: double (nullable = false)
+ |-- investment_term: integer (nullable = false)
+ |-- operation_date: date (nullable = false)

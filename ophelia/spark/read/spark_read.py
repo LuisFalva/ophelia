@@ -1,18 +1,9 @@
 import pandas as pd
 from pyspark.sql import SparkSession, DataFrame
-from spark.utils.logger import OpheliaLogger
+from ophelia.spark import FormatRead
+from ophelia.spark.logger import OpheliaLogger
 
 __all__ = ["Read", "SparkReadWrapper"]
-
-
-class FormatRead:
-
-    def __init__(self):
-        self.parquet = "parquet"
-        self.excel = "excel"
-        self.csv = "csv"
-        self.json = "json"
-        self.all = [self.parquet, self.excel, self.csv, self.json]
 
 
 class Read:

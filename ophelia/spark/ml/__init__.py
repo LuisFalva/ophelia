@@ -1,10 +1,10 @@
-from ophelia.spark.ml.sampling.SyntheticMinority import SmoteSampling
+from ophelia.spark.ml.sampling.synthetic_sample import SyntheticSample
 from ophelia.spark.ml.feature_miner import FeatureMiner
-from ophelia.spark.ml.unsupervised.FeatureExtraction import SingularValueDecomposition
+from ophelia.spark.ml.unsupervised.featured import SingularVD
 
-__all__ = ["OpheliaML", "SmoteSampling", "FeatureMiner", "SingularValueDecomposition"]
+__all__ = ["OpheliaML", "SyntheticSample", "FeatureMiner", "SingularVD"]
 
 
 class OpheliaML(object):
 
-    __all__ = ["SmoteSampling", "FeatureMiner", "SingularValueDecomposition"]
+    __all__ = ["SyntheticSample", "FeatureMiner", "SingularVD"]

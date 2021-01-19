@@ -1,5 +1,5 @@
 from math import log
-from ophelia.spark.utils.logger import OpheliaLogger
+from spark.spark.utils.logger import OpheliaLogger
 
 
 class OpheliaMetrics:

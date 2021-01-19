@@ -18,7 +18,7 @@ requirements_test = [
     'pytest-cov'
 ]
 
-setup(name='Ophelia',
+setup(name='ophelia',
       version='0.0.1',
       description='Artificial assistant for machine learning applications in Spark',
       long_description=long_description,

@@ -40,43 +40,56 @@ Additionally, if you want to use the Ophelia API, you'll also need Python (suppo
 ### Building from source 🛠️
 
 Just clone the ophelia repo and import Ophelia:
-   
-    git clone https://github.com/LuisFalva/ophelia.git
 
-To import we do:
+```sh   
+git clone https://github.com/LuisFalva/ophelia.git
+```
+
+To initialize Ophelia with Spark embedded session we use:
     
-    from ophelia.ophelib.OpheliaMain import Ophelia
+```python
+from ophelia.spark.start import Ophelia
+
+ophelia = Ophelia("Set Your Own Spark App Name")
+sc = ophelia.Spark.build_spark_context()
+
+"""
+>>> 02:22:03.992 Ophelia [TAPE] +---------------------------------------------------------------------+
+>>> 02:22:03.992 Ophelia [INFO] | My name is Ophelia Vendata                                          |
+>>> 02:22:03.992 Ophelia [INFO] | I am an artificial assistant for data mining & ML engine with spark |
+>>> 02:22:03.992 Ophelia [INFO] | Welcome to Ophelia spark miner engine                               |
+>>> 02:22:03.992 Ophelia [INFO] | Lib Version Ophelia.0.0.1                                           |
+>>> 02:22:03.992 Ophelia [WARN] | V for Vendata...                                                    |
+>>> 02:22:03.992 Ophelia [TAPE] +---------------------------------------------------------------------+
+>>> 01:56:47.933 Ophelia [WARN] Initializing Spark Session
+>>> 01:56:56.867 Ophelia [INFO] Spark Version: 3.0.0
+>>> 01:56:56.867 Ophelia [INFO] This Is: 'Set Your Own Spark App Name' App
+>>> 01:56:56.867 Ophelia [INFO] Spark Context Initialized Success
+"""
+```
     
 <p align="center">
   <img src="/docs/img/ophelia-session.png" width="850" title="ophelia session">
 </p>
     
-For initialize Ophelia with Spark embedded session we use:
-
-    ophelia = Ophelia("Set Your Spark App Name")
-    spark = ophelia.SparkSession
-    
 Main class functions:
 
-    * OpheliaSpark
-    * MLMiner
-    * FeatureEngine
-    * SmoteSampling
-    * ShapeDF
-    * TransposeDF
-    * PctChangeDF
-    * CorrDF
-    * DaskSpark
-    * Joins
-    * Selects
-    * Whens
-    * DynamicPivot
-    * DynamicSampling
-    * Rollings
-    * ListUtils
-    * DataSUtils
-    * DataFrameUtils
-    * RDDUtils
+```python
+from ophelia.spark.read.spark_read import Read
+from ophelia.spark.ml.feature_miner import FeatureMiner
+from ophelia.spark.ml.unsupervised.featured import SingularVD
+from ophelia.spark.ml.sampling.synthetic_sample import SyntheticSample
+from ophelia.spark.functions import Shape, Rolling, Reshape, CorrMat, CrossTabular, PctChange, Selects, DynamicSampling
+from ophelia.spark.func_utils import DataFrameUtils, ListUtils, RDDUtils
+```
+
+Lets show you some application examples:
+
+The `Read` class implements Spark reading object in multiple formats `{'csv', 'parquet', 'excel', 'json'}`
+
+```python
+spark_df = spark.readFile(path, 'csv', header=True, infer_schema=True)
+```
     
 ### Planning to contribute? 🤔
 

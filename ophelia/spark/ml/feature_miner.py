@@ -6,8 +6,8 @@ from pyspark.ml.linalg import DenseVector
 from pyspark.ml.feature import StringIndexer, VectorAssembler, OneHotEncoder
 from pyspark.sql.types import Row
 from pyspark.sql.dataframe import DataFrame
-from spark.utils.logger import OpheliaLogger
-from spark import OpheliaMLMinerException
+from ophelia.spark.logger import OpheliaLogger
+from ophelia.spark import OpheliaMLMinerException
 
 __all__ = ["FeatureMiner", "SparkFeatureMinerWrapper"]
 
@@ -94,14 +94,16 @@ class FeatureMiner(object):
         return encode_vector.transform(self)
 
     @staticmethod
-    def build_vector_assembler(self, input_cols: List[AnyStr]) -> DataFrame:
+    def build_vector_assembler(self, input_cols: List[AnyStr], rename_vec_col: AnyStr = None) -> DataFrame:
         """
         Vector assembler builder wrapper for sparse and dense vectorization, only numeric features accepted
         :param self: pyspark DataFrame to transform
         :param input_cols:
+        :param rename_vec_col:
         :return: transformed spark DataFrame
         """
-        vec_assembler = VectorAssembler(inputCols=input_cols, outputCol='features')
+        feature_col = 'features' if rename_vec_col is None else rename_vec_col
+        vec_assembler = VectorAssembler(inputCols=input_cols, outputCol=feature_col)
         OpheliaLogger().info("Build Vector Assembler")
         return vec_assembler.transform(self)
 
