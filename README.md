@@ -121,7 +121,60 @@ The `Read` class implements Spark reading object in multiple formats `{'csv', 'p
 ```python
 spark_df = spark.readFile(path, 'csv', header=True, infer_schema=True)
 ```
-    
+
+Also we can import class `Shape` from factory `functions` in order to see the dimension of our spark DataFrame such like numpy style.
+
+```python
+from ophelia.spark.functions import Shape
+
+dic = {
+    'Product': ['A', 'B', 'C', 'A', 'B', 'C', 'A', 'B', 'C'],
+    'Year': [2010, 2010, 2010, 2011, 2011, 2011, 2012, 2012, 2012],
+    'Revenue': [100, 200, 300, 110, 190, 320, 120, 220, 350]
+}
+
+dic_to_df = spark.createDataFrame(pd.DataFrame(data=dic))
+
+dic_to_df.Shape
+>>> (9, 3)
+
+dic_to_df.show(10, False)
++-------+----+-------+
+|Product|Year|Revenue|
++-------+----+-------+
+|A      |2010|100    |
+|B      |2010|200    |
+|C      |2010|300    |
+|A      |2011|110    |
+|B      |2011|190    |
+|C      |2011|320    |
+|A      |2012|120    |
+|B      |2012|220    |
+|C      |2012|350    |
++-------+----+-------+
+```
+
+The `pct_change` wrapper is added to the Spark `DataFrame` class in order to have the must commonly used method in Pandas
+objects, this is for getting the relative percentage change between one observation to another sorted by some sortable 
+date-type column and lagged by some laggable numeric-type column.
+
+```python
+dic_to_df.pctChange().show(10, False)
++-------------------+
+|Revenue            |
++-------------------+
+|null               |
+|1.0                |
+|0.5                |
+|-0.6333333333333333|
+|0.7272727272727273 |
+|0.6842105263157894 |
+|-0.625             |
+|0.8333333333333333 |
+|0.5909090909090908 |
++-------------------+
+```
+ 
 ### Planning to contribute? 🤔
 
 Bring it on! If you have any idea or want to ask something or there is a bug you may want to fix you can open an [issue ticket](https://github.com/LuisFalva/ophelia/issues), there you will find all the alignments to make an issue request. Also here you can get a glimpse on [Open Source Contribution Guide best practicies](https://opensource.guide/).

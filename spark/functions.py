@@ -15,8 +15,8 @@ from pyspark.sql.functions import (
 from pyspark.sql.types import StructField, StringType
 from pyspark.ml.stat import Correlation
 from pyspark.ml.feature import VectorAssembler
-from spark import SparkMethods
-from spark.func_utils import ListUtils
+from ophelia.spark import SparkMethods
+from ophelia.spark.func_utils import ListUtils
 
 __all__ = ["CorrMatWrapper", "ShapeWrapper", "RollingWrapper", "DynamicSamplingWrapper", "SelectWrapper",
            "ReshapeWrapper", "PctChangeWrapper", "CrossTabularWrapper"]
