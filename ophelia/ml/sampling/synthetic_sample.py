@@ -3,8 +3,8 @@ import numpy as np
 from sklearn import neighbors
 from typing import Any, Dict, AnyStr, List
 from pyspark.sql import DataFrame, Column
-from ophelia.spark import InstanceError
-from ophelia.spark.ml.feature_miner import FeatureMiner
+from ophelia.ophelia import InstanceError
+from ophelia.ophelia.ml.feature_miner import FeatureMiner
 
 
 class SyntheticSample:

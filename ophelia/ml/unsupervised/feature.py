@@ -7,8 +7,8 @@ from pyspark.ml.linalg import VectorUDT, Vectors
 from pyspark.ml.feature import StandardScaler, PCA
 from pyspark.mllib.util import MLUtils
 from pyspark.mllib.linalg.distributed import IndexedRowMatrix, IndexedRow
-from ophelia.spark.ml.feature_miner import FeatureMiner
-from ophelia.spark.logger import OpheliaLogger
+from ophelia.ophelia.ml.feature_miner import FeatureMiner
+from ophelia.ophelia.ophelia_logger import OpheliaLogger
 
 
 class PrincipleComponent:

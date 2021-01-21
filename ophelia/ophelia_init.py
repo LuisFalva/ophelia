@@ -1,7 +1,7 @@
-from ophelia.spark.logger import OpheliaLogger
+from ophelia.ophelia.ophelia_logger import OpheliaLogger
 
 
-class OpheliaMask:
+class OpheliaInit:
 
     def __init__(self):
         self.__logger = OpheliaLogger()

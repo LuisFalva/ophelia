@@ -6,8 +6,8 @@ from pyspark.ml.linalg import DenseVector
 from pyspark.ml.feature import StringIndexer, VectorAssembler, OneHotEncoder
 from pyspark.sql.types import Row
 from pyspark.sql.dataframe import DataFrame
-from ophelia.spark.logger import OpheliaLogger
-from ophelia.spark import OpheliaMLMinerException
+from ophelia.ophelia.ophelia_logger import OpheliaLogger
+from ophelia.ophelia import OpheliaMLMinerException
 
 __all__ = ["FeatureMiner", "SparkFeatureMinerWrapper"]
 
