@@ -5,7 +5,7 @@ from pyspark.sql import DataFrame, Window
 from pyspark.sql.types import IntegerType, LongType, StructField, StructType, Row
 from pyspark.sql.functions import col, year, month, dayofmonth, row_number, udf, desc, asc
 from ophelia.ophelia import OpheliaDataFrameUtilsException, OpheliaRDDUtilsException, OpheliaListUtilsException
-from ophelia.ophelia.logger import OpheliaLogger
+from ophelia.ophelia.ophelia_logger import OpheliaLogger
 
 __all__ = ["DataFrameUtils", "ListUtils", "RDDUtils"]
 logger = OpheliaLogger()

@@ -1,6 +1,6 @@
-from ophelia.spark.ml.sampling.synthetic_sample import SyntheticSample
-from ophelia.spark.ml.feature_miner import FeatureMiner
-from ophelia.spark.ml.unsupervised.featured import SingularVD
+from ophelia.ophelia.ml.sampling.synthetic_sample import SyntheticSample
+from ophelia.ophelia.ml.feature_miner import FeatureMiner
+from ophelia.ophelia.ml.unsupervised.feature import SingularVD
 
 __all__ = ["OpheliaML", "SyntheticSample", "FeatureMiner", "SingularVD"]
 
