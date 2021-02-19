@@ -38,7 +38,7 @@ git clone https://github.com/LuisFalva/ophelia.git
 To initialize Ophelia with Spark embedded session we use:
 
 ```python
->>> from ophelia.spark.start import Ophelia
+>>> from ophelia.ophelia_start import Ophelia
 >>> ophelia = Ophelia("Set Your Own Spark App Name")
 >>> sc = ophelia.Spark.build_spark_context()
 
@@ -94,12 +94,12 @@ To initialize Ophelia with Spark embedded session we use:
 Main class functions:
 
 ```python
->>> from ophelia.spark.read.spark_read import Read
->>> from ophelia.spark.ml.feature_miner import FeatureMiner
->>> from ophelia.spark.ml.unsupervised.featured import SingularVD
->>> from ophelia.spark.ml.sampling.synthetic_sample import SyntheticSample
->>> from ophelia.spark.functions import Shape, Rolling, Reshape, CorrMat, CrossTabular, PctChange, Selects, DynamicSampling
->>> from ophelia.spark.func_utils import DataFrameUtils, ListUtils, RDDUtils
+>>> from ophelia.read.spark_read import Read
+>>> from ophelia.ml.feature_miner import FeatureMiner
+>>> from ophelia.ml.unsupervised.featured import SingularVD
+>>> from ophelia.ml.sampling.synthetic_sample import SyntheticSample
+>>> from ophelia.functions import Shape, Rolling, Reshape, CorrMat, CrossTabular, PctChange, Selects, DynamicSampling
+>>> from ophelia.func_utils import DataFrameUtils, ListUtils, RDDUtils
 ```
 
 Lets show you some application examples:
@@ -113,7 +113,7 @@ The `Read` class implements Spark reading object in multiple formats `{'csv', 'p
 Also we can import class `Shape` from factory `functions` in order to see the dimension of our spark DataFrame such like numpy style.
 
 ```python
->>> from ophelia.spark.functions import Shape
+>>> from ophelia.functions import Shape
 >>> dic = {
     'Product': ['A', 'B', 'C', 'A', 'B', 'C', 'A', 'B', 'C'],
     'Year': [2010, 2010, 2010, 2011, 2011, 2011, 2012, 2012, 2012],
