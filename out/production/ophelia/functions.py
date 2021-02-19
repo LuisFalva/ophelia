@@ -3,7 +3,7 @@ import re
 import random
 import pandas as pd
 from itertools import chain
-from functools import wraps
+from typing import AnyStr, Dict, List
 from py4j.protocol import Py4JJavaError
 from dask import dataframe as dask_df, array as dask_arr
 from pyspark.sql import DataFrame, Window
@@ -20,18 +20,6 @@ from ophelia.ophelia.ophelia_utils import ListUtils
 
 __all__ = ["CorrMatWrapper", "ShapeWrapper", "RollingWrapper", "DynamicSamplingWrapper", "SelectWrapper",
            "ReshapeWrapper", "PctChangeWrapper", "CrossTabularWrapper"]
-
-
-def wrap_attr(cls):
-    def decorator(func):
-        @wraps(func)
-        def _wrapper(*args, **kwargs):
-            f = func(*args, **kwargs)
-            return f
-        setattr(cls, func.__name__, _wrapper)
-        return func
-    DataFrame.cls = property(cls)
-    return decorator
 
 
 class CorrMat(object):
@@ -53,7 +41,7 @@ class CorrMat(object):
                     when(col(f'{mtd}_coeff') > max_level, lit('high')))))
 
     @staticmethod
-    def cartesian_rdd(self, default_pivot, rep=20):
+    def cartesian_rdd(self, default_pivot: str, rep: int = 20):
         if default_pivot is None:
             raise ValueError("'default_pivot' must be specified")
         rep_df = self.repartition(rep)
@@ -62,7 +50,7 @@ class CorrMat(object):
         return to_wide_rdd.cartesian(to_wide_rdd)
 
     @staticmethod
-    def correlation_matrix(self, pivot_col=None, method='pearson', offset=0.7, rep=20):
+    def correlation_matrix(self, pivot_col: str = None, method: str = 'pearson', offset: float = 0.7, rep: int = 20):
         default_pivot = pivot_col if pivot_col is not None else self.columns[0]
         cartesian_rdd = CorrMat.cartesian_rdd(self, default_pivot=default_pivot, rep=rep)
         new_col_list = [f'{default_pivot}_m_dim', f'{default_pivot}_n_dim', f'{method}_coeff']
@@ -388,14 +376,10 @@ class Whens(object):
         return Whens.__spark_condition_col_dict(where_col, condition)[match_op[0]]
 
 
-class Reshape(DataFrame):
-
-    def __init__(self, df):
-        super(Reshape, self).__init__(df._jdf, df.sql_ctx)
-        self._df = df
+class Reshape(object):
 
     @staticmethod
-    def narrow_format(self, fix_cols, new_cols=None):
+    def narrow_format(self: DataFrame, fix_cols: List, new_cols=None):
         """
         Narrow format method will reshape from wide tabular table to
         narrow multidimensional format table for increasing push-down
@@ -421,10 +405,11 @@ class Reshape(DataFrame):
         ])).alias('column_explode')
         column_to_explode = [f'column_explode.{pivot_col}', f'column_explode.{value_col}']
 
-        return Reshape(self.select(fix_cols + [generator_explode]).select(fix_cols + column_to_explode))
+        return self.select(fix_cols + [generator_explode]).select(fix_cols + column_to_explode)
 
     @staticmethod
-    def wide_format(self, group_by, pivot_col, agg_dict, rnd=4, rep=20):
+    def wide_format(self: DataFrame, group_by: AnyStr, pivot_col: AnyStr, agg_dict: Dict[AnyStr, AnyStr],
+                    rnd: int = 4, rep: int = 20):
         """
         Wide format method will reshape from narrow multidimensional
         table to wide tabular format table for feature wide table

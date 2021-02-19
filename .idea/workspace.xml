@@ -36,36 +36,46 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="85d67a14-53e5-4aac-8515-b12f344e4bf5" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/evaluation/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/evaluation/metrics.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/functions.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/ml/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/ml/feature_miner.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/ml/graphs/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/ml/reinforcement/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/ml/sampling/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/ml/sampling/synthetic_sample.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/ml/supervised/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/ml/supervised/classification.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/ml/supervised/regression.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/ml/unsupervised/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/ml/unsupervised/cluster.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/ml/unsupervised/feature.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/ophelia_init.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/ophelia_logger.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/ophelia_start.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/ophelia_utils.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/read/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/read/spark_read.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/session/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/session/spark.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/write/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/ophelia/write/spark_write.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../08.SingularValueDecomposition.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/../08.SingularValueDecomposition.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../CRC_model.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/../CRC_model.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Test.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/../Test.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/ophelia.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ophelia.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Untitled.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/../Untitled.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/evaluator/Metrics.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/evaluation/metrics.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/evaluator/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/evaluation/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/func_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/func_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/functions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/logger.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/logger.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/mask.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/init_ophelia.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/ml/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/ml/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/ml/feature_miner.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/ml/feature_miner.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/ml/graphs/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/ml/graphs/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/ml/reinforcement/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/ml/reinforcement/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/ml/sampling/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/ml/sampling/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/ml/sampling/synthetic_sample.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/ml/sampling/synthetic_sample.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/ml/supervised/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/ml/supervised/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/ml/supervised/classified.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/ml/supervised/classified.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/ml/supervised/regressed.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/ml/supervised/regressed.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/ml/unsupervised/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/ml/unsupervised/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/ml/unsupervised/clustered.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/ml/unsupervised/clustered.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/ml/unsupervised/featured.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/ml/unsupervised/featured.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/read/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/read/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/read/spark_read.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/read/spark_read.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/session/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/session/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/session/spark.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/session/spark.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/start.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/start_ophelia.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/write/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/write/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spark/write/spark_write.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/write/spark_write.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ophelia/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ophelia/functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/functions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ophelia/ml/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/ml/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ophelia/ml/feature_miner.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/ml/feature_miner.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ophelia/ml/sampling/synthetic_sample.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/ml/sampling/synthetic_sample.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ophelia/ml/unsupervised/feature.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/ml/unsupervised/feature.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ophelia/ophelia_start.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/ophelia_start.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ophelia/read/spark_read.py" beforeDir="false" afterPath="$PROJECT_DIR$/ophelia/read/spark_read.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -121,6 +131,16 @@
       <updated>1609270239453</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ORDER">
+      <list>
+        <option value="0" />
+        <option value="2" />
+        <option value="3" />
+        <option value="1" />
+      </list>
+    </option>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">

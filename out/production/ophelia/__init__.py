@@ -4,9 +4,9 @@ from pyspark.sql.functions import (
 )
 
 __all__ = ["SparkMethods", "ClassType", "ClassName", "InstanceError", 'FormatRead', "PathWrite", "FormatWrite",
-           "OpheliaMLException", "OpheliaMLMinerException", "OpheliaDataFrameUtilsException",
-           "OpheliaRDDUtilsException", "OpheliaReadFileException", "OpheliaSparkSessionException",
-           "OpheliaSparkWrapperException", "OpheliaWriteFileException", "OpheliaListUtilsException"]
+           "OpheliaMLMinerException", "OpheliaDataFrameUtilsException", "OpheliaRDDUtilsException",
+           "OpheliaReadFileException", "OpheliaSparkSessionException", "OpheliaSparkWrapperException",
+           "OpheliaWriteFileException", "OpheliaListUtilsException"]
 
 
 def SparkMethods():
@@ -57,13 +57,6 @@ class PathWrite:
 
     def WritePath(self, opt, project):
         return f"{self.root}/{self.dir}/{self.out}/{opt}/{project}/"
-
-
-class OpheliaMLException(Exception):
-    """
-    Ophelia ML Exception
-    """
-    pass
 
 
 class OpheliaMLMinerException(Exception):
