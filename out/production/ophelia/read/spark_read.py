@@ -2,7 +2,6 @@ import pandas as pd
 from pyspark.sql import SparkSession, DataFrame
 from ophelia.ophelia import FormatRead
 from ophelia.ophelia.ophelia_logger import OpheliaLogger
-from ophelia.ophelia import OpheliaReadFileException
 
 __all__ = ["Read", "SparkReadWrapper"]
 
@@ -31,11 +30,8 @@ class Read:
         :param infer_schema: bool, True for infer schema type
         :return: spark DataFrame
         """
-        try:
-            Read.__logger.info(f"Read CSV File From Path: {path}")
-            return self.read.csv(path, header=header, inferSchema=infer_schema)
-        except TypeError as te:
-            raise OpheliaReadFileException(f"An error occurred while calling read_csv() method: {te}")
+        Read.__logger.info(f"Read CSV File From Path: {path}")
+        return self.read.csv(path, header=header, inferSchema=infer_schema)
 
     @staticmethod
     def read_parquet(self, path: str) -> DataFrame:

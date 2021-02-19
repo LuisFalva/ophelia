@@ -1,9 +1,10 @@
 import random
 import numpy as np
 from sklearn import neighbors
-from pyspark.sql import DataFrame
+from typing import Any, Dict, AnyStr, List
+from pyspark.sql import DataFrame, Column
 from ophelia.ophelia import InstanceError
-from ophelia.ophelia.ml.feature_miner import BuildVectorAssembler, SparkToNumpy, NumpyToVector
+from ophelia.ophelia.ml.feature_miner import FeatureMiner
 
 
 class SyntheticSample:
@@ -12,7 +13,7 @@ class SyntheticSample:
     """
 
     @staticmethod
-    def vector_assembling(df, target_name):
+    def vector_assembling(df: DataFrame, target_name: AnyStr) -> DataFrame:
         """
         Vector assembling function will create a vector filled with features for each row
 
@@ -23,11 +24,11 @@ class SyntheticSample:
         InstanceError(df, DataFrame)
         InstanceError(target_name, str)
         column_names = list(df.drop(target_name).columns)
-        vec_transform = BuildVectorAssembler(column_names).transform(df)
+        vec_transform = FeatureMiner.build_vector_assembler(df, column_names)
         return vec_transform.select('features', (vec_transform[target_name]).alias("label"))
 
     @staticmethod
-    def split_target(df, field, minor=1, major=0):
+    def split_target(df: DataFrame, field: AnyStr, minor: Any = 1, major: Any = 0) -> Dict[AnyStr, Column]:
         """
         Split target will split in two distinct DataFrame from label '1' and '0'
 
@@ -42,7 +43,7 @@ class SyntheticSample:
         return {"minor": minor_df, "major": major_df}
 
     @staticmethod
-    def spark_to_numpy(df, columns):
+    def spark_to_numpy(df: DataFrame, columns: List[AnyStr]) -> np.array:
         """
         Spark to numpy function will help to dask_spark.py from spark DataFrame to numpy array
         in a distributed manner
@@ -51,12 +52,12 @@ class SyntheticSample:
         :param columns: list, with name of columns to matrix
         :return: np.array, numpy array object with feature elements
         """
-        feature_df = BuildVectorAssembler(columns).transform(df).select("features")
-        numpy_array = SparkToNumpy().transform(feature_df)
+        feature_df = FeatureMiner.build_vector_assembler(df, columns).select("features")
+        numpy_array = FeatureMiner.spark_to_numpy(feature_df)
         return numpy_array
 
     @staticmethod
-    def numpy_to_spark(df, feature_array, label_type):
+    def numpy_to_spark(df: DataFrame, feature_array, label_type=1):
         """
         Numpy to spark function will help to dask_spark.py from numpy array to spark DataFrame
         in a distributed manner
@@ -67,7 +68,7 @@ class SyntheticSample:
         :return: DataFrame, with features and label; 'features' and 'label' set as default
         """
         InstanceError(feature_array, np.ndarray)
-        return NumpyToVector().transform(feature_array)
+        return FeatureMiner.numpy_to_vector_assembler(df, feature_array, label_type)
 
     @staticmethod
     def __k_neighbor(k_n, algm, feature):
