@@ -99,7 +99,7 @@ Main class functions:
 >>> from ophelia.ml.unsupervised.feature import PCAnalysis, SingularVD
 >>> from ophelia.func_utils import DataFrameUtils, ListUtils, RDDUtils
 >>> from ophelia.functions import Shape, Rolling, Reshape, CorrMat, CrossTabular, PctChange, Selects, DynamicSampling
->>> from ophelia.ml.feature_miner import (BuildStringIndex, BuildOneHotEncoder, BuildVectorAssembler, BuildStandardScaler, SparkToNumpy, NumpyToVector)
+>>> from ophelia.ml.feature_miner import BuildStringIndex, BuildOneHotEncoder, BuildVectorAssembler, BuildStandardScaler, SparkToNumpy, NumpyToVector
 ```
 
 Lets show you some application examples:
