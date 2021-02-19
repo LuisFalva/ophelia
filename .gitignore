@@ -74,7 +74,7 @@ docs/_build/
 target/
 
 # IPython Notebook
-.ipynb_checkpoints
+*.DS_Store
 
 # pyenv
 .python-version
