@@ -3,7 +3,6 @@ import re
 import random
 import pandas as pd
 from itertools import chain
-from functools import wraps
 from py4j.protocol import Py4JJavaError
 from dask import dataframe as dask_df, array as dask_arr
 from pyspark.sql import DataFrame, Window
@@ -15,29 +14,22 @@ from pyspark.sql.functions import (
 from pyspark.sql.types import StructField, StringType, StructType
 from pyspark.ml.stat import Correlation
 from pyspark.ml.feature import VectorAssembler
-from ophelia.ophelia import SparkMethods
-from ophelia.ophelia.ophelia_utils import ListUtils
+from . import SparkMethods
+from ..ophelia.ophelia_utils import ListUtils
 
 __all__ = ["CorrMatWrapper", "ShapeWrapper", "RollingWrapper", "DynamicSamplingWrapper", "SelectWrapper",
            "ReshapeWrapper", "PctChangeWrapper", "CrossTabularWrapper"]
-
-
-def wrap_attr(cls):
-    def decorator(func):
-        @wraps(func)
-        def _wrapper(*args, **kwargs):
-            f = func(*args, **kwargs)
-            return f
-        setattr(cls, func.__name__, _wrapper)
-        return func
-    DataFrame.cls = property(cls)
-    return decorator
 
 
 class CorrMat(object):
 
     @staticmethod
     def __corr(pair):
+        """
+        Corr private method distribute pandas series operations for correlation between RDD
+        :param pair: RDD pair of elements
+        :return: product of correlation matrix
+        """
         (prod1, series1), (prod2, series2) = pair
         corr = pd.Series(series1).corr(pd.Series(series2))
         return prod1, prod2, float(corr)

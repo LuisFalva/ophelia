@@ -1,6 +1,6 @@
 from pyspark.sql import DataFrame
-from ophelia.ophelia import PathWrite
-from ophelia.ophelia.ophelia_logger import OpheliaLogger
+from ..ophelia_logger import OpheliaLogger
+from ...ophelia import PathWrite
 
 
 class Write:
