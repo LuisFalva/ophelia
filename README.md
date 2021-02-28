@@ -95,10 +95,11 @@ Main class functions:
 
 ```python
 >>> from ophelia.read.spark_read import Read
+>>> from ophelia.write.spark_write import Write
+>>> from ophelia.utilities import DataFrameUtils, ListUtils, RDDUtils
+>>> from ophelia.functions import Shape, Rolling, Reshape, CorrMat, CrossTabular, PctChange, Selects, DynamicSampling
 >>> from ophelia.ml.sampling.synthetic_sample import SyntheticSample
 >>> from ophelia.ml.unsupervised.feature import PCAnalysis, SingularVD
->>> from ophelia.functions import DataFrameUtils, ListUtils, RDDUtils
->>> from ophelia.functions import Shape, Rolling, Reshape, CorrMat, CrossTabular, PctChange, Selects, DynamicSampling
 >>> from ophelia.ml.feature_miner import BuildStringIndex, BuildOneHotEncoder, BuildVectorAssembler, BuildStandardScaler, SparkToNumpy, NumpyToVector
 ```
 

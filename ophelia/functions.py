@@ -9,16 +9,41 @@ from pyspark.sql import DataFrame, Window
 from pyspark.sql.column import _to_seq
 from pyspark.sql.functions import (
     when, col, lit, row_number, monotonically_increasing_id, create_map, explode, struct, array, round as spark_round,
-    lag, expr, sum, broadcast
+    lag, expr, sum, broadcast, count, isnan
 )
 from pyspark.sql.types import StructField, StringType, StructType
 from pyspark.ml.stat import Correlation
 from pyspark.ml.feature import VectorAssembler
 from . import SparkMethods
-from ..ophelia.ophelia_utils import ListUtils
+from ..ophelia.utilities import ListUtils
 
-__all__ = ["CorrMatWrapper", "ShapeWrapper", "RollingWrapper", "DynamicSamplingWrapper", "SelectWrapper",
-           "ReshapeWrapper", "PctChangeWrapper", "CrossTabularWrapper"]
+__all__ = ["NullDebugWrapper", "CorrMatWrapper", "ShapeWrapper", "RollingWrapper",
+           "DynamicSamplingWrapper", "SelectWrapper", "ReshapeWrapper", "PctChangeWrapper", "CrossTabularWrapper"]
+
+
+class NullDebug(object):
+
+    @staticmethod
+    def __cleansing_list(self, partition_by=None, offset: float = 0.5):
+        if partition_by is None:
+            raise TypeError(f"'partition_by' required parameter, invalid {partition_by} input.")
+        return self.toNarrow(partition_by, ['pivot', 'value']).groupBy('pivot') \
+            .agg(count(when(isnan('value') | col('value').isNull(), 'value')).alias('null_count')) \
+            .select('*', (col('null_count') / self.Shape[0]).alias('null_pct')) \
+            .where(col('null_pct') <= offset).uniqueRow('pivot')
+
+    @staticmethod
+    def null_clean(self, partition_by, offset):
+        if partition_by:
+            cleansing_list = NullDebug.__cleansing_list(self, partition_by, offset)
+            return self.select(partition_by, *cleansing_list)
+        gen_part = self.select(monotonically_increasing_id().alias('partition_id'), "*")
+        cleansing_list = NullDebug.__cleansing_list(gen_part, 'partition_id', offset)
+        return gen_part.select('partition_id', *cleansing_list)
+
+
+class NullDebugWrapper:
+    DataFrame.nullDebug = NullDebug.null_clean
 
 
 class CorrMat(object):
@@ -85,7 +110,7 @@ class CorrMat(object):
         return corr_test.rdd.map(extract).toDF(corr_cols)
 
 
-class CorrMatWrapper(object):
+class CorrMatWrapper:
 
     DataFrame.uniqueRow = CorrMat.unique_row
     DataFrame.cartRDD = CorrMat.cartesian_rdd
@@ -94,7 +119,7 @@ class CorrMatWrapper(object):
     DataFrame.corrStat = CorrMat.spark_correlation
 
 
-class Shape(object):
+class Shape:
 
     @staticmethod
     def shape(self):
@@ -103,7 +128,7 @@ class Shape(object):
         return self.count(), len(self.columns)
 
 
-class ShapeWrapper(object):
+class ShapeWrapper(DataFrame):
 
     DataFrame.Shape = property(lambda self: Shape.shape(self))
 
