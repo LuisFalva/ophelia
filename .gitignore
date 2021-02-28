@@ -1,5 +1,5 @@
-.ipynb_checkpoints
-.pytest_cache
+*.ipynb_checkpoints
+*.pytest_cache
 *.csv
 *.pyc
 *.ipynb
@@ -9,9 +9,6 @@ test.py
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
-*.so
 
 # Distribution / packaging
 out
