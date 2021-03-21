@@ -1,6 +1,6 @@
 import pandas as pd
 from pyspark.sql import SparkSession, DataFrame
-from ..ophelia_logger import OpheliaLogger
+from .._logger import OpheliaLogger
 from ...ophelia import FormatRead
 from ...ophelia import OpheliaReadFileException
 

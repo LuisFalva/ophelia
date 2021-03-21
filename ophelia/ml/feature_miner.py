@@ -6,7 +6,7 @@ from pyspark.ml.linalg import DenseVector
 from pyspark.ml.feature import (
     StringIndexer, VectorAssembler, OneHotEncoder, OneHotEncoderModel, StandardScaler, StandardScalerModel
 )
-from ..ophelia_logger import OpheliaLogger
+from .._logger import OpheliaLogger
 from ...ophelia import OpheliaMLMinerException
 
 

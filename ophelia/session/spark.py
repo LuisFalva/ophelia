@@ -1,6 +1,6 @@
 from pyspark.context import SparkContext
 from pyspark.sql import SparkSession
-from ..ophelia_logger import OpheliaLogger
+from .._logger import OpheliaLogger
 
 
 class OpheliaSpark:

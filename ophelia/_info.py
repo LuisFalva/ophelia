@@ -1,7 +1,7 @@
-from ..ophelia.ophelia_logger import OpheliaLogger
+from ..ophelia._logger import OpheliaLogger
 
 
-class OpheliaInit:
+class OpheliaInfo:
 
     def __init__(self):
         self.__logger = OpheliaLogger()
