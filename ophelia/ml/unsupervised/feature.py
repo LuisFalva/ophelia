@@ -6,7 +6,7 @@ from pyspark.ml.feature import PCA, PCAModel
 from pyspark.mllib.util import MLUtils
 from pyspark.mllib.linalg.distributed import IndexedRowMatrix, IndexedRow
 from ophelia.ml.feature_miner import BuildStandardScaler, BuildVectorAssembler
-from ...ophelia_logger import OpheliaLogger
+from ..._logger import OpheliaLogger
 from ....ophelia import OpheliaMLException
 
 
