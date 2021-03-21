@@ -123,6 +123,7 @@ Also we can import class `Shape` from factory `functions` in order to see the di
 }
 >>> dic_to_df = spark.createDataFrame(pd.DataFrame(data=dic))
 >>> dic_to_df.show(10, False)
+
 +-------+----+-------+
 |Product|Year|Revenue|
 +-------+----+-------+
@@ -148,6 +149,7 @@ date-type column and lagged by some laggable numeric-type column.
 ```python
 >>> from ophelia.functions import PctChange
 >>> dic_to_df.pctChange().show(10, False)
+
 +-------------------+
 |Revenue            |
 +-------------------+
@@ -161,6 +163,60 @@ date-type column and lagged by some laggable numeric-type column.
 |0.8333333333333333 |
 |0.5909090909090908 |
 +-------------------+
+```
+
+Another option is configuring all receiving parameters from the function, the following are:
+- periods; this parameter will control the offset of the lag periods since the default value is 1 this will always return a lag-1 information DataFrame
+- partition_by; the partition parameter will fixed the partition column over the DataFrame e.g. 'bank_segment', 'assurance_product_type'
+- order_by; order by parameter will be the specific column to order the sequential observations, e.g. 'balance_date', 'trade_close_date', 'contract_date'
+- pct_cols; percentage change col (pct_cols) will be the specific column to lag-over giving back the relative change between one element to other, e.g. 𝑥𝑡 ÷ 𝑥𝑡 − 1
+
+In this case we will specify only the periods parameter to yield a lag of -2 days over the DataFrame
+```python
+>>> dic_to_df.pctChange(periods=2).na.fill(0).show(5, False)
+
++--------------------+
+|Revenue             |
++--------------------+
+|0.0                 |
+|0.0                 |
+|2.0                 |
+|-0.44999999999999996|
+|-0.3666666666666667 |
++--------------------+
+only showing top 5 rows
+```
+
+Adding parameters: 'partition_by', 'order_by' & 'pct_cols'
+```python
+>>> dic_to_df.pctChange(partition_by="Product", order_by="Year", pct_cols="Revenue").na.fill(0).show(5, False)
+
++---------------------+
+|Revenue              |
++---------------------+
+|0.0                  |
+|-0.050000000000000044|
+|0.1578947368421053   |
+|0.0                  |
+|0.06666666666666665  |
++---------------------+
+only showing top 5 rows
+```
+
+You also can lag more than one column at the same time, you just need to add a list with string column names:
+```python
+>>> dic_to_df.pctChange(partition_by="Product", order_by="Year", pct_cols=["Year", "Revenue"]).na.fill(0).show(5, False)
+
++--------------------+---------------------+
+|Year                |Revenue              |
++--------------------+---------------------+
+|0.0                 |0.0                  |
+|4.975124378110429E-4|-0.050000000000000044|
+|4.972650422674363E-4|0.1578947368421053   |
+|0.0                 |0.0                  |
+|4.975124378110429E-4|0.06666666666666665  |
++--------------------+---------------------+
+only showing top 5 rows
 ```
  
 ### Planning to contribute? 🤔
