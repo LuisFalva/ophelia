@@ -3,6 +3,7 @@
 *.csv
 *.pyc
 *.ipynb
+*.idea/
 test.py
 
 # Byte-compiled / optimized / DLL files
