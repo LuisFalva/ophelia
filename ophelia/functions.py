@@ -3,41 +3,59 @@ import re
 import random
 import pandas as pd
 from itertools import chain
-from functools import wraps
 from py4j.protocol import Py4JJavaError
 from dask import dataframe as dask_df, array as dask_arr
 from pyspark.sql import DataFrame, Window
 from pyspark.sql.column import _to_seq
 from pyspark.sql.functions import (
     when, col, lit, row_number, monotonically_increasing_id, create_map, explode, struct, array, round as spark_round,
-    lag, expr, sum, broadcast
+    lag, expr, sum, broadcast, count, isnan
 )
 from pyspark.sql.types import StructField, StringType, StructType
 from pyspark.ml.stat import Correlation
 from pyspark.ml.feature import VectorAssembler
-from ophelia.ophelia import SparkMethods
-from ophelia.ophelia.ophelia_utils import ListUtils
+from . import SparkMethods
+from ..ophelia.utilities import remove_duplicate_element, feature_pick, regex_expr
 
-__all__ = ["CorrMatWrapper", "ShapeWrapper", "RollingWrapper", "DynamicSamplingWrapper", "SelectWrapper",
+__all__ = ["NullDebugWrapper", "CorrMatWrapper", "ShapeWrapper",
+           "RollingWrapper", "DynamicSamplingWrapper", "SelectWrapper",
            "ReshapeWrapper", "PctChangeWrapper", "CrossTabularWrapper"]
 
 
-def wrap_attr(cls):
-    def decorator(func):
-        @wraps(func)
-        def _wrapper(*args, **kwargs):
-            f = func(*args, **kwargs)
-            return f
-        setattr(cls, func.__name__, _wrapper)
-        return func
-    DataFrame.cls = property(cls)
-    return decorator
+class NullDebug(object):
+
+    @staticmethod
+    def __cleansing_list(self, partition_by=None, offset: float = 0.5):
+        if partition_by is None:
+            raise TypeError(f"'partition_by' required parameter, invalid {partition_by} input.")
+        return self.toNarrow(partition_by, ['pivot', 'value']).groupBy('pivot') \
+            .agg(count(when(isnan('value') | col('value').isNull(), 'value')).alias('null_count')) \
+            .select('*', (col('null_count') / self.Shape[0]).alias('null_pct')) \
+            .where(col('null_pct') <= offset).uniqueRow('pivot')
+
+    @staticmethod
+    def null_clean(self, partition_by, offset):
+        if partition_by:
+            cleansing_list = NullDebug.__cleansing_list(self, partition_by, offset)
+            return self.select(partition_by, *cleansing_list)
+        gen_part = self.select(monotonically_increasing_id().alias('partition_id'), "*")
+        cleansing_list = NullDebug.__cleansing_list(gen_part, 'partition_id', offset)
+        return gen_part.select('partition_id', *cleansing_list)
+
+
+class NullDebugWrapper:
+    DataFrame.nullDebug = NullDebug.null_clean
 
 
 class CorrMat(object):
 
     @staticmethod
     def __corr(pair):
+        """
+        Corr private method distribute pandas series operations for correlation between RDD
+        :param pair: RDD pair of elements
+        :return: product of correlation matrix
+        """
         (prod1, series1), (prod2, series2) = pair
         corr = pd.Series(series1).corr(pd.Series(series2))
         return prod1, prod2, float(corr)
@@ -93,7 +111,7 @@ class CorrMat(object):
         return corr_test.rdd.map(extract).toDF(corr_cols)
 
 
-class CorrMatWrapper(object):
+class CorrMatWrapper:
 
     DataFrame.uniqueRow = CorrMat.unique_row
     DataFrame.cartRDD = CorrMat.cartesian_rdd
@@ -102,7 +120,7 @@ class CorrMatWrapper(object):
     DataFrame.corrStat = CorrMat.spark_correlation
 
 
-class Shape(object):
+class Shape:
 
     @staticmethod
     def shape(self):
@@ -111,7 +129,7 @@ class Shape(object):
         return self.count(), len(self.columns)
 
 
-class ShapeWrapper(object):
+class ShapeWrapper(DataFrame):
 
     DataFrame.Shape = property(lambda self: Shape.shape(self))
 
@@ -173,7 +191,7 @@ class DynamicSampling(object):
 class DynamicSamplingWrapper(object):
 
     DataFrame.emptyScan = DynamicSampling.empty_scan
-    DataFrame.sampleN = DynamicSampling.sample_n
+    DataFrame.simple_sample = DynamicSampling.sample_n
 
 
 class Selects(object):
@@ -190,19 +208,19 @@ class Selects(object):
         return [f'.*{regex_name}']
 
     @staticmethod
-    def select_regex(self, regex_expr):
+    def select_regex(self, reg_expr):
         # Todo: es posible llamar el atributo _jdf sin necesidad de quitar el decorador @staticmethod, se remueven por
         # Todo: que producen error de ejecucion por el momento
         # Todo: se deja el codigo muestra de version anterior
         """
         stream = self._jdf.columns
         regex_list = [line for regex in regex_expr for line in stream if re.compile(regex).match(line)]
-        clean_regex_list = ListUtils.remove_duplicated_elements(regex_list)
+        clean_regex_list = remove_duplicated_elements(regex_list)
         return DataFrame(self._jdf.select(clean_regex_list), self.sql_ctx)
         """
         stream = self.columns
-        regex_list = [line for regex in regex_expr for line in stream if re.compile(regex).match(line)]
-        clean_regex_list = ListUtils.remove_duplicate_element(regex_list)
+        regex_list = [line for regex in reg_expr for line in stream if re.compile(regex).match(line)]
+        clean_regex_list = remove_duplicate_element(regex_list)
         return self.select(clean_regex_list)
 
     @staticmethod
@@ -223,10 +241,10 @@ class Selects(object):
     def select_contains(self, regex):
         if isinstance(regex, list):
             contain_cols = [c for c in self.columns for reg in regex if reg in c]
-            clean_regex_list = ListUtils.remove_duplicate_element(contain_cols)
+            clean_regex_list = remove_duplicate_element(contain_cols)
             return self.select(clean_regex_list)
         contain_cols = [c for c in self.columns if regex in c]
-        clean_regex_list = ListUtils.remove_duplicate_element(contain_cols)
+        clean_regex_list = remove_duplicate_element(contain_cols)
         return self.select(clean_regex_list)
 
     @staticmethod
@@ -361,33 +379,6 @@ class SelectWrapper(object):
     DataFrame.mapItem = Selects.map_item
 
 
-class Whens(object):
-
-    @staticmethod
-    def __list_match_sign(lst):
-        return [sign for sign in lst
-                if sign == '=='
-                or sign == '!='
-                or sign == '>='
-                or sign == '<='
-                or sign == '>'
-                or sign == '<']
-
-    @staticmethod
-    def __spark_condition_col_dict(w_col, c_col):
-        return {'==': col(w_col) == c_col, '!=': col(w_col) != c_col, '>=': col(w_col) >= c_col,
-                '<=': col(w_col) <= c_col, '>': col(w_col) > c_col, '<': col(w_col) < c_col}
-
-    @staticmethod
-    def string_match(string_condition):
-        str_split = string_condition.split(' ')
-        match_op = Whens.__list_match_sign(str_split)
-        search_index_condition_sign = [str_split.index(op) for op in match_op]
-        where_col = str_split[search_index_condition_sign[0]-1]
-        condition = str_split[search_index_condition_sign[0]+1]
-        return Whens.__spark_condition_col_dict(where_col, condition)[match_op[0]]
-
-
 class Reshape(DataFrame):
 
     def __init__(self, df):
@@ -486,24 +477,26 @@ class PctChange(object):
     @staticmethod
     def __infer_sort_column(self):
         regex_match = ['year', 'Year', 'date', 'Date', 'month', 'Month', 'day', 'Day']
-        regex_list = self.selectRegex(ListUtils.regex_expr(regex_match)).columns
+        regex_list = self.selectRegex(regex_expr(regex_match)).columns
+        f_pick = feature_pick(self)
         if len(regex_list) > 0:
             return regex_list
-        elif len(ListUtils.feature_pick(self)['date']) > 0:
-            return ListUtils.feature_pick(self)['date']
+        elif len(f_pick['date']) > 0:
+            return f_pick['date']
         else:
-            return ListUtils.feature_pick(self)['string']
+            return f_pick['string']
 
     @staticmethod
     def __infer_lag_column(self):
-        if len(ListUtils.feature_pick(self)['double']) > 0:
-            return ListUtils.feature_pick(self)['double']
-        elif len(ListUtils.feature_pick(self)['float']) > 0:
-            return ListUtils.feature_pick(self)['float']
-        elif len(ListUtils.feature_pick(self)['long']) > 0:
-            return ListUtils.feature_pick(self)['long']
+        f_pick = feature_pick(self)
+        if len(f_pick['double']) > 0:
+            return f_pick['double']
+        elif len(f_pick['float']) > 0:
+            return f_pick['float']
+        elif len(f_pick['long']) > 0:
+            return f_pick['long']
         else:
-            return ListUtils.feature_pick(self)['int']
+            return f_pick['int']
 
     @staticmethod
     def pct_change(self, periods=1, order_by=None, pct_cols=None, partition_by=None, desc=None):
@@ -529,14 +522,14 @@ class PctChangeWrapper(object):
 class CrossTabular(object):
 
     @staticmethod
-    def __expression(cols_list, expr):
+    def __expression(cols_list, xpr):
         expr_dict = {
             'sum': '+'.join(cols_list),
             'sub': '-'.join(cols_list),
             'mul': '*'.join(cols_list),
             'div': '/'.join(cols_list),
         }
-        return expr_dict[expr]
+        return expr_dict[xpr]
 
     @staticmethod
     def foreach_col(self, group_by, pivot_col, agg_dict, oper):
@@ -545,7 +538,7 @@ class CrossTabular(object):
         regex_values = list(agg_dict.values())
         df = self.toWide(group_by, pivot_col, agg_dict)
         for i in range(len(regex_keys)):
-            cols_list = df.selectRegex(ListUtils.regex_expr(regex_keys[i])).columns
+            cols_list = df.selectRegex(regex_expr(regex_keys[i])).columns
             expression = expr(CrossTabular.__expression(cols_list, oper))
             func.append(expression.alias(f'{regex_keys[i]}_{regex_values[i]}_{oper}'))
         return df.select('*', *func)
@@ -573,8 +566,8 @@ class CrossTabular(object):
         key_list = list(agg_dict.keys())
         func = []
         for i in range(len(key_list)):
-            tmp_df = sum_by_col_df.selectRegex(ListUtils.regex_expr([key_list[i]]))
-            fix_df = tmp_df.selectRegex(ListUtils.regex_expr([operand]))
+            tmp_df = sum_by_col_df.selectRegex(regex_expr([key_list[i]]))
+            fix_df = tmp_df.selectRegex(regex_expr([operand]))
             pivot_list = tmp_df.drop(fix_df.columns[0]).columns
             for ix in range(len(pivot_list)):
                 operate_cols = [pivot_list[ix], fix_df.columns[0]]

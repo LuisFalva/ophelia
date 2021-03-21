@@ -1,8 +1,8 @@
 import pandas as pd
 from pyspark.sql import SparkSession, DataFrame
-from ophelia.ophelia import FormatRead
-from ophelia.ophelia.ophelia_logger import OpheliaLogger
-from ophelia.ophelia import OpheliaReadFileException
+from ..ophelia_logger import OpheliaLogger
+from ...ophelia import FormatRead
+from ...ophelia import OpheliaReadFileException
 
 __all__ = ["Read", "SparkReadWrapper"]
 

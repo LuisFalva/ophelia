@@ -1,7 +1,7 @@
-from ophelia.ophelia.ophelia_init import OpheliaInit
-from ophelia.ophelia.write.spark_write import Write
-from ophelia.ophelia.session.spark import OpheliaSpark
-from ophelia.ophelia.read.spark_read import Read
+from ..ophelia.ophelia_init import OpheliaInit
+from ..ophelia.write.spark_write import Write
+from ..ophelia.read.spark_read import Read
+from ..ophelia.session.spark import OpheliaSpark
 
 
 class Ophelia:

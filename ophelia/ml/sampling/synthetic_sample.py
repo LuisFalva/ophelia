@@ -2,8 +2,8 @@ import random
 import numpy as np
 from sklearn import neighbors
 from pyspark.sql import DataFrame
-from ophelia.ophelia import InstanceError
-from ophelia.ophelia.ml.feature_miner import BuildVectorAssembler, SparkToNumpy, NumpyToVector
+from ml.feature_miner import BuildVectorAssembler, SparkToNumpy, NumpyToVector
+from ....ophelia import InstanceError
 
 
 class SyntheticSample:

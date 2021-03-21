@@ -3,10 +3,10 @@ from pyspark.sql.functions import (
     max as spark_max, mean, stddev, variance
 )
 
-__all__ = ["SparkMethods", "ClassType", "ClassName", "InstanceError", 'FormatRead', "PathWrite", "FormatWrite",
-           "OpheliaMLException", "OpheliaMLMinerException", "OpheliaDataFrameUtilsException",
-           "OpheliaRDDUtilsException", "OpheliaReadFileException", "OpheliaSparkSessionException",
-           "OpheliaSparkWrapperException", "OpheliaWriteFileException", "OpheliaListUtilsException"]
+__all__ = ["SparkMethods", "ClassType", "ClassName", "InstanceError", 'FormatRead', "PathWrite",
+           "FormatWrite", "OpheliaMLException", "OpheliaMLMinerException", "OpheliaUtilitiesException",
+           "OpheliaReadFileException", "OpheliaSparkSessionException", "OpheliaSparkWrapperException",
+           "OpheliaWriteFileException"]
 
 
 def SparkMethods():
@@ -87,23 +87,9 @@ class OpheliaSparkSessionException(Exception):
     pass
 
 
-class OpheliaListUtilsException(Exception):
+class OpheliaUtilitiesException(Exception):
     """
-    Ophelia List Utils Exception
-    """
-    pass
-
-
-class OpheliaDataFrameUtilsException(Exception):
-    """
-    Ophelia DataFrame Utils Exception
-    """
-    pass
-
-
-class OpheliaRDDUtilsException(Exception):
-    """
-    Ophelia RDD Utils Exception
+    Ophelia Utilities Exception
     """
     pass
 
