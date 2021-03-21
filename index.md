@@ -38,7 +38,7 @@ git clone https://github.com/LuisFalva/ophelia.git
 To initialize Ophelia with Spark embedded session we use:
 
 ```python
->>> from ophelia.ophelia_start import Ophelia
+>>> from ophelia.start import Ophelia
 >>> ophelia = Ophelia("Set Your Own Spark App Name")
 >>> sc = ophelia.Spark.build_spark_context()
 
@@ -91,19 +91,32 @@ To initialize Ophelia with Spark embedded session we use:
 13:17:58.063 Ophelia [INFO] Spark Context Initialized Success
 ```
 
-Main class functions:
+Main class objects provided by initializing Ophelia session:
 
+- Reader & Writer
 ```python
 >>> from ophelia.read.spark_read import Read
 >>> from ophelia.write.spark_write import Write
->>> from ophelia.utilities import DataFrameUtils, ListUtils, RDDUtils
+```
+
+- Generic & Functions
+```python
 >>> from ophelia.functions import Shape, Rolling, Reshape, CorrMat, CrossTabular, PctChange, Selects, DynamicSampling
+>>> from ophelia.generic import (split_date, row_index, lag_min_max_data, regex_expr, remove_duplicate_element,
+                                 year_array, dates_index, sorted_date_list, feature_pick, binary_search, century_from_year,
+                                 simple_average, delta_series, simple_moving_average, average, weight_moving_average,
+                                 single_exp_smooth, double_exp_smooth, initial_seasonal_components, triple_exp_smooth,
+                                 row_indexing, string_match)
+```
+
+- ML package for Unsupervised, Sampling and Feature Miner objects
+```python
 >>> from ophelia.ml.sampling.synthetic_sample import SyntheticSample
 >>> from ophelia.ml.unsupervised.feature import PCAnalysis, SingularVD
 >>> from ophelia.ml.feature_miner import BuildStringIndex, BuildOneHotEncoder, BuildVectorAssembler, BuildStandardScaler, SparkToNumpy, NumpyToVector
 ```
 
-Lets show you some application examples:
+Let's show you some application examples:
 
 The `Read` class implements Spark reading object in multiple formats `{'csv', 'parquet', 'excel', 'json'}`
 
