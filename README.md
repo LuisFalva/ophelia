@@ -108,6 +108,7 @@ Lets show you some application examples:
 The `Read` class implements Spark reading object in multiple formats `{'csv', 'parquet', 'excel', 'json'}`
 
 ```python
+>>> from ophelia.read.spark_read import Read
 >>> spark_df = spark.readFile(path, 'csv', header=True, infer_schema=True)
 ```
 
@@ -145,6 +146,7 @@ objects, this is for getting the relative percentage change between one observat
 date-type column and lagged by some laggable numeric-type column.
 
 ```python
+>>> from ophelia.functions import PctChange
 >>> dic_to_df.pctChange().show(10, False)
 +-------------------+
 |Revenue            |
