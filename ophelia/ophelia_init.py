@@ -1,4 +1,4 @@
-from ophelia.ophelia.ophelia_logger import OpheliaLogger
+from ..ophelia.ophelia_logger import OpheliaLogger
 
 
 class OpheliaInit:

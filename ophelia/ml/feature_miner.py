@@ -6,8 +6,8 @@ from pyspark.ml.linalg import DenseVector
 from pyspark.ml.feature import (
     StringIndexer, VectorAssembler, OneHotEncoder, OneHotEncoderModel, StandardScaler, StandardScalerModel
 )
-from ophelia.ophelia.ophelia_logger import OpheliaLogger
-from ophelia.ophelia import OpheliaMLMinerException
+from ..ophelia_logger import OpheliaLogger
+from ...ophelia import OpheliaMLMinerException
 
 
 class BuildStringIndex(Transformer):
