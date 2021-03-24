@@ -219,7 +219,7 @@ You also can lag more than one column at the same time, you just need to add a l
 +--------------------+---------------------+
 only showing top 5 rows
 ```
- 
+
 ### Planning to contribute? 🤔
 
 Bring it on! If you have any idea or want to ask something or there is a bug you may want to fix you can open an [issue ticket](https://github.com/LuisFalva/ophilea/issues), there you will find all the alignments to make an issue request. Also here you can get a glimpse on [Open Source Contribution Guide best practicies](https://opensource.guide/).
