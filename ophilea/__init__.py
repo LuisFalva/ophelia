@@ -4,9 +4,9 @@ from pyspark.sql.functions import (
 )
 
 __all__ = ["SparkMethods", "ClassType", "ClassName", "InstanceError", 'FormatRead', "PathWrite",
-           "FormatWrite", "OpheliaMLException", "OpheliaMLMinerException", "OpheliaUtilitiesException",
-           "OpheliaReadFileException", "OpheliaSparkSessionException", "OpheliaSparkWrapperException",
-           "OpheliaWriteFileException"]
+           "FormatWrite", "OphileaMLException", "OphileaMLMinerException", "OphileaUtilitiesException",
+           "OphileaReadFileException", "OphileaSparkSessionException", "OphileaSparkWrapperException",
+           "OphileaWriteFileException"]
 
 
 def SparkMethods():
@@ -50,7 +50,7 @@ class FormatWrite:
 class PathWrite:
     def __init__(self):
         self.root = "data"
-        self.dir = "ophelia"
+        self.dir = "ophilea"
         self.out = "out"
         self.engine = "engine"
         self.model = "model"
@@ -59,50 +59,50 @@ class PathWrite:
         return f"{self.root}/{self.dir}/{self.out}/{opt}/{project}/"
 
 
-class OpheliaMLException(Exception):
+class OphileaMLException(Exception):
     """
-    Ophelia ML Exception
-    """
-    pass
-
-
-class OpheliaMLMinerException(Exception):
-    """
-    Ophelia ML Miner Exception
+    Ophilea ML Exception
     """
     pass
 
 
-class OpheliaReadFileException(Exception):
+class OphileaMLMinerException(Exception):
     """
-    Ophelia Read File Exception
-    """
-    pass
-
-
-class OpheliaSparkSessionException(Exception):
-    """
-    Ophelia Spark Session Exception
+    Ophilea ML Miner Exception
     """
     pass
 
 
-class OpheliaUtilitiesException(Exception):
+class OphileaReadFileException(Exception):
     """
-    Ophelia Utilities Exception
-    """
-    pass
-
-
-class OpheliaSparkWrapperException(Exception):
-    """
-    Ophelia Spark Wrapper Exception
+    Ophilea Read File Exception
     """
     pass
 
 
-class OpheliaWriteFileException(Exception):
+class OphileaSparkSessionException(Exception):
     """
-    Ophelia Write File Exception
+    Ophilea Spark Session Exception
+    """
+    pass
+
+
+class OphileaUtilitiesException(Exception):
+    """
+    Ophilea Utilities Exception
+    """
+    pass
+
+
+class OphileaSparkWrapperException(Exception):
+    """
+    Ophilea Spark Wrapper Exception
+    """
+    pass
+
+
+class OphileaWriteFileException(Exception):
+    """
+    Ophilea Write File Exception
     """
     pass

@@ -1,11 +1,11 @@
 from pyspark.context import SparkContext
 from pyspark.sql import SparkSession
-from .._logger import OpheliaLogger
+from .._logger import OphileaLogger
 
 
 class OpheliaSpark:
 
-    __logger = OpheliaLogger()
+    __logger = OphileaLogger()
 
     def __init__(self):
         self.ophelia_spark = None

@@ -6,8 +6,8 @@ from pyspark.ml.linalg import DenseVector
 from pyspark.ml.feature import (
     StringIndexer, VectorAssembler, OneHotEncoder, OneHotEncoderModel, StandardScaler, StandardScalerModel
 )
-from .._logger import OpheliaLogger
-from ...ophelia import OpheliaMLMinerException
+from .._logger import OphileaLogger
+from ...ophilea import OphileaMLMinerException
 
 
 class BuildStringIndex(Transformer):
@@ -37,7 +37,7 @@ class BuildStringIndex(Transformer):
 
     def __init__(self, input_cols, path=None, dir_name=None):
         super(BuildStringIndex, self).__init__()
-        self.__logger = OpheliaLogger()
+        self.__logger = OphileaLogger()
         self.__input_cols = input_cols
         self.__dir_name = dir_name
         self.__estimator_path = path
@@ -52,7 +52,7 @@ class BuildStringIndex(Transformer):
             self.__logger.info("Creating Single String Indexers")
             return StringIndexer(inputCol=single_col, outputCol="{COL}_index".format(COL=single_col))
         except TypeError as te:
-            raise OpheliaMLMinerException(f"An error occurred while calling single_string_indexer() method: {te}")
+            raise OphileaMLMinerException(f"An error occurred while calling single_string_indexer() method: {te}")
 
     def __multi_string_indexer(self, multi_col):
         """
@@ -67,7 +67,7 @@ class BuildStringIndex(Transformer):
                 inputCol=column,
                 outputCol="{COLS}_index".format(COLS=column)) for column in multi_col]
         except TypeError as te:
-            raise OpheliaMLMinerException(f"An error occurred while calling multi_string_indexer() method: {te}")
+            raise OphileaMLMinerException(f"An error occurred while calling multi_string_indexer() method: {te}")
 
     def __build_string_indexer(self, df, col_name, dir_name):
         """
@@ -101,7 +101,7 @@ class BuildStringIndex(Transformer):
                     self.__logger.info("Compute Single String Indexer")
                     return pipe_model.fit(df).transfrom(df)
         except TypeError as te:
-            raise OpheliaMLMinerException(f"An error occurred while calling __build_string_indexer() method: {te}")
+            raise OphileaMLMinerException(f"An error occurred while calling __build_string_indexer() method: {te}")
 
     def _transform(self, dataset):
         return self.__build_string_indexer(dataset, self.__input_cols, self.__dir_name)
@@ -137,7 +137,7 @@ class BuildOneHotEncoder(Transformer):
 
     def __init__(self, input_cols, path=None, dir_name=None, indexer=False, drop_last=True, handle_invalid='error'):
         super(BuildOneHotEncoder, self).__init__()
-        self.__logger = OpheliaLogger()
+        self.__logger = OphileaLogger()
         self.__input_cols = input_cols
         self.__estimator_path = path
         self.__dir_name = dir_name
@@ -159,7 +159,7 @@ class BuildOneHotEncoder(Transformer):
                 dropLast= self.__drop_last, handleInvalid=self.__handle_invalid
             )
         except TypeError as te:
-            raise OpheliaMLMinerException(f"An error occurred while calling ohe_estimator() method: {te}")
+            raise OphileaMLMinerException(f"An error occurred while calling ohe_estimator() method: {te}")
 
     def __build_one_hot_encoder(self, df, col_name, dir_name, indexer):
         """
@@ -189,7 +189,7 @@ class BuildOneHotEncoder(Transformer):
             self.__logger.info("Compute One Hot Encoder Estimator DataFrame")
             return encoder.fit(df).transform(df)
         except TypeError as te:
-            raise OpheliaMLMinerException(f"An error occurred while calling __build_one_hot_encoder() method: {te}")
+            raise OphileaMLMinerException(f"An error occurred while calling __build_one_hot_encoder() method: {te}")
 
     def _transform(self, dataset):
         return self.build_one_hot_encoder(dataset, self.__input_cols, self.__dir_name, self.__indexer)
@@ -199,7 +199,7 @@ class BuildVectorAssembler(Transformer):
 
     def __init__(self, input_cols, name_vec='features'):
         super(BuildVectorAssembler, self).__init__()
-        self.__logger = OpheliaLogger()
+        self.__logger = OphileaLogger()
         self.__input_cols = input_cols
         self.__name_vec = name_vec
 
@@ -216,7 +216,7 @@ class BuildVectorAssembler(Transformer):
             self.__logger.info("Build Vector Assembler DataFrame")
             return vec_assembler.transform(df)
         except TypeError as te:
-            raise OpheliaMLMinerException(f"An error occurred while calling build_vector_assembler() method: {te}")
+            raise OphileaMLMinerException(f"An error occurred while calling build_vector_assembler() method: {te}")
 
     def _transform(self, dataset):
         return self.__build_vector_assembler(dataset, self.__input_cols, self.__name_vec)
@@ -229,7 +229,7 @@ class BuildStandardScaler(Transformer):
 
     def __init__(self, with_mean=False, with_std=True, path=None, input_col='features', output_col='scaled_features'):
         super(BuildStandardScaler, self).__init__()
-        self.__logger = OpheliaLogger()
+        self.__logger = OphileaLogger()
         self.__with_mean = with_mean
         self.__with_std = with_std
         self.__path = path
@@ -272,7 +272,7 @@ class SparkToNumpy(Transformer):
     """
     def __init__(self, list_columns=None):
         super(SparkToNumpy, self).__init__()
-        self.__logger = OpheliaLogger()
+        self.__logger = OphileaLogger()
         self.__list_columns = list_columns
 
     def __spark_to_numpy(self, df, columns=None):
@@ -301,7 +301,7 @@ class NumpyToVector(object):
     """
     def __init__(self):
         super(NumpyToVector, self).__init__()
-        self.__logger = OpheliaLogger()
+        self.__logger = OphileaLogger()
 
     def __numpy_to_vector_assembler(self, np_object, label_t=1):
         """
