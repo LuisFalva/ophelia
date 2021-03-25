@@ -1,17 +1,17 @@
 # [Ophilea](https://luisfalva.github.io/ophilea/)
 
-*Ophelia* to be pronounced as `Ophilea` (Hamlet's beloved beautiful woman... and is the name of the package too) she's known because of her madness and immortal love for Hamlet, but the full Shakespeare's mastery piece does not favor to her magnificent character.
-Ophilea is the epitome of goodness, the brightness and the elegance of simplicity.
+*Ophelia* to be pronounced as `Ophilea` (Hamlet's beloved beautiful woman... and is the name of the package too), is known because of her madness and immortal love for Hamlet; but Shakespeare's entire master piece does not do justice to her magnificent character.
+Ophilea is the epitome of goodness, brightness, and the elegance of simplicity.
 
 # Motivations 🚀
 
-As Data Scientist or Data Analyst you don't really want to waist too much time guessing how may use PySpark's API, sometimes we just want a prompt answer instead of a full nice code. With the intent of that, this project
-aims to help reducing the complexity of the analytical lifecycle for everyone who use PySpark frequently.
+As Data Scientists or Data Analysts, we don't really want to waste too much time guessing how PySpark's API may be used. Sometimes we just want a prompt answer instead of a full nice code. With that in mind, this project
+aims to help reduce the complexity of the analytical lifecycle for everyone who uses PySpark frequently.
 
-Now is the turn of a new smart and very extravaganza `Ophilea` serving to optimize the learning curve with PySpark's must common functionality features such as:
-- Build PySpark *ML & Mllib* pipelines in a simplified replicable and secure way
-- Embedded optimized techniques helping users struggling with *data skewness problems*
-- Easy to use and build your own models and data mining pipelines with PySpark using *Ophelia spark wrappers*
+Now is the time of a new, smart, and very extravagant `Ophilea` to help us optimize the learning curve involved in PySpark's most common functionality, offering features such as:
+- Building PySpark *ML & Mllib* pipelines in a simplified replicable and secure way
+- Embedded optimized techniques to help users struggling with *data skewness problems*
+- Easy to use build-your-own models and data mining pipelines with PySpark using *Ophilea spark wrappers*
 - Security and simplified usage for exploring new *PySpark features* for data mining replicating the most commonly used functionality in libraries such as Pandas and Numpy
 - Simple *Pythonic* syntax: *'Not too fancy things to do the hard work'*
 - Utility for *RDD level pre-processing* data in a simple manner
@@ -26,12 +26,12 @@ Additionally, if you want to use the Ophilea API, you'll also need Python (suppo
 
 ### Building from source 🛠️
 
-Just clone the ophelia repo and import Ophilea:
+Just clone the `Ophilea` repo and import `Ophilea`:
 ```sh   
 git clone https://github.com/LuisFalva/ophilea.git
 ```
 
-To initialize Ophilea with Spark embedded session we use:
+To initialize `Ophilea` with Spark embedded session use:
 ```python
 >>> from ophilea.start import Ophilea
 >>> ophilea = Ophilea("Set Your Own Spark App Name")
@@ -104,7 +104,7 @@ Main class objects provided by initializing Ophilea session:
 >>> from ophilea.ml.unsupervised.feature import PCAnalysis, SingularVD
 >>> from ophilea.ml.feature_miner import BuildStringIndex, BuildOneHotEncoder, BuildVectorAssembler, BuildStandardScaler, SparkToNumpy, NumpyToVector
 ```
-Let's show you some application examples:
+Let me show you some application examples:
 
 The `Read` class implements Spark reading object in multiple formats `{'csv', 'parquet', 'excel', 'json'}`
 
@@ -113,7 +113,7 @@ The `Read` class implements Spark reading object in multiple formats `{'csv', 'p
 >>> spark_df = spark.readFile(path, 'csv', header=True, infer_schema=True)
 ```
 
-Also we can import class `Shape` from factory `functions` in order to see the dimension of our spark DataFrame such like numpy style.
+Also, you may import class `Shape` from factory `functions` in order to see the dimension of our spark DataFrame such as numpy style.
 
 ```python
 >>> from ophilea.functions import Shape
@@ -143,9 +143,8 @@ Also we can import class `Shape` from factory `functions` in order to see the di
 (9, 3)
 ```
 
-The `pct_change` wrapper is added to the Spark `DataFrame` class in order to have the must commonly used method in Pandas
-objects, this is for getting the relative percentage change between one observation to another sorted by some sortable 
-date-type column and lagged by some laggable numeric-type column.
+The `pct_change` wrapper is added to the Spark `DataFrame` class in order to have the most commonly used method in Pandas
+objects to get the relative percentage change from one observation to another, sorted by a date-type column and lagged by a numeric-type column.
 
 ```python
 >>> from ophilea.functions import PctChange
@@ -166,13 +165,13 @@ date-type column and lagged by some laggable numeric-type column.
 +-------------------+
 ```
 
-Another option is configuring all receiving parameters from the function, the following are:
-- periods; this parameter will control the offset of the lag periods since the default value is 1 this will always return a lag-1 information DataFrame
-- partition_by; the partition parameter will fixed the partition column over the DataFrame e.g. 'bank_segment', 'assurance_product_type'
-- order_by; order by parameter will be the specific column to order the sequential observations, e.g. 'balance_date', 'trade_close_date', 'contract_date'
+Another option is to configure all receiving parameters from the function, as follows:
+- periods; this parameter will control the offset of the lag periods. Since the default value is 1, this will always return a lag-1 information DataFrame.
+- partition_by; this parameter will fix the partition column over the DataFrame, e.g. 'bank_segment', 'assurance_product_type'.
+- order_by; order by parameter will be the specific column to order the sequential observations, e.g. 'balance_date', 'trade_close_date', 'contract_date'.
 - pct_cols; percentage change col (pct_cols) will be the specific column to lag-over giving back the relative change between one element to other, e.g. 𝑥𝑡 ÷ 𝑥𝑡 − 1
 
-In this case we will specify only the periods parameter to yield a lag of -2 days over the DataFrame
+In this case, we will specify only the periods parameter to yield a lag of -2 days over the DataFrame.
 ```python
 >>> dic_to_df.pctChange(periods=2).na.fill(0).show(5, False)
 
@@ -204,7 +203,7 @@ Adding parameters: 'partition_by', 'order_by' & 'pct_cols'
 only showing top 5 rows
 ```
 
-You also can lag more than one column at the same time, you just need to add a list with string column names:
+You may also lag more than one column at a time by simply adding a list with string column names:
 ```python
 >>> dic_to_df.pctChange(partition_by="Product", order_by="Year", pct_cols=["Year", "Revenue"]).na.fill(0).show(5, False)
 
@@ -219,15 +218,15 @@ You also can lag more than one column at the same time, you just need to add a l
 +--------------------+---------------------+
 only showing top 5 rows
 ```
+ 
+### Want to contribute? 🤔
 
-### Planning to contribute? 🤔
-
-Bring it on! If you have any idea or want to ask something or there is a bug you may want to fix you can open an [issue ticket](https://github.com/LuisFalva/ophilea/issues), there you will find all the alignments to make an issue request. Also here you can get a glimpse on [Open Source Contribution Guide best practicies](https://opensource.guide/).
+Bring it on! If you have an idea or want to ask anything, or there is a bug you want fixed, you may open an [issue ticket](https://github.com/LuisFalva/ophilea/issues). You will find the guidelines to make an issue request there. Also, you can get a glimpse of [Open Source Contribution Guide best practices here](https://opensource.guide/).
 Cheers 🍻!
 
 ### Support or Contact 📠
 
-Having trouble with Ophilea? Yo can DM me to falvaluis@gmail.com and I’ll help you sort it out.
+Having trouble with Ophilea? Yo can DM me at falvaluis@gmail.com and I’ll help you sort it out.
 
 ### License 📃
 
