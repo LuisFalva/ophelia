@@ -104,6 +104,7 @@ Main class objects provided by initializing Ophilea session:
 >>> from ophilea.ml.unsupervised.feature import PCAnalysis, SingularVD
 >>> from ophilea.ml.feature_miner import BuildStringIndex, BuildOneHotEncoder, BuildVectorAssembler, BuildStandardScaler, SparkToNumpy, NumpyToVector
 ```
+
 Let me show you some application examples:
 
 The `Read` class implements Spark reading object in multiple formats `{'csv', 'parquet', 'excel', 'json'}`
