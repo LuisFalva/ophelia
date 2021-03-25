@@ -84,12 +84,12 @@ To initialize `Ophilea` with Spark embedded session use:
 ```
 Main class objects provided by initializing Ophilea session:
 
-- Reader & Writer
+- `read` & `write`
 ```python
 >>> from ophilea.read.spark_read import Read
 >>> from ophilea.write.spark_write import Write
 ```
-- Generic & Functions
+- `generic` & `functions`
 ```python
 >>> from ophilea.functions import Shape, Rolling, Reshape, CorrMat, CrossTabular, PctChange, Selects, DynamicSampling
 >>> from ophilea.generic import (split_date, row_index, lag_min_max_data, regex_expr, remove_duplicate_element,
@@ -98,12 +98,13 @@ Main class objects provided by initializing Ophilea session:
                                  single_exp_smooth, double_exp_smooth, initial_seasonal_components, triple_exp_smooth,
                                  row_indexing, string_match)
 ```
-- ML package for Unsupervised, Sampling and Feature Miner objects
+- ML package for `unsupervised`, `sampling` and `feature_miner` objects
 ```python
 >>> from ophilea.ml.sampling.synthetic_sample import SyntheticSample
 >>> from ophilea.ml.unsupervised.feature import PCAnalysis, SingularVD
 >>> from ophilea.ml.feature_miner import BuildStringIndex, BuildOneHotEncoder, BuildVectorAssembler, BuildStandardScaler, SparkToNumpy, NumpyToVector
 ```
+
 Let me show you some application examples:
 
 The `Read` class implements Spark reading object in multiple formats `{'csv', 'parquet', 'excel', 'json'}`
@@ -166,12 +167,12 @@ objects to get the relative percentage change from one observation to another, s
 ```
 
 Another option is to configure all receiving parameters from the function, as follows:
-- periods; this parameter will control the offset of the lag periods. Since the default value is 1, this will always return a lag-1 information DataFrame.
-- partition_by; this parameter will fix the partition column over the DataFrame, e.g. 'bank_segment', 'assurance_product_type'.
-- order_by; order by parameter will be the specific column to order the sequential observations, e.g. 'balance_date', 'trade_close_date', 'contract_date'.
-- pct_cols; percentage change col (pct_cols) will be the specific column to lag-over giving back the relative change between one element to other, e.g. 𝑥𝑡 ÷ 𝑥𝑡 − 1
+- `periods`; this parameter will control the offset of the lag periods. Since the default value is 1, this will always return a lag-1 information DataFrame.
+- `partition_by`; this parameter will fix the partition column over the DataFrame, e.g. 'bank_segment', 'assurance_product_type'.
+- `order_by`; order by parameter will be the specific column to order the sequential observations, e.g. 'balance_date', 'trade_close_date', 'contract_date'.
+- `pct_cols`; percentage change col (pct_cols) will be the specific column to lag-over giving back the relative change between one element to other, e.g. 𝑥𝑡 ÷ 𝑥𝑡 − 1
 
-In this case, we will specify only the periods parameter to yield a lag of -2 days over the DataFrame.
+In this case, we will specify only the `periods` parameter to yield a lag of -2 days over the DataFrame.
 ```python
 >>> dic_to_df.pctChange(periods=2).na.fill(0).show(5, False)
 
@@ -187,7 +188,7 @@ In this case, we will specify only the periods parameter to yield a lag of -2 da
 only showing top 5 rows
 ```
 
-Adding parameters: 'partition_by', 'order_by' & 'pct_cols'
+Adding parameters: `partition_by`, `order_by` & `pct_cols`
 ```python
 >>> dic_to_df.pctChange(partition_by="Product", order_by="Year", pct_cols="Revenue").na.fill(0).show(5, False)
 
