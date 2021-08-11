@@ -4,4 +4,4 @@ minima:
 header_pages:
   - about.md
   - portfolio.md
-show_excerpts: true
+show_excerpts: "true"
