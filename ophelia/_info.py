@@ -1,10 +1,10 @@
-from ..ophilea._logger import OphileaLogger
+from ..ophelia._logger import OpheliaLogger
 
 
 class OphileaInfo:
 
     def __init__(self):
-        self.__logger = OphileaLogger()
+        self.__logger = OpheliaLogger()
         self.__version = 'Ophilea.0.0.1'
         self.__info = {
             "who is": "Hello! This API builds data mining & ml pipelines with pyspark",

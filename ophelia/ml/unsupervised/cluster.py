@@ -44,4 +44,3 @@ class HiddenMarkov:
     """
     SparkPinkMST
     """
-

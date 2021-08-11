@@ -6,8 +6,8 @@ from pyspark.ml.linalg import DenseVector
 from pyspark.ml.feature import (
     StringIndexer, VectorAssembler, OneHotEncoder, OneHotEncoderModel, StandardScaler, StandardScalerModel
 )
-from .._logger import OphileaLogger
-from ...ophilea import OphileaMLMinerException
+from .._logger import OpheliaLogger
+from ...ophelia import OphileaMLMinerException
 
 
 class BuildStringIndex(Transformer):
@@ -37,7 +37,7 @@ class BuildStringIndex(Transformer):
 
     def __init__(self, input_cols, path=None, dir_name=None):
         super(BuildStringIndex, self).__init__()
-        self.__logger = OphileaLogger()
+        self.__logger = OpheliaLogger()
         self.__input_cols = input_cols
         self.__dir_name = dir_name
         self.__estimator_path = path
@@ -137,7 +137,7 @@ class BuildOneHotEncoder(Transformer):
 
     def __init__(self, input_cols, path=None, dir_name=None, indexer=False, drop_last=True, handle_invalid='error'):
         super(BuildOneHotEncoder, self).__init__()
-        self.__logger = OphileaLogger()
+        self.__logger = OpheliaLogger()
         self.__input_cols = input_cols
         self.__estimator_path = path
         self.__dir_name = dir_name
@@ -156,7 +156,7 @@ class BuildOneHotEncoder(Transformer):
             return OneHotEncoder(
                 inputCols=[indexer.getOutputCol() for indexer in indexer_cols],
                 outputCols=["{COLS}_encoded".format(COLS=indexer.getOutputCol()) for indexer in indexer_cols],
-                dropLast= self.__drop_last, handleInvalid=self.__handle_invalid
+                dropLast=self.__drop_last, handleInvalid=self.__handle_invalid
             )
         except TypeError as te:
             raise OphileaMLMinerException(f"An error occurred while calling ohe_estimator() method: {te}")
@@ -199,7 +199,7 @@ class BuildVectorAssembler(Transformer):
 
     def __init__(self, input_cols, name_vec='features'):
         super(BuildVectorAssembler, self).__init__()
-        self.__logger = OphileaLogger()
+        self.__logger = OpheliaLogger()
         self.__input_cols = input_cols
         self.__name_vec = name_vec
 
@@ -229,7 +229,7 @@ class BuildStandardScaler(Transformer):
 
     def __init__(self, with_mean=False, with_std=True, path=None, input_col='features', output_col='scaled_features'):
         super(BuildStandardScaler, self).__init__()
-        self.__logger = OphileaLogger()
+        self.__logger = OpheliaLogger()
         self.__with_mean = with_mean
         self.__with_std = with_std
         self.__path = path
@@ -272,7 +272,7 @@ class SparkToNumpy(Transformer):
     """
     def __init__(self, list_columns=None):
         super(SparkToNumpy, self).__init__()
-        self.__logger = OphileaLogger()
+        self.__logger = OpheliaLogger()
         self.__list_columns = list_columns
 
     def __spark_to_numpy(self, df, columns=None):
@@ -301,7 +301,7 @@ class NumpyToVector(object):
     """
     def __init__(self):
         super(NumpyToVector, self).__init__()
-        self.__logger = OphileaLogger()
+        self.__logger = OpheliaLogger()
 
     def __numpy_to_vector_assembler(self, np_object, label_t=1):
         """
