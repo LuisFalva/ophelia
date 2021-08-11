@@ -1,14 +1,14 @@
-# [Ophilea](https://luisfalva.github.io/ophilea/)
+# [Ophelia](https://luisfalva.github.io/ophilea/)
 
-*Ophelia* to be pronounced as `Ophilea` (Hamlet's beloved beautiful woman... and is the name of the package too), is known because of her madness and immortal love for Hamlet; but Shakespeare's entire master piece does not do justice to her magnificent character.
-Ophilea is the epitome of goodness, brightness, and the elegance of simplicity.
+*Ophelia* Hamlet's beloved beautiful woman (and is the name of the package too), is known because of her madness and immortal love for Hamlet; but Shakespeare's entire master piece does not do justice to her magnificent character.
+Ophelia is the epitome of goodness, brightness, and the elegance of simplicity.
 
 # Motivations 🚀
 
-As Data Scientists or Data Analysts, we don't really want to waste too much time guessing how PySpark's API may be used. Sometimes we just want a prompt answer instead of a full nice code. With that in mind, this project
+As Data Scientists or Data Analysts, we don't really want to waste too much time guessing how PySpark's framework may be used. Sometimes we just want a prompt answer instead of a full nice code. With that in mind, this project
 aims to help reduce the complexity of the analytical lifecycle for everyone who uses PySpark frequently.
 
-Now is the time of a new, smart, and very extravagant `Ophilea` to help us optimize the learning curve involved in PySpark's most common functionality, offering features such as:
+Now is the time of a new, smart, and very extravagant `Ophelia` to help us optimize the learning curve involved in PySpark's most common functionality, offering features such as:
 - Building PySpark *ML & Mllib* pipelines in a simplified replicable and secure way
 - Embedded optimized techniques to help users struggling with *data skewness problems*
 - Easy to use build-your-own models and data mining pipelines with PySpark using *Ophilea spark wrappers*
@@ -22,77 +22,77 @@ Now is the time of a new, smart, and very extravagant `Ophilea` to help us optim
 ### Requirements 📜
 
 Before starting, you'll need to have installed pyspark >= 3.0.x, pandas >= 1.1.3, numpy >= 1.19.1, dask >= 2.30.x, scikit-learn >= 0.23.x 
-Additionally, if you want to use the Ophilea API, you'll also need Python (supported 3.7 and 3.8 versions) and pip installed.
+Additionally, if you want to use the Ophelia API, you'll also need Python (supported 3.7 and 3.8 versions) and pip installed.
 
 ### Building from source 🛠️
 
-Just clone the `Ophilea` repo and import `Ophilea`:
+Just clone the `Ophelia` repo and import `Ophelia`:
 ```sh   
 git clone https://github.com/LuisFalva/ophilea.git
 ```
 
-To initialize `Ophilea` with Spark embedded session use:
+To initialize `Ophelia` with Spark embedded session use:
 ```python
->>> from ophilea.start import Ophilea
->>> ophilea = Ophilea("Set Your Own Spark App Name")
->>> sc = ophilea.Spark.build_spark_context()
+>>> from ophelia.start import Ophelia
+>>> ophelia = Ophelia("Set Your Own Spark App Name")
+>>> sc = ophelia.Spark.build_spark_context()
 
-13:17:48.840 Ophilea [TAPE] +---------------------------------------------------------------+
-13:17:48.840 Ophilea [INFO] | Hello! This API builds data mining & ml pipelines with pyspark|
-13:17:48.840 Ophilea [INFO] | Welcome to Ophilea pyspark miner engine                       |
-13:17:48.840 Ophilea [INFO] | API Version ophilea.0.0.1                                     |
-13:17:48.840 Ophilea [TAPE] +---------------------------------------------------------------+
-13:17:48.840 Ophilea [WARN]                      - Ophilea Gentleman Org -            
-13:17:48.840 Ophilea [MASK]   █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ 
-13:17:48.840 Ophilea [MASK]   █ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ █ 
-13:17:48.841 Ophilea [MASK]   █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ 
-13:17:48.841 Ophilea [MASK]   █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ 
-13:17:48.841 Ophilea [MASK]   █ ╬ ╬ ╬ █ █ █ █ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ █ █ █ █ ╬ ╬ ╬ █ 
-13:17:48.841 Ophilea [MASK]   █ ╬ ╬ █ █ ╬ ╬ ╬ ╬ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ ╬ ╬ ╬ ╬ █ █ ╬ ╬ █ 
-13:17:48.841 Ophilea [MASK]   █ ╬ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ ╬ ╬ ╬ ╬ ╬ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ ╬ █ 
-13:17:48.841 Ophilea [MASK]   █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ 
-13:17:48.841 Ophilea [MASK]   █ ╬ ╬ ╬ ╬ █ █ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ █ █ ╬ ╬ ╬ ╬ █ 
-13:17:48.841 Ophilea [MASK]   █ ╬ ╬ █ █ █ █ █ █ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ █ █ █ █ █ █ ╬ ╬ █ 
-13:17:48.841 Ophilea [MASK]   █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ 
-13:17:48.841 Ophilea [MASK]   █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ 
-13:17:48.841 Ophilea [MASK]   █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ 
-13:17:48.841 Ophilea [MASK]   █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ 
-13:17:48.841 Ophilea [MASK]   █ ╬ ╬ ╬ ▓ ▓ ▓ ▓ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ▓ ▓ ▓ ▓ ╬ ╬ ╬ █ 
-13:17:48.841 Ophilea [MASK]   █ ╬ ╬ ▓ ▓ ▓ ▓ ▓ ▓ ╬ ╬ █ ╬ ╬ ╬ █ ╬ ╬ ╬ █ ╬ ╬ ▓ ▓ ▓ ▓ ▓ ▓ ╬ ╬ █ 
-13:17:48.841 Ophilea [MASK]   █ ╬ ╬ ╬ ▓ ▓ ▓ ▓ ╬ ╬ █ █ ╬ ╬ ╬ █ ╬ ╬ ╬ █ █ ╬ ╬ ▓ ▓ ▓ ▓ ╬ ╬ ╬ █ 
-13:17:48.842 Ophilea [MASK]   █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ ╬ ╬ ╬ ╬ █ ╬ ╬ ╬ ╬ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ 
-13:17:48.842 Ophilea [MASK]   █ ╬ ╬ ╬ ╬ ╬ █ █ █ █ ╬ ╬ ╬ ╬ █ █ █ ╬ ╬ ╬ ╬ █ █ █ █ ╬ ╬ ╬ ╬ ╬ █ 
-13:17:48.842 Ophilea [MASK]   █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ 
-13:17:48.842 Ophilea [MASK]   █ █ ╬ ╬ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ ╬ ╬ █ █ 
-13:17:48.842 Ophilea [MASK]   █ █ ╬ ╬ █ █ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ █ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ █ █ ╬ ╬ █ █ 
-13:17:48.842 Ophilea [MASK]   █ █ ╬ ╬ ▓ █ █ █ ╬ ╬ ╬ █ █ █ █ ╬ █ █ █ █ ╬ ╬ ╬ █ █ █ ▓ ╬ ╬ █ █ 
-13:17:48.842 Ophilea [MASK]   █ █ █ ╬ ╬ ▓ ▓ █ █ █ █ █ █ █ ╬ ╬ ╬ █ █ █ █ █ █ █ ▓ ▓ ╬ ╬ █ █ █ 
-13:17:48.842 Ophilea [MASK]   █ █ █ ╬ ╬ ╬ ╬ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ╬ ╬ ╬ ╬ █ █ █ 
-13:17:48.842 Ophilea [MASK]   █ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ █ 
-13:17:48.842 Ophilea [MASK]   █ █ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ █ █ 
-13:17:48.842 Ophilea [MASK]   █ █ █ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ █ █ █ 
-13:17:48.842 Ophilea [MASK]   █ █ █ █ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ █ █ █ █ 
-13:17:48.842 Ophilea [MASK]   █ █ █ █ █ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ █ █ █ █ █ 
-13:17:48.842 Ophilea [MASK]   █ █ █ █ █ █ █ █ █ ╬ ╬ ╬ ╬ ╬ █ █ █ ╬ ╬ ╬ ╬ ╬ █ █ █ █ █ █ █ █ █ 
-13:17:48.842 Ophilea [MASK]   █ █ █ █ █ █ █ █ █ █ █ ╬ ╬ ╬ ╬ █ ╬ ╬ ╬ ╬ █ █ █ █ █ █ █ █ █ █ █ 
-13:17:48.842 Ophilea [MASK]   █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ 
+13:17:48.840 Ophelia [TAPE] +---------------------------------------------------------------+
+13:17:48.840 Ophelia [INFO] | Hello! This API builds data mining & ml pipelines with pyspark|
+13:17:48.840 Ophelia [INFO] | Welcome to Ophelia pyspark miner engine                       |
+13:17:48.840 Ophelia [INFO] | Lib Version ophelia.0.1.dev0                                  |
+13:17:48.840 Ophelia [TAPE] +---------------------------------------------------------------+
+13:17:48.840 Ophelia [WARN]                      - Ophilea Gentleman Org -            
+13:17:48.840 Ophelia [MASK]   █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ 
+13:17:48.840 Ophelia [MASK]   █ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ █ 
+13:17:48.841 Ophelia [MASK]   █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ 
+13:17:48.841 Ophelia [MASK]   █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ 
+13:17:48.841 Ophelia [MASK]   █ ╬ ╬ ╬ █ █ █ █ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ █ █ █ █ ╬ ╬ ╬ █ 
+13:17:48.841 Ophelia [MASK]   █ ╬ ╬ █ █ ╬ ╬ ╬ ╬ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ ╬ ╬ ╬ ╬ █ █ ╬ ╬ █ 
+13:17:48.841 Ophelia [MASK]   █ ╬ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ ╬ ╬ ╬ ╬ ╬ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ ╬ █ 
+13:17:48.841 Ophelia [MASK]   █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ 
+13:17:48.841 Ophelia [MASK]   █ ╬ ╬ ╬ ╬ █ █ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ █ █ ╬ ╬ ╬ ╬ █ 
+13:17:48.841 Ophelia [MASK]   █ ╬ ╬ █ █ █ █ █ █ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ █ █ █ █ █ █ ╬ ╬ █ 
+13:17:48.841 Ophelia [MASK]   █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ 
+13:17:48.841 Ophelia [MASK]   █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ 
+13:17:48.841 Ophelia [MASK]   █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ 
+13:17:48.841 Ophelia [MASK]   █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ 
+13:17:48.841 Ophelia [MASK]   █ ╬ ╬ ╬ ▓ ▓ ▓ ▓ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ▓ ▓ ▓ ▓ ╬ ╬ ╬ █ 
+13:17:48.841 Ophelia [MASK]   █ ╬ ╬ ▓ ▓ ▓ ▓ ▓ ▓ ╬ ╬ █ ╬ ╬ ╬ █ ╬ ╬ ╬ █ ╬ ╬ ▓ ▓ ▓ ▓ ▓ ▓ ╬ ╬ █ 
+13:17:48.841 Ophelia [MASK]   █ ╬ ╬ ╬ ▓ ▓ ▓ ▓ ╬ ╬ █ █ ╬ ╬ ╬ █ ╬ ╬ ╬ █ █ ╬ ╬ ▓ ▓ ▓ ▓ ╬ ╬ ╬ █ 
+13:17:48.842 Ophelia [MASK]   █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ ╬ ╬ ╬ ╬ █ ╬ ╬ ╬ ╬ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ 
+13:17:48.842 Ophelia [MASK]   █ ╬ ╬ ╬ ╬ ╬ █ █ █ █ ╬ ╬ ╬ ╬ █ █ █ ╬ ╬ ╬ ╬ █ █ █ █ ╬ ╬ ╬ ╬ ╬ █ 
+13:17:48.842 Ophelia [MASK]   █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ 
+13:17:48.842 Ophelia [MASK]   █ █ ╬ ╬ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ ╬ ╬ █ █ 
+13:17:48.842 Ophelia [MASK]   █ █ ╬ ╬ █ █ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ █ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ █ █ ╬ ╬ █ █ 
+13:17:48.842 Ophelia [MASK]   █ █ ╬ ╬ ▓ █ █ █ ╬ ╬ ╬ █ █ █ █ ╬ █ █ █ █ ╬ ╬ ╬ █ █ █ ▓ ╬ ╬ █ █ 
+13:17:48.842 Ophelia [MASK]   █ █ █ ╬ ╬ ▓ ▓ █ █ █ █ █ █ █ ╬ ╬ ╬ █ █ █ █ █ █ █ ▓ ▓ ╬ ╬ █ █ █ 
+13:17:48.842 Ophelia [MASK]   █ █ █ ╬ ╬ ╬ ╬ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ▓ ╬ ╬ ╬ ╬ █ █ █ 
+13:17:48.842 Ophelia [MASK]   █ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ █ 
+13:17:48.842 Ophelia [MASK]   █ █ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ █ █ 
+13:17:48.842 Ophelia [MASK]   █ █ █ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ █ █ █ 
+13:17:48.842 Ophelia [MASK]   █ █ █ █ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ █ █ █ █ 
+13:17:48.842 Ophelia [MASK]   █ █ █ █ █ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ █ █ █ █ █ 
+13:17:48.842 Ophelia [MASK]   █ █ █ █ █ █ █ █ █ ╬ ╬ ╬ ╬ ╬ █ █ █ ╬ ╬ ╬ ╬ ╬ █ █ █ █ █ █ █ █ █ 
+13:17:48.842 Ophelia [MASK]   █ █ █ █ █ █ █ █ █ █ █ ╬ ╬ ╬ ╬ █ ╬ ╬ ╬ ╬ █ █ █ █ █ █ █ █ █ █ █ 
+13:17:48.842 Ophelia [MASK]   █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ 
                                                               
-13:17:48.843 Ophilea [WARN] Initializing Spark Session
-13:17:58.062 Ophilea [INFO] Spark Version: 3.0.0
-13:17:58.063 Ophilea [INFO] This Is: 'Set Your Own Spark App Name' App
-13:17:58.063 Ophilea [INFO] Spark Context Initialized Success
+13:17:48.843 Ophelia [WARN] Initializing Spark Session
+13:17:58.062 Ophelia [INFO] Spark Version: 3.0.0
+13:17:58.063 Ophelia [INFO] This Is: 'Set Your Own Spark App Name' App
+13:17:58.063 Ophelia [INFO] Spark Context Initialized Success
 ```
-Main class objects provided by initializing Ophilea session:
+Main class objects provided by initializing Ophelia session:
 
-- `reader` & `writer`
+- `read` & `write`
 ```python
->>> from ophilea.read.spark_read import Read
->>> from ophilea.write.spark_write import Write
+>>> from ophelia.read.spark_read import Read
+>>> from ophelia.write.spark_write import Write
 ```
 - `generic` & `functions`
 ```python
->>> from ophilea.functions import Shape, Rolling, Reshape, CorrMat, CrossTabular, PctChange, Selects, DynamicSampling
->>> from ophilea.generic import (split_date, row_index, lag_min_max_data, regex_expr, remove_duplicate_element,
+>>> from ophelia.functions import Shape, Rolling, Reshape, CorrMat, CrossTabular, PctChange, Selects, DynamicSampling
+>>> from ophelia.generic import (split_date, row_index, lag_min_max_data, regex_expr, remove_duplicate_element,
                                  year_array, dates_index, sorted_date_list, feature_pick, binary_search, century_from_year,
                                  simple_average, delta_series, simple_moving_average, average, weight_moving_average,
                                  single_exp_smooth, double_exp_smooth, initial_seasonal_components, triple_exp_smooth,
@@ -100,9 +100,9 @@ Main class objects provided by initializing Ophilea session:
 ```
 - ML package for `unsupervised`, `sampling` and `feature_miner` objects
 ```python
->>> from ophilea.ml.sampling.synthetic_sample import SyntheticSample
->>> from ophilea.ml.unsupervised.feature import PCAnalysis, SingularVD
->>> from ophilea.ml.feature_miner import BuildStringIndex, BuildOneHotEncoder, BuildVectorAssembler, BuildStandardScaler, SparkToNumpy, NumpyToVector
+>>> from ophelia.ml.sampling.synthetic_sample import SyntheticSample
+>>> from ophelia.ml.unsupervised.feature import PCAnalysis, SingularVD
+>>> from ophelia.ml.feature_miner import BuildStringIndex, BuildOneHotEncoder, BuildVectorAssembler, BuildStandardScaler, SparkToNumpy, NumpyToVector
 ```
 
 Let me show you some application examples:
@@ -110,14 +110,14 @@ Let me show you some application examples:
 The `Read` class implements Spark reading object in multiple formats `{'csv', 'parquet', 'excel', 'json'}`
 
 ```python
->>> from ophilea.read.spark_read import Read
+>>> from ophelia.read.spark_read import Read
 >>> spark_df = spark.readFile(path, 'csv', header=True, infer_schema=True)
 ```
 
 Also, you may import class `Shape` from factory `functions` in order to see the dimension of our spark DataFrame such as numpy style.
 
 ```python
->>> from ophilea.functions import Shape
+>>> from ophelia.functions import Shape
 >>> dic = {
     'Product': ['A', 'B', 'C', 'A', 'B', 'C', 'A', 'B', 'C'],
     'Year': [2010, 2010, 2010, 2011, 2011, 2011, 2012, 2012, 2012],
@@ -148,7 +148,7 @@ The `pct_change` wrapper is added to the Spark `DataFrame` class in order to hav
 objects to get the relative percentage change from one observation to another, sorted by a date-type column and lagged by a numeric-type column.
 
 ```python
->>> from ophilea.functions import PctChange
+>>> from ophelia.functions import PctChange
 >>> dic_to_df.pctChange().show(10, False)
 
 +-------------------+
