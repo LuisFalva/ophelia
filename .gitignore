@@ -1,10 +1,14 @@
-*.ipynb_checkpoints
-*.pytest_cache
+*.idea/
+*.ipynb_checkpoints/
+*.pytest_cache/
+*spark-warehouse/
+*.build/
+*.dist/
+*.ophelia.egg-info/
 *.csv
 *.pyc
 *.ipynb
-*.idea/
-test.py
+*.pylint.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

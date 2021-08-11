@@ -5,7 +5,7 @@ Ophilea is the epitome of goodness, brightness, and the elegance of simplicity.
 
 # Motivations 🚀
 
-As Data Scientists or Data Analysts, we don't really want to waste too much time guessing how PySpark's API may be used. Sometimes we just want a prompt answer instead of a full nice code. With that in mind, this project
+As Data Scientists or Data Analysts, we don't really want to waste too much time guessing how PySpark's Framework may be used. Sometimes we just want a prompt answer instead of a full nice code. With that in mind, this project
 aims to help reduce the complexity of the analytical lifecycle for everyone who uses PySpark frequently.
 
 Now is the time of a new, smart, and very extravagant `Ophilea` to help us optimize the learning curve involved in PySpark's most common functionality, offering features such as:

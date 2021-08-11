@@ -2,7 +2,7 @@ from setuptools import setup
 from setuptools import find_packages
 
 long_description = '''
-Ophelia description
+Ophelia: This API builds data mining & ml pipelines with pyspark
 '''
 
 requirements = [
@@ -20,10 +20,10 @@ requirements_test = [
 
 setup(name='ophelia',
       version='0.0.1',
-      description='Artificial assistant for machine learning applications in Spark',
+      description='Ophelia is an spark miner AI engine',
       long_description=long_description,
       author='Luis Vargas',
-      author_email='luis.vargasfavero@gmail.com',
+      author_email='falva.luis@gmail.com',
       url='https://github.com/Vendetta-Gentleman-Club/ophelia',
       download_url='https://github.com/Vendetta-Gentleman-Club/ophelia/tarball/0.0.1',
       license='Free for non-commercial use',

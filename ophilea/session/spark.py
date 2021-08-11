@@ -35,7 +35,7 @@ class OpheliaSpark:
             OpheliaSpark.__logger.info("This Is: '" + self.ophelia_spark.sparkContext.appName + "' App")
             return self.ophelia_spark
 
-    def build_spark_context(self) -> SparkContext:
+    def build_spark_context(self):
         """
         Build spark context is the builder method to initialize spark context given a spark session
         :return: spark context
