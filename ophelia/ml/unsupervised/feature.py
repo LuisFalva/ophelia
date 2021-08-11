@@ -5,9 +5,9 @@ from pyspark.ml.linalg import VectorUDT, Vectors
 from pyspark.ml.feature import PCA, PCAModel
 from pyspark.mllib.util import MLUtils
 from pyspark.mllib.linalg.distributed import IndexedRowMatrix, IndexedRow
-from ophilea.ml.feature_miner import BuildStandardScaler, BuildVectorAssembler
-from ..._logger import OphileaLogger
-from ....ophilea import OphileaMLException
+from ophelia.ml.feature_miner import BuildStandardScaler, BuildVectorAssembler
+from ..._logger import OpheliaLogger
+from ....ophelia import OphileaMLException
 
 
 class PCAnalysis(Transformer):
@@ -16,7 +16,7 @@ class PCAnalysis(Transformer):
     """
     def __init__(self, k=None, metadata_path=None):
         super(PCAnalysis, self).__init__()
-        self.__logger = OphileaLogger()
+        self.__logger = OpheliaLogger()
         self.__k = k
         self.__metadata_path = metadata_path
 
@@ -37,7 +37,7 @@ class SingularVD(Transformer):
     """
     def __init__(self, k=None, offset=95, label_col='label'):
         super(SingularVD, self).__init__()
-        self.__logger = OphileaLogger()
+        self.__logger = OpheliaLogger()
         self.k = k
         self.offset = offset
         self.label_col = label_col
@@ -50,7 +50,7 @@ class SingularVD(Transformer):
         """
         try:
             to_dense_udf = udf(lambda v: Vectors.dense(v.toArray()), VectorUDT())
-            self.__logger.info(f"Parsing Feature Vector To DenseUDT")
+            self.__logger.info("Parsing Feature Vector To DenseUDT")
             return vec_df.select(monotonically_increasing_id().alias('id'), to_dense_udf('features').alias('features'))
         except TypeError as te:
             raise OphileaMLException(f"An error occurred while calling __to_dense_vector() method: {te}")
@@ -132,7 +132,7 @@ class SingularVD(Transformer):
         :return:
         """
         try:
-            self.__logger.info(f"Compute Eigenvalues & Eigenvectors From Hyperplane")
+            self.__logger.info("Compute Eigenvalues & Eigenvectors From Hyperplane")
             return np.flipud(np.sort(svd['S']**2 / (svd['n']-1)))
         except TypeError as te:
             raise OphileaMLException(f"An error occurred while calling compute_eigenvalues() method: {te}")
@@ -146,7 +146,7 @@ class SingularVD(Transformer):
         :return: numpy array with total variance for each component
         """
         try:
-            self.__logger.info(f"Compute Variance For Each Component")
+            self.__logger.info("Compute Variance For Each Component")
             return (eigen_vals.cumsum() / eigen_vals.sum()) * 100
         except TypeError as te:
             raise OphileaMLException(f"An error occurred while calling cumulative_variance() method: {te}")

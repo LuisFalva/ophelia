@@ -33,14 +33,14 @@ git clone https://github.com/LuisFalva/ophilea.git
 
 To initialize `Ophilea` with Spark embedded session use:
 ```python
->>> from ophilea.start import Ophilea
+>>> from ophelia.start import Ophilea
 >>> ophilea = Ophilea("Set Your Own Spark App Name")
 >>> sc = ophilea.Spark.build_spark_context()
 
 13:17:48.840 Ophilea [TAPE] +---------------------------------------------------------------+
 13:17:48.840 Ophilea [INFO] | Hello! This API builds data mining & ml pipelines with pyspark|
 13:17:48.840 Ophilea [INFO] | Welcome to Ophilea pyspark miner engine                       |
-13:17:48.840 Ophilea [INFO] | API Version ophilea.0.0.1                                     |
+13:17:48.840 Ophilea [INFO] | Lib Version ophilea.0.1.dev0                                  |
 13:17:48.840 Ophilea [TAPE] +---------------------------------------------------------------+
 13:17:48.840 Ophilea [WARN]                      - Ophilea Gentleman Org -            
 13:17:48.840 Ophilea [MASK]   █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ 
@@ -86,13 +86,13 @@ Main class objects provided by initializing Ophilea session:
 
 - `read` & `write`
 ```python
->>> from ophilea.read.spark_read import Read
->>> from ophilea.write.spark_write import Write
+>>> from ophelia.read.spark_read import Read
+>>> from ophelia.write.spark_write import Write
 ```
 - `generic` & `functions`
 ```python
->>> from ophilea.functions import Shape, Rolling, Reshape, CorrMat, CrossTabular, PctChange, Selects, DynamicSampling
->>> from ophilea.generic import (split_date, row_index, lag_min_max_data, regex_expr, remove_duplicate_element,
+>>> from ophelia.functions import Shape, Rolling, Reshape, CorrMat, CrossTabular, PctChange, Selects, DynamicSampling
+>>> from ophelia.generic import (split_date, row_index, lag_min_max_data, regex_expr, remove_duplicate_element,
                                  year_array, dates_index, sorted_date_list, feature_pick, binary_search, century_from_year,
                                  simple_average, delta_series, simple_moving_average, average, weight_moving_average,
                                  single_exp_smooth, double_exp_smooth, initial_seasonal_components, triple_exp_smooth,
@@ -100,9 +100,9 @@ Main class objects provided by initializing Ophilea session:
 ```
 - ML package for `unsupervised`, `sampling` and `feature_miner` objects
 ```python
->>> from ophilea.ml.sampling.synthetic_sample import SyntheticSample
->>> from ophilea.ml.unsupervised.feature import PCAnalysis, SingularVD
->>> from ophilea.ml.feature_miner import BuildStringIndex, BuildOneHotEncoder, BuildVectorAssembler, BuildStandardScaler, SparkToNumpy, NumpyToVector
+>>> from ophelia.ml.sampling.synthetic_sample import SyntheticSample
+>>> from ophelia.ml.unsupervised.feature import PCAnalysis, SingularVD
+>>> from ophelia.ml.feature_miner import BuildStringIndex, BuildOneHotEncoder, BuildVectorAssembler, BuildStandardScaler, SparkToNumpy, NumpyToVector
 ```
 
 Let me show you some application examples:
@@ -110,14 +110,14 @@ Let me show you some application examples:
 The `Read` class implements Spark reading object in multiple formats `{'csv', 'parquet', 'excel', 'json'}`
 
 ```python
->>> from ophilea.read.spark_read import Read
+>>> from ophelia.read.spark_read import Read
 >>> spark_df = spark.readFile(path, 'csv', header=True, infer_schema=True)
 ```
 
 Also, you may import class `Shape` from factory `functions` in order to see the dimension of our spark DataFrame such as numpy style.
 
 ```python
->>> from ophilea.functions import Shape
+>>> from ophelia.functions import Shape
 >>> dic = {
     'Product': ['A', 'B', 'C', 'A', 'B', 'C', 'A', 'B', 'C'],
     'Year': [2010, 2010, 2010, 2011, 2011, 2011, 2012, 2012, 2012],
@@ -148,7 +148,7 @@ The `pct_change` wrapper is added to the Spark `DataFrame` class in order to hav
 objects to get the relative percentage change from one observation to another, sorted by a date-type column and lagged by a numeric-type column.
 
 ```python
->>> from ophilea.functions import PctChange
+>>> from ophelia.functions import PctChange
 >>> dic_to_df.pctChange().show(10, False)
 
 +-------------------+

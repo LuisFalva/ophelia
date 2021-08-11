@@ -1,7 +1,7 @@
 from datetime import datetime
 
 
-class OphileaLogger:
+class OpheliaLogger:
 
     @staticmethod
     def get_current_time():

@@ -1,10 +1,10 @@
 class Ophilea:
 
     def __init__(self, app_name=None, no_mask=True):
-        from ..ophilea._info import OphileaInfo
-        from ..ophilea.write.spark_write import Write
-        from ..ophilea.read.spark_read import Read
-        from ..ophilea.session.spark import OpheliaSpark
+        from ..ophelia._info import OphileaInfo
+        from ..ophelia.write.spark_write import Write
+        from ..ophelia.read.spark_read import Read
+        from ..ophelia.session.spark import OpheliaSpark
         Read()
         Write()
         m = OphileaInfo()

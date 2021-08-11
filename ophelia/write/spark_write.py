@@ -1,12 +1,12 @@
 from pyspark.sql import DataFrame
-from .._logger import OphileaLogger
-from ...ophilea import PathWrite
+from .._logger import OpheliaLogger
+from ...ophelia import PathWrite
 
 
 class Write:
 
     def __init__(self):
-        self.__logger = OphileaLogger()
+        self.__logger = OpheliaLogger()
         self.__path = PathWrite()
 
     def write_parquet(self, df: DataFrame, output_type: str, project: str,

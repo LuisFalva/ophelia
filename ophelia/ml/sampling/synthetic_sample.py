@@ -3,7 +3,7 @@ import numpy as np
 from sklearn import neighbors
 from pyspark.sql import DataFrame
 from ml.feature_miner import BuildVectorAssembler, SparkToNumpy, NumpyToVector
-from ....ophilea import InstanceError
+from ....ophelia import InstanceError
 
 
 class SyntheticSample:

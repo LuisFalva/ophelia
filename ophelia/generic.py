@@ -5,14 +5,14 @@ from pyspark.sql import Window
 from pyspark.sql.types import IntegerType, LongType, StructField, StructType, Row
 from pyspark.sql.functions import col, year, month, dayofmonth, row_number, udf, desc, asc
 from . import OphileaUtilitiesException
-from ..ophilea._logger import OphileaLogger
+from ..ophelia._logger import OpheliaLogger
 
 __all__ = ['split_date', 'row_index', 'lag_min_max_data', 'regex_expr', 'remove_duplicate_element',
            'year_array', 'dates_index', 'sorted_date_list', 'feature_pick', 'binary_search', 'century_from_year',
            'simple_average', 'delta_series', 'simple_moving_average', 'average', 'weight_moving_average',
            'single_exp_smooth', 'double_exp_smooth', 'initial_seasonal_components', 'triple_exp_smooth',
            'row_indexing', 'string_match']
-logger = OphileaLogger()
+logger = OpheliaLogger()
 
 
 def split_date(df, col_date: str):
