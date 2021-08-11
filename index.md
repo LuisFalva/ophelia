@@ -1,4 +1,4 @@
-# Ophel.ia
+# Ophelia
 
 *Ophelia* Hamlet's beloved beautiful woman (and is the name of the package too), is known because of her madness and immortal love for Hamlet; but Shakespeare's entire master piece does not do justice to her magnificent character.
 Ophelia is the epitome of goodness, brightness, and the elegance of simplicity.
