@@ -1,6 +1,6 @@
 theme: minima
 minima:
-  skin: "dark"
+  skin: "solarized-dark"
 header_pages:
   - about.md
   - portfolio.md
