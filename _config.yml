@@ -1,7 +1,6 @@
-theme: minima
-minima:
-  skin: "solarized-dark"
-header_pages:
-  - about.md
-  - portfolio.md
-show_excerpts: "true"
+remote_theme: pages-themes/hacker@v0.2.0
+plugins:
+  - jekyll-remote-theme # add this line to the plugins list if you already have one
+title: "Ophel.ia"
+description: "This API builds data mining & ml pipelines with pyspark"
+show_downloads: "true"
