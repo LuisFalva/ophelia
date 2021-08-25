@@ -15,7 +15,7 @@ from pyspark.sql.types import StructField, StringType, StructType
 from pyspark.ml.stat import Correlation
 from pyspark.ml.feature import VectorAssembler
 from . import SparkMethods
-from generic import remove_duplicate_element, feature_pick, regex_expr
+from .generic import remove_duplicate_element, feature_pick, regex_expr
 
 __all__ = ["NullDebugWrapper", "CorrMatWrapper", "ShapeWrapper",
            "RollingWrapper", "DynamicSamplingWrapper", "SelectWrapper",
