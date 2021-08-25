@@ -387,15 +387,10 @@ class SelectWrapper(Selects):
 
 class MapItem(DataFrame):
 
-    def __init__(self, df):
-        super(MapItem, self).__init__(df._jdf, df.sql_ctx)
-        self._jdf = df._jdf
-        self.sql_ctx = df.sql_ctx
-        self._sc = self.sql_ctx and self.sql_ctx._sc
-
+    @staticmethod
     def map_item(self, origin_col, map_col, map_val):
         map_expr = create_map([lit(x) for x in chain(*map_val.items())])
-        return self._jdf.select('*', (map_expr[self._jdf[origin_col]]).alias(map_col))
+        return self.select('*', (map_expr[self[origin_col]]).alias(map_col))
 
 
 class MapItemsWrapper(MapItem):
