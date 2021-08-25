@@ -15,7 +15,7 @@ from pyspark.sql.types import StructField, StringType, StructType
 from pyspark.ml.stat import Correlation
 from pyspark.ml.feature import VectorAssembler
 from . import SparkMethods
-from ..ophelia.generic import remove_duplicate_element, feature_pick, regex_expr
+from generic import remove_duplicate_element, feature_pick, regex_expr
 
 __all__ = ["NullDebugWrapper", "CorrMatWrapper", "ShapeWrapper",
            "RollingWrapper", "DynamicSamplingWrapper", "SelectWrapper",
@@ -35,6 +35,14 @@ class NullDebug(object):
 
     @staticmethod
     def null_clean(self, partition_by, offset):
+        """
+        Null clean method will be on charge to clean and debug all kind of null types in
+        your Spark DataFrame within a determined offset of proportionality
+        :param self: DataFrame object heritage
+        :param partition_by: str, name of partition column
+        :param offset: float, number for offset controller
+        :return: new Spark DataFrame without columns that had more Nulls than the set offset
+        """
         if partition_by:
             cleansing_list = NullDebug.__cleansing_list(self, partition_by, offset)
             return self.select(partition_by, *cleansing_list)
@@ -44,6 +52,10 @@ class NullDebug(object):
 
 
 class NullDebugWrapper:
+    """
+    Class NullDebugWrapper is a class for wrapping methods from NullDebug class
+    adding this functionality to Spark DataFrame class
+    """
     DataFrame.nullDebug = NullDebug.null_clean
 
 

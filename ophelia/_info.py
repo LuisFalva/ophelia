@@ -1,7 +1,7 @@
-from ..ophelia._logger import OpheliaLogger
+from ._logger import OpheliaLogger
 
 
-class OphileaInfo:
+class OpheliaInfo:
 
     def __init__(self):
         self.__logger = OpheliaLogger()
@@ -72,7 +72,7 @@ class OphileaInfo:
         self.__build_info()
         self.__build_mask()
 
-    def print_info(self, no_mask=True):
-        if no_mask:
-            return self.__build_info()
-        return self.__build_ophilea_message()
+    def print_info(self, mask):
+        if mask:
+            return self.__build_ophilea_message()
+        return self.__build_info()

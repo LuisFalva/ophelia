@@ -7,6 +7,10 @@
 *.ophelia.egg-info/
 *.tox/
 
+# Virtualenv env
+*env/
+*venv/
+
 # File extensions
 *.csv
 *.pyc
