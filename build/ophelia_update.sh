@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-echo '========================================================='
-echo "[Ophelia] Updating Ophelia-0.1.dev0 package in local env."
-echo '========================================================='
+echo '================================================================='
+echo "[Ophelia] Updating and fetching all new files from latest commits"
+echo '================================================================='
 
 # Lets fetch all new generated metadata from latest push
 git fetch --all
