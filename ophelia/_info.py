@@ -7,7 +7,7 @@ class OpheliaInfo:
         self.__logger = OpheliaLogger()
         self.__version = 'Ophelia.0.0.1'
         self.__info = {
-            "who is": "Hello! Package for data mining & ml pipelines using pyspark",
+            "who is": "Hello! This is a package for data mining & ml pipelines using pyspark",
             "welcome": "Welcome to Ophelia Spark miner engine",
             "version": f"Package Version {self.__version}",
             "warn": "V for Vendata..."
