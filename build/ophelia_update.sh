@@ -20,7 +20,3 @@ git pull "${GIT_REMOTE}" "${GIT_BRANCH}"
 
 # Now lets update ophelia package
 ./build/ophelia_install.sh
-
-echo '********************************************'
-echo '[Ophelia] Successfully built Ophelia \o/ !!!'
-echo '********************************************'
