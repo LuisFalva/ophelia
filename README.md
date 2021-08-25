@@ -48,6 +48,7 @@ Successfully installed Ophelia-0.1.dev0
 Ophelia is now installed in your local env. Have fun! =)
 ********************************************************
 ```
+### Importing and initializing Ophelia 📦
 
 To initialize `Ophelia` with Spark embedded session use:
 ```python
