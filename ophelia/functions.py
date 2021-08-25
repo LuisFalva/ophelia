@@ -17,7 +17,7 @@ from pyspark.ml.feature import VectorAssembler
 from . import SparkMethods
 from .generic import remove_duplicate_element, feature_pick, regex_expr
 
-__all__ = ["NullDebugWrapper", "CorrMatWrapper", "ShapeWrapper",
+__all__ = ["NullDebugWrapper", "CorrMatWrapper", "ShapeWrapper", "MapItemsWrapper",
            "RollingWrapper", "DynamicSamplingWrapper", "SelectWrapper",
            "ReshapeWrapper", "PctChangeWrapper", "CrossTabularWrapper"]
 
@@ -366,11 +366,6 @@ class Selects(object):
                 'categorical': self.select_categorical(df),
                 'numeric': self.select_numerical(df)}
 
-    @staticmethod
-    def map_item(self, origin_col, map_col, map_val):
-        map_expr = create_map([lit(x) for x in chain(*map_val.items())])
-        return self.select('*', (map_expr[self[origin_col]]).alias(map_col))
-
 
 class SelectWrapper(object):
 
@@ -388,7 +383,19 @@ class SelectWrapper(object):
     DataFrame.selectLongs = Selects.select_longs
     DataFrame.selectDates = Selects.select_dates
     DataFrame.selectFeatures = Selects.select_features
-    DataFrame.mapItem = Selects.map_item
+
+
+class MapItems(DataFrame):
+
+    @staticmethod
+    def map_item(self, origin_col, map_col, map_val):
+        map_expr = create_map([lit(x) for x in chain(*map_val.items())])
+        return self.select('*', (map_expr[self[origin_col]]).alias(map_col))
+
+
+class MapItemsWrapper(MapItems):
+
+    DataFrame.mapItem = MapItems.map_item
 
 
 class Reshape(DataFrame):
