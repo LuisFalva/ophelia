@@ -1,25 +1,32 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from setuptools import setup, find_packages
+import os
+import pip
 
-try:
+pip_major = int(pip.__version__.split(".")[0])
+
+if pip_major < 10:
     from pip.download import PipSession
     from pip.req import parse_requirements
-except ImportError as ie:
+elif pip_major < 20:
     from pip._internal.download import PipSession
     from pip._internal.req import parse_requirements
-
-from setuptools import setup, find_packages
-from os import path
+else:
+    from pip._internal.network.session import PipSession
+    from pip._internal.req.req_file import parse_requirements
 
 
 if __name__ == "__main__":
-    here = path.abspath(path.dirname(__file__))
+    here = os.path.abspath(os.path.dirname(__file__))
 
-    with open(path.join(here, 'README.md')) as f:
+    with open(os.path.join(here, 'README.md')) as f:
         readme = f.read()
 
-    requirements = [str(ir.req) for ir in parse_requirements('requirements.txt', session=PipSession())]
-    test_requirements = [str(ir.req) for ir in parse_requirements('requirements_test.txt', session=PipSession())]
+    session = PipSession()
+    parse_req = (lambda file: list(parse_requirements(file, session=session)))
+    requirements = [str(ir.requirement) for ir in parse_req('requirements.txt')]
+    test_requirements = [str(ir.requirement) for ir in parse_req('requirements_dev.txt')]
 
     description = '''
     Ophelia is an spark miner AI engine that builds data mining & ml pipelines with PySpark.
@@ -46,7 +53,7 @@ if __name__ == "__main__":
               'Intended Audience :: Financial and Insurance Industry',
               'License :: Free for non-commercial use',
               'Programming Language :: Python :: 3',
-              'Programming Language :: Python :: 3.6',
+              'Programming Language :: Python :: 3.7',
               'Topic :: Software Development :: Libraries',
               'Topic :: Software Development :: Libraries :: Python Modules',
               'Topic :: Office/Business :: Financial :: Investment',
