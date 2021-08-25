@@ -6,7 +6,7 @@ from pyspark.sql.functions import (
 __all__ = ["SparkMethods", "ClassType", "ClassName", "InstanceError", 'FormatRead', "PathWrite",
            "FormatWrite", "OpheliaMLException", "OpheliaMLMinerException", "OpheliaUtilitiesException",
            "OpheliaReadFileException", "OpheliaSparkSessionException", "OpheliaSparkWrapperException",
-           "OphileaWriteFileException"]
+           "OpheliaWriteFileException"]
 
 
 def SparkMethods():
@@ -101,7 +101,7 @@ class OpheliaSparkWrapperException(Exception):
     pass
 
 
-class OphileaWriteFileException(Exception):
+class OpheliaWriteFileException(Exception):
     """
     Ophilea Write File Exception
     """

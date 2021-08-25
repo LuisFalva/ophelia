@@ -22,7 +22,7 @@ __all__ = ["NullDebugWrapper", "CorrMatWrapper", "ShapeWrapper", "MapItemsWrappe
            "ReshapeWrapper", "PctChangeWrapper", "CrossTabularWrapper"]
 
 
-class NullDebug(object):
+class NullDebug(DataFrame):
 
     @staticmethod
     def __cleansing_list(self, partition_by=None, offset: float = 0.5):
@@ -51,7 +51,7 @@ class NullDebug(object):
         return gen_part.select('partition_id', *cleansing_list)
 
 
-class NullDebugWrapper:
+class NullDebugWrapper(NullDebug):
     """
     Class NullDebugWrapper is a class for wrapping methods from NullDebug class
     adding this functionality to Spark DataFrame class
@@ -59,7 +59,7 @@ class NullDebugWrapper:
     DataFrame.nullDebug = NullDebug.null_clean
 
 
-class CorrMat(object):
+class CorrMat(DataFrame):
 
     @staticmethod
     def __corr(pair):
@@ -123,7 +123,7 @@ class CorrMat(object):
         return corr_test.rdd.map(extract).toDF(corr_cols)
 
 
-class CorrMatWrapper:
+class CorrMatWrapper(CorrMat):
 
     DataFrame.uniqueRow = CorrMat.unique_row
     DataFrame.cartRDD = CorrMat.cartesian_rdd
@@ -132,7 +132,7 @@ class CorrMatWrapper:
     DataFrame.corrStat = CorrMat.spark_correlation
 
 
-class Shape:
+class Shape(DataFrame):
 
     @staticmethod
     def shape(self):
@@ -141,12 +141,12 @@ class Shape:
         return self.count(), len(self.columns)
 
 
-class ShapeWrapper(DataFrame):
+class ShapeWrapper(Shape):
 
     DataFrame.Shape = property(lambda self: Shape.shape(self))
 
 
-class Rolling(object):
+class Rolling(DataFrame):
 
     @staticmethod
     def rolling_down(self, op_col, nat_order, min_p=2, window=2, method='sum'):
@@ -167,12 +167,12 @@ class Rolling(object):
         return self.select('*', rolling)
 
 
-class RollingWrapper(object):
+class RollingWrapper(Rolling):
 
     DataFrame.rollingDown = Rolling.rolling_down
 
 
-class DynamicSampling(object):
+class DynamicSampling(DataFrame):
 
     @staticmethod
     def empty_scan(self):
@@ -200,15 +200,16 @@ class DynamicSampling(object):
         return DynamicSampling.union_all(sample_list).drop('n')
 
 
-class DynamicSamplingWrapper(object):
+class DynamicSamplingWrapper(DynamicSampling):
 
     DataFrame.emptyScan = DynamicSampling.empty_scan
     DataFrame.simple_sample = DynamicSampling.sample_n
 
 
-class Selects(object):
+class Selects(DataFrame):
 
     def __init__(self, jdf, sql_ctx):
+        super(Selects, self).__init__(jdf, sql_ctx)
         self._jdf = jdf
         self.sql_ctx = sql_ctx
         self._sc = sql_ctx and sql_ctx._sc
@@ -219,7 +220,6 @@ class Selects(object):
             return [f'.*{regex}' for regex in regex_name]
         return [f'.*{regex_name}']
 
-    @staticmethod
     def select_regex(self, reg_expr):
         # Todo: es posible llamar el atributo _jdf sin necesidad de quitar el decorador @staticmethod, se remueven por
         # Todo: que producen error de ejecucion por el momento
@@ -230,10 +230,10 @@ class Selects(object):
         clean_regex_list = remove_duplicated_elements(regex_list)
         return DataFrame(self._jdf.select(clean_regex_list), self.sql_ctx)
         """
-        stream = self.columns
+        stream = self._jdf.columns
         regex_list = [line for regex in reg_expr for line in stream if re.compile(regex).match(line)]
         clean_regex_list = remove_duplicate_element(regex_list)
-        return self.select(clean_regex_list)
+        return self._jdf.select(clean_regex_list)
 
     @staticmethod
     def select_startswith(self, regex):
@@ -367,7 +367,7 @@ class Selects(object):
                 'numeric': self.select_numerical(df)}
 
 
-class SelectWrapper(object):
+class SelectWrapper(Selects):
 
     DataFrame.selectRegex = Selects.select_regex
     DataFrame.selectStartswith = Selects.select_startswith
@@ -385,17 +385,22 @@ class SelectWrapper(object):
     DataFrame.selectFeatures = Selects.select_features
 
 
-class MapItems(DataFrame):
+class MapItem(DataFrame):
 
-    @staticmethod
+    def __init__(self, jdf, sql_ctx):
+        super(MapItem, self).__init__(jdf, sql_ctx)
+        self._jdf = jdf
+        self.sql_ctx = sql_ctx
+        self._sc = sql_ctx and sql_ctx._sc
+
     def map_item(self, origin_col, map_col, map_val):
         map_expr = create_map([lit(x) for x in chain(*map_val.items())])
-        return self.select('*', (map_expr[self[origin_col]]).alias(map_col))
+        return self._jdf.select('*', (map_expr[self._jdf[origin_col]]).alias(map_col))
 
 
-class MapItemsWrapper(MapItems):
+class MapItemsWrapper(MapItem):
 
-    DataFrame.mapItem = MapItems.map_item
+    DataFrame.mapItem = MapItem.map_item
 
 
 class Reshape(DataFrame):
@@ -462,13 +467,13 @@ class Reshape(DataFrame):
         return self.groupBy(group_by_expr).pivot(pivot_col).agg(*agg_list).repartition(rep).na.fill(0)
 
 
-class ReshapeWrapper(object):
+class ReshapeWrapper(Reshape):
 
     DataFrame.toWide = Reshape.wide_format
     DataFrame.toNarrow = Reshape.narrow_format
 
 
-class PctChange(object):
+class PctChange(DataFrame):
 
     @staticmethod
     def __build_pct_change_function(x, t, w):
@@ -532,13 +537,13 @@ class PctChange(object):
         return primary_list
 
 
-class PctChangeWrapper(object):
+class PctChangeWrapper(PctChange):
 
     DataFrame.pctChange = PctChange.pct_change
     DataFrame.remove_element = PctChange.remove_element
 
 
-class CrossTabular(object):
+class CrossTabular(DataFrame):
 
     @staticmethod
     def __expression(cols_list, xpr):
@@ -598,7 +603,7 @@ class CrossTabular(object):
             return union_df.select(f'{group_by}_{pivot_col}', *func)
 
 
-class CrossTabularWrapper(object):
+class CrossTabularWrapper(CrossTabular):
 
     DataFrame.foreachCol = CrossTabular.foreach_col
     DataFrame.resumeDF = CrossTabular.resume_dataframe
@@ -606,7 +611,7 @@ class CrossTabularWrapper(object):
     DataFrame.crossPct = CrossTabular.cross_pct
 
 
-class Joins(object):
+class Joins(DataFrame):
 
     @staticmethod
     def join_small_df(self, small_df, on, how):
@@ -628,15 +633,18 @@ class Joins(object):
         return self.join(broadcast(small_df), on, how)
 
 
-class JoinsWrapper(object):
+class JoinsWrapper(Joins):
 
     DataFrame.joinSmall = Joins.join_small_df
 
 
-class DaskSpark(object):
+class DaskSpark(DataFrame):
 
     @staticmethod
     def __spark_to_dask(self):
+        """
+        TODO: Se necesita optimizar la manera en la que se escribe con coalesce(1) se debe escribir con Spark Streaming
+        """
         tmp_path = os.getcwd() + '/data/dask_tmp/'
         self.coalesce(1).write.mode('overwrite').parquet(tmp_path)
         return dask_df.read_parquet(tmp_path)
@@ -659,7 +667,7 @@ class DaskSpark(object):
             return dask_pandas_series.to_dask_array()
 
 
-class DaskSparkWrapper(object):
+class DaskSparkWrapper(DaskSpark):
 
     DataFrame.toPandasSeries = DaskSpark.spark_to_series
     DataFrame.toNumpyArray = DaskSpark.spark_to_numpy
