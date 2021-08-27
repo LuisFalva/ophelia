@@ -58,7 +58,7 @@ Where this will strictly use for updating package correctly:
  - GIT_BRANCH: main
 
 *In order to update correctly Ophelia's package you may need to configure your git remote
-as 'origin' pointing to url main Github repo*
+as 'origin' pointing to url main Github repo.*
 
 ### Importing and initializing Ophelia 📦
 
