@@ -7,7 +7,7 @@ class OpheliaInfo:
         self.__logger = OpheliaLogger()
         self.__version = 'Ophelia.0.0.1'
         self.__info = {
-            "who is": "Hello! This package is for data mining & ml pipelines using PySpark",
+            "who is": "Hello! This engine is for data mining & ml pipelines in PySpark",
             "welcome": "Welcome to Ophelia Spark miner engine",
             "version": f"Package Version {self.__version}",
             "warn": "V for Vendata..."
@@ -33,7 +33,7 @@ class OpheliaInfo:
         self.__logger.tape(self.__info[max(self.__info)], adjust_tape=-2)
 
     def __build_mask(self):
-        self.__logger.warning(self.__auto_space("                  - Ophelia a pyspark miner -               "))
+        self.__logger.warning(self.__auto_space("                  - Ophelia a Spark miner -                 "))
         self.__logger.mask(self.__auto_space("  █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █"))
         self.__logger.mask(self.__auto_space("  █ █ █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █ █ █"))
         self.__logger.mask(self.__auto_space("  █ █ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ ╬ █ █"))
