@@ -41,7 +41,7 @@ And execute the following bash script:
 ./build/ophelia_install.sh
 ```
 
-**Important Note**: You must see a successful message like this one below:
+☝️**First Important Note**: You must see a successful message like this one below:
 ```sh   
 Successfully installed Ophelia-0.1.dev0
 ********************************************************
@@ -49,7 +49,7 @@ Ophelia is now installed in your local env. Have fun! =)
 ********************************************************
 ```
 
-**Second Important Note**: If you want to update your Ophelia local installation execute the following script 👇
+✌️**Second Important Note**: If you want to update your Ophelia local installation execute the following script
 ```sh   
 ./build/ophelia_update.sh {GIT_REMOTE} {GIT_BRANCH}
 ```
