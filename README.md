@@ -51,8 +51,14 @@ Ophelia is now installed in your local env. Have fun! =)
 
 **Second Important Note**: If you want to update your Ophelia local installation execute the following script 👇
 ```sh   
-./build/ophelia_update.sh
+./build/ophelia_update.sh {GIT_REMOTE} {GIT_BRANCH}
 ```
+Where this will strictly use for updating package correctly:
+ - GIT_REMOTE: origin
+ - GIT_BRANCH: main
+
+*In order to update correctly Ophelia's package you may need to configure your git remote
+as 'origin' pointing to url main Github repo*
 
 ### Importing and initializing Ophelia 📦
 
