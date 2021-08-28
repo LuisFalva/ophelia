@@ -423,17 +423,14 @@ class Reshape(DataFrame):
                 pivot_col, value_col = new_cols[0], new_cols[1]
             else:
                 pivot_col, value_col = 'no_name_pivot_col', 'no_name_value_col'
-            cols, dtype = zip(*[(c, t) for (c, t) in self.dtypes if c not in fix_cols])
-
-            if len(set(map(lambda x: x[-1], dtype[1:]))) != 1:
-                raise AssertionError("Column Type Must Be The Same 'DataType'")
+            cols, dtype = zip(*[(c, t) for (c, t) in self.dtypes if c not in [fix_cols]])
 
             generator_explode = explode(array([
                 struct(lit(c).alias(pivot_col), col(c).alias(value_col)) for c in cols
             ])).alias('column_explode')
             column_to_explode = [f'column_explode.{pivot_col}', f'column_explode.{value_col}']
 
-            return Reshape(self.select(fix_cols + [generator_explode]).select(fix_cols + column_to_explode))
+            return Reshape(self.select([fix_cols] + [generator_explode]).select([fix_cols] + column_to_explode))
         except Exception as e:
             raise OpheliaFunctionsException(f"An error occurred while calling narrow_format() method: {e}")
 
