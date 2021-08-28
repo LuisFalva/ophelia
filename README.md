@@ -23,6 +23,7 @@ Now is the time of a new, smart, and very extravagant `Ophelia` to help us optim
 ### Requirements 📜
 
 Before starting, you'll need to have installed pyspark >= 3.0.x, pandas >= 1.1.3, numpy >= 1.19.1, dask >= 2.30.x, scikit-learn >= 0.23.x 
+
 Additionally, if you want to use the Ophelia package, you'll also need Python (supported 3.7 and 3.8 versions) and pip installed.
 
 ### Building from source 🛠️

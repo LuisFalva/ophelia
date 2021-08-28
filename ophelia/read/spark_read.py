@@ -45,8 +45,11 @@ class Read:
         :param path: str, root path from file to load
         :return: spark DataFrame
         """
-        Read.__logger.info(f"Read Parquet File From Path: {path}")
-        return self.read.parquet(path)
+        try:
+            Read.__logger.info(f"Read Parquet File From Path: {path}")
+            return self.read.parquet(path)
+        except TypeError as te:
+            raise OpheliaReadFileException(f"An error occurred while calling read_parquet() method: {te}")
 
     @staticmethod
     def read_excel(self, path: str, sheet_name: str) -> DataFrame:
@@ -57,8 +60,11 @@ class Read:
         :param sheet_name: str, name from excel sheet
         :return: spark DataFrame
         """
-        Read.__logger.info(f"Read Excel File From Path: {path}")
-        return self.createDataFrame(pd.read_excel(path, sheet_name))
+        try:
+            Read.__logger.info(f"Read Excel File From Path: {path}")
+            return self.createDataFrame(pd.read_excel(path, sheet_name))
+        except TypeError as te:
+            raise OpheliaReadFileException(f"An error occurred while calling read_excel() method: {te}")
 
     @staticmethod
     def read_json(self, path: str) -> DataFrame:
@@ -68,8 +74,11 @@ class Read:
         :param path: str, root path from file to load
         :return: spark DataFrame
         """
-        Read.__logger.info(f"Read Json File From Path: {path}")
-        return self.read.json(path)
+        try:
+            Read.__logger.info(f"Read Json File From Path: {path}")
+            return self.read.json(path)
+        except TypeError as te:
+            raise OpheliaReadFileException(f"An error occurred while calling read_json() method: {te}")
 
     @staticmethod
     def read_file(self, path_source: str, source: str, sheet: str = None,
@@ -84,19 +93,22 @@ class Read:
         :param infer_schema: str, name from excel sheet
         :return: spark DataFrame
         """
-        if path_source is None or source is None:
-            Read.__logger.error("'path' And 'source' Params Must Be Not None")
-            raise ValueError("Params Must Be Not None")
-        if source not in Read.__format.all:
-            Read.__logger.error(f"Format Type '{source}' Not Available In Spark")
-            raise TypeError("'source' Type Must Be: {'parquet', 'excel', 'csv', 'json'}")
-        read_object = {
-            Read.__format.parquet: None if source != "parquet" else Read.read_parquet(self, path_source),
-            Read.__format.csv: None if source != "csv" else Read.read_csv(self, path_source, header, infer_schema),
-            Read.__format.excel: None if source != "excel" else Read.read_excel(self, path_source, sheet),
-            Read.__format.json: None if source != "json" else Read.read_json(self, path_source)
-        }
-        return read_object[source]
+        try:
+            if path_source is None or source is None:
+                Read.__logger.error("'path' And 'source' Params Must Be Not None")
+                raise ValueError("Params Must Be Not None")
+            if source not in Read.__format.all:
+                Read.__logger.error(f"Format Type '{source}' Not Available In Spark")
+                raise TypeError("'source' Type Must Be: {'parquet', 'excel', 'csv', 'json'}")
+            read_object = {
+                Read.__format.parquet: None if source != "parquet" else Read.read_parquet(self, path_source),
+                Read.__format.csv: None if source != "csv" else Read.read_csv(self, path_source, header, infer_schema),
+                Read.__format.excel: None if source != "excel" else Read.read_excel(self, path_source, sheet),
+                Read.__format.json: None if source != "json" else Read.read_json(self, path_source)
+            }
+            return read_object[source]
+        except TypeError as te:
+            raise OpheliaReadFileException(f"An error occurred while calling read_file() method: {te}")
 
 
 class SparkReadWrapper(object):
