@@ -32,9 +32,16 @@ Just clone the `Ophelia` repo and import `Ophelia`:
 git clone https://github.com/LuisFalva/ophilea.git
 ```
 
-After clone the `Ophelia` repo go to:
+After wiring and clone the `Ophelia` repo go to:
 ```sh   
 cd ophilea
+```
+
+> 📡 First time installation. For the very first time running and installing Ophelia in your local machine you need to wire with Ophelia's main repo.
+Just run the following script in order to setup correctly:
+
+```sh
+./build/ophelia_wire.sh
 ```
 
 And execute the following bash script:
