@@ -5,7 +5,8 @@ import pandas as pd
 from itertools import chain
 from py4j.protocol import Py4JJavaError
 from dask import dataframe as dask_df, array as dask_arr
-from pyspark.sql import DataFrame, Window
+from pyspark import SparkContext
+from pyspark.sql import DataFrame, Window, SparkSession
 from pyspark.sql.column import _to_seq
 from pyspark.sql.functions import (
     when, col, lit, row_number, monotonically_increasing_id, create_map, explode, struct, array, round as spark_round,
@@ -652,17 +653,96 @@ class JoinsWrapper(DataFrame):
 class DaskSpark:
 
     @staticmethod
-    def __spark_to_dask(self):
+    def __file_system(df):
+        sql_ctx = df.sql_ctx
+        _sc = sql_ctx and sql_ctx._sc
+        fl = _sc._jvm.org.apache.hadoop.fs.FileSystem
+        fs = fl.get(_sc._jsc.hadoopConfiguration())
+        path = _sc._jvm.org.apache.hadoop.fs.Path
+        return {'file_sys': fl, 'hadoop_fs': fs, 'fs_path': path}
+
+    @staticmethod
+    def __fs_clean(self, clean_path):
+        # File System instance
+        env_fs = DaskSpark.__file_system(self)
+        # HDFS command to delete file paths
+        env_fs['hadoop_fs'].delete(env_fs['fs_path'](clean_path))
+
+    @staticmethod
+    def __fs_rename(self, path, rename):
+        # File System instance
+        env_fs = DaskSpark.__file_system(self)
+        # HDFS command to delete file paths
+        env_fs['hadoop_fs'].rename(env_fs['fs_path'](path), env_fs['fs_path'](rename))
+
+    @staticmethod
+    def dask_read(option, file_path):
+
+        # Python map for file type pattern
+        file_type = {'parquet': file_path + '/*.parquet',
+                     'csv': file_path + '/*.csv',
+                     'json': file_path + '/*.json',
+                     'text': file_path + '/*.txt'}
+
+        # Define reader type by pattern mapping
+        file_pattern = file_type[option]
+        dask_reader = {'parquet': dask_df.read_parquet(file_pattern, engine='pyarrow'),
+                       'csv': dask_df.read_csv(file_pattern),
+                       'json': dask_df.read_json(file_pattern),
+                       'text': dask_df.read_table(file_pattern)}
+
+        return dask_reader[option]
+
+    @staticmethod
+    def spark_to_dask(self, option='csv', mode='overwrite', checkpoint_path=None):
         """
         TODO: Se necesita optimizar la manera en la que se escribe con coalesce(1) se debe escribir con Spark Streaming
         """
-        tmp_path = os.getcwd() + '/data/dask_tmp/'
-        self.coalesce(1).write.mode('overwrite').parquet(tmp_path)
-        return dask_df.read_parquet(tmp_path)
+        try:
+            sc = SparkContext._active_spark_context
+            spark = SparkSession(sc)
+        except Exception:
+            sc = SparkContext.getOrCreate()
+            spark = SparkSession(sc)
+
+        # Write Spark DataFrame to parquet
+        work_dir = os.getcwd() + '/data/stream/dask'
+        tmp_dir = work_dir + '/tmp'
+
+        # Lets leave 'overwrite' config as default config
+        self.write.mode('overwrite').parquet(tmp_dir)
+
+        # Retrieve DataFrame schema
+        schema_parquet = spark.read.parquet(tmp_dir).schema
+
+        if checkpoint_path is None:
+            checkpoint_path = tmp_dir + "_checkpoint_data"
+
+        stream_option = {
+            'text': spark.readStream.schema(schema_parquet).text(tmp_dir),
+            'csv': spark.readStream.schema(schema_parquet).csv(tmp_dir),
+            'json': spark.readStream.schema(schema_parquet).json(tmp_dir),
+            'parquet': spark.readStream.schema(schema_parquet).parquet(tmp_dir)
+        }
+
+        stream_writer = stream_option[option].coalesce(1).writeStream.format(option).outputMode('append')\
+            .queryName('stream_query').option('checkpointLocation', checkpoint_path)
+
+        file_path = work_dir + '/tmp_file'
+        stream_query = stream_writer.start(file_path)
+        stream_query.processAllAvailable()
+
+        if mode == 'overwrite':
+            DaskSpark.__fs_clean(self, tmp_dir)
+            DaskSpark.__fs_clean(self, checkpoint_path)
+            DaskSpark.__fs_rename(self, file_path, work_dir + '/file')
+            DaskSpark.__fs_clean(self, file_path)
+
+        return DaskSpark.dask_read(option, file_path)
 
     @staticmethod
     def spark_to_series(self, column_series):
-        dask_df = DaskSpark.__spark_to_dask(self)
+        dask_df = DaskSpark.spark_to_dask(self)
         series = dask_df[column_series]
         list_dask = series.to_delayed()
         full = [dask_arr.from_delayed(i, i.compute().shape, i.compute().dtype) for i in list_dask]
