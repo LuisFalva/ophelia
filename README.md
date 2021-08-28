@@ -1,6 +1,7 @@
-# [Ophilea](https://luisfalva.github.io/ophilea/)
+# This is [Ophel.ia](https://ophilea.readme.io/)
 
 *Ophelia* Hamlet's beloved beautiful woman (and is the name of the package too), is known because of her madness and immortal love for Hamlet; but Shakespeare's entire master piece does not do justice to her magnificent character.
+
 Ophelia is the epitome of goodness, brightness, and the elegance of simplicity.
 
 # Motivations 🚀
@@ -41,7 +42,7 @@ And execute the following bash script:
 ./build/ophelia_install.sh
 ```
 
-☝️**First Important Note**: You must see a successful message like this one below:
+☝️**First Important Note**: You must see a successful message like the one below:
 ```sh   
 Successfully installed Ophelia-0.1.dev0
 ********************************************************
@@ -51,14 +52,8 @@ Ophelia is now installed in your local env. Have fun! =)
 
 ✌️**Second Important Note**: If you want to update your Ophelia local installation execute the following script
 ```sh   
-./build/ophelia_update.sh {GIT_REMOTE} {GIT_BRANCH}
+./build/ophelia_update.sh
 ```
-Where this will strictly use for updating package correctly:
- - GIT_REMOTE: origin
- - GIT_BRANCH: main
-
-*In order to update correctly Ophelia's package you may need to configure your git remote
-as 'origin' pointing to url main Github repo.*
 
 ### Importing and initializing Ophelia 📦
 
