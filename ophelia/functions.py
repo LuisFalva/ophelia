@@ -14,7 +14,7 @@ from pyspark.sql.functions import (
 from pyspark.sql.types import StructField, StringType, StructType
 from pyspark.ml.stat import Correlation
 from pyspark.ml.feature import VectorAssembler
-from . import SparkMethods
+from . import SparkMethods, OpheliaFunctionsException
 from .generic import remove_duplicate_element, feature_pick, regex_expr
 
 __all__ = ["NullDebugWrapper", "CorrMatWrapper", "ShapeWrapper", "MapItemsWrapper",
@@ -416,26 +416,29 @@ class Reshape(DataFrame):
         :param new_cols: str or list, with pivot and value new column names
         :return: narrow Spark DataFrame
         """
-        if isinstance(new_cols, str):
-            pivot_col, value_col = new_cols.split(',')[0], new_cols.split(',')[1]
-        elif new_cols is not None and isinstance(new_cols, list):
-            pivot_col, value_col = new_cols[0], new_cols[1]
-        else:
-            pivot_col, value_col = 'no_name_pivot_col', 'no_name_value_col'
-        cols, dtype = zip(*[(c, t) for (c, t) in self.dtypes if c not in fix_cols])
+        try:
+            if isinstance(new_cols, str):
+                pivot_col, value_col = new_cols.split(',')[0], new_cols.split(',')[1]
+            elif new_cols is not None and isinstance(new_cols, list):
+                pivot_col, value_col = new_cols[0], new_cols[1]
+            else:
+                pivot_col, value_col = 'no_name_pivot_col', 'no_name_value_col'
+            cols, dtype = zip(*[(c, t) for (c, t) in self.dtypes if c not in fix_cols])
 
-        if len(set(map(lambda x: x[-1], dtype[1:]))) != 1:
-            raise AssertionError("Column Type Must Be The Same 'DataType'")
+            if len(set(map(lambda x: x[-1], dtype[1:]))) != 1:
+                raise AssertionError("Column Type Must Be The Same 'DataType'")
 
-        generator_explode = explode(array([
-            struct(lit(c).alias(pivot_col), col(c).alias(value_col)) for c in cols
-        ])).alias('column_explode')
-        column_to_explode = [f'column_explode.{pivot_col}', f'column_explode.{value_col}']
+            generator_explode = explode(array([
+                struct(lit(c).alias(pivot_col), col(c).alias(value_col)) for c in cols
+            ])).alias('column_explode')
+            column_to_explode = [f'column_explode.{pivot_col}', f'column_explode.{value_col}']
 
-        return Reshape(self.select(fix_cols + [generator_explode]).select(fix_cols + column_to_explode))
+            return Reshape(self.select(fix_cols + [generator_explode]).select(fix_cols + column_to_explode))
+        except Exception as e:
+            raise OpheliaFunctionsException(f"An error occurred while calling narrow_format() method: {e}")
 
     @staticmethod
-    def wide_format(self, group_by, pivot_col, agg_dict, rnd=4, rep=20):
+    def wide_format(self, group_by, pivot_col, agg_dict, rnd=6, rep=20, rename_col=False):
         """
         Wide format method will reshape from narrow multidimensional
         table to wide tabular format table for feature wide table
@@ -445,22 +448,37 @@ class Reshape(DataFrame):
         :param agg_dict: dict, with wide Spark function
         :param rnd: int, for round wide value
         :param rep: int, repartition threshold for wide partition optimization
+        :param rename_col: bool, boolean response for rename existing columns
         :return: wide Spark DataFrame
         """
-        agg_list = []
-        keys, values = list(agg_dict.keys())[0], list(agg_dict.values())[0]
-        for k in agg_dict:
-            for i in range(len(agg_dict[k].split(','))):
-                strip_string = agg_dict[k].replace(' ', '').split(',')
-                agg_list.append(spark_round(SparkMethods()[strip_string[i]](k), rnd).alias(f'{strip_string[i]}_{k}'))
-        group_by_expr = col(group_by).alias(f'{group_by}_{pivot_col}')
+        try:
+            agg_list = []
+            keys, values = list(agg_dict.keys())[0], list(agg_dict.values())[0]
 
-        if len(list(agg_dict)) == 1:
-            pivot_df = self.groupBy(group_by_expr).pivot(pivot_col).agg(*agg_list).repartition(rep).na.fill(0)
-            renamed_cols = [col(c).alias(f"{c}_{keys}_{values}") for c in pivot_df.columns[1:]]
-            return pivot_df.select(f'{group_by}_{pivot_col}', *renamed_cols)
+            for k in agg_dict:
+                for i in range(len(agg_dict[k].split(','))):
+                    strip_string = agg_dict[k].replace(' ', '').split(',')
+                    agg_item = spark_round(SparkMethods()[strip_string[i]](k), rnd).alias(f'{strip_string[i]}_{k}')
+                    agg_list.append(agg_item)
 
-        return self.groupBy(group_by_expr).pivot(pivot_col).agg(*agg_list).repartition(rep).na.fill(0)
+            if rename_col:
+                group_by_expr = col(group_by).alias(f'{group_by}_{pivot_col}')
+            else:
+                group_by_expr = col(group_by).alias(f'{group_by}')
+
+            if len(list(agg_dict)) == 1:
+                pivot_df = self.groupBy(group_by_expr).pivot(pivot_col).agg(*agg_list).repartition(rep).na.fill(0)
+
+                if rename_col:
+                    renamed_cols = [col(c).alias(f"{c}_{keys}_{values}") for c in pivot_df.columns[1:]]
+                    return pivot_df.select(f'{group_by}_{pivot_col}', *renamed_cols)
+                else:
+                    renamed_cols = [col(c).alias(f"{c}") for c in pivot_df.columns[1:]]
+                    return pivot_df.select(f'{group_by}', *renamed_cols)
+
+            return self.groupBy(group_by_expr).pivot(pivot_col).agg(*agg_list).repartition(rep).na.fill(0)
+        except TypeError as te:
+            raise OpheliaFunctionsException(f"An error occurred while calling wide_format() method: {te}")
 
 
 class ReshapeWrapper(DataFrame):
