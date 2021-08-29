@@ -5,7 +5,6 @@ import pandas as pd
 from itertools import chain
 from py4j.protocol import Py4JJavaError
 from dask import dataframe as dask_df, array as dask_arr
-from pyspark import SparkContext
 from pyspark.sql import DataFrame, Window, SparkSession
 from pyspark.sql.column import _to_seq
 from pyspark.sql.functions import (
@@ -15,6 +14,7 @@ from pyspark.sql.functions import (
 from pyspark.sql.types import StructField, StringType, StructType
 from pyspark.ml.stat import Correlation
 from pyspark.ml.feature import VectorAssembler
+from session.spark import OpheliaSpark
 from . import SparkMethods, OpheliaFunctionsException
 from .generic import remove_duplicate_element, feature_pick, regex_expr
 
@@ -193,11 +193,14 @@ class DynamicSampling:
 
     @staticmethod
     def sample_n(self, n):
+        spark = OpheliaSpark().ophelia_active_session()
         _ = DynamicSampling.__id_row_number(self, 'n')
         max_n = _.select('n').orderBy(col('n').desc()).limit(1).cache()
         sample_list = []
         for sample in range(n):
+            # In this case collect() operation is permitted since we're collecting one single row
             sample_list.append(_.where(col('n') == random.randint(0, max_n.collect()[0][0])))
+        spark.catalog.clearCache()
         return DynamicSampling.union_all(sample_list).drop('n')
 
 

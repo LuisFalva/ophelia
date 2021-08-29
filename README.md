@@ -37,8 +37,8 @@ After wiring and clone the `Ophelia` repo go to:
 ```sh   
 cd ophilea
 ```
-
-> 📡 First time installation. For the very first time running and installing Ophelia in your local machine you need to wire with Ophelia's main repo.
+### First time installation 📡
+> For the very first time running and installing Ophelia in your local machine you need to wire with Ophelia's main repo.
 Just run the following script in order to setup correctly:
 
 ```sh

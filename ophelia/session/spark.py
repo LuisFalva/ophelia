@@ -45,3 +45,8 @@ class OpheliaSpark:
     def clear_cache(self):
         self.ophelia_spark.catalog.clearCache()
         OpheliaSpark.__logger.info("Clear Spark Cache Success")
+
+    @staticmethod
+    def ophelia_active_session():
+        OpheliaSpark.__logger.info("Ophelia Active Session")
+        return SparkSession.getActiveSession()

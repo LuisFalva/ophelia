@@ -111,6 +111,6 @@ class Read:
             raise OpheliaReadFileException(f"An error occurred while calling read_file() method: {te}")
 
 
-class SparkReadWrapper(object):
+class SparkReadWrapper(Read):
 
     SparkSession.readFile = Read.read_file
