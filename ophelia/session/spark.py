@@ -16,11 +16,9 @@ class OpheliaSpark:
         self.ophelia_spark = SparkSession.builder.appName("No 'appName' configured").getOrCreate()
 
     def __app_name(self):
-        OpheliaSpark.__logger.info("Spark App Name")
         return self.ophelia_spark.sparkContext.appName
 
     def __spark_version(self):
-        OpheliaSpark.__logger.info("Spark Version")
         return self.ophelia_spark.version
 
     def __spark_ui_port(self):
@@ -28,7 +26,6 @@ class OpheliaSpark:
         Print spark UI port server for tracking Spark activity
         :return: spark ui port address
         """
-        OpheliaSpark.__logger.info("Spark UI Port Address")
         return self.ophelia_spark._sc.uiWebUrl
 
     def build_spark_session(self, app_name: str = None) -> SparkSession:
