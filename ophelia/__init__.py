@@ -50,7 +50,7 @@ class FormatWrite:
 class PathWrite:
     def __init__(self):
         self.root = "data"
-        self.dir = "ophilea"
+        self.dir = "ophelia"
         self.out = "out"
         self.engine = "engine"
         self.model = "model"
