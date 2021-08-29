@@ -46,7 +46,7 @@ class OpheliaSpark:
             self.__build_spark_app(app_name=app_name)
             OpheliaSpark.__logger.info("Spark Version: " + self.__spark_version())
             OpheliaSpark.__logger.info("This Is: '" + self.__app_name() + "' App")
-            OpheliaSpark.__logger.info("Spark UI Address: '" + self.__spark_ui_port())
+            OpheliaSpark.__logger.info("Spark UI Address: " + self.__spark_ui_port())
             return self.ophelia_spark
 
     def build_spark_context(self):
