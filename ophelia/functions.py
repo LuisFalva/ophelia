@@ -14,7 +14,7 @@ from pyspark.sql.functions import (
 from pyspark.sql.types import StructField, StringType, StructType
 from pyspark.ml.stat import Correlation
 from pyspark.ml.feature import VectorAssembler
-from session.spark import OpheliaSpark
+from .session.spark import OpheliaSpark
 from . import SparkMethods, OpheliaFunctionsException
 from .generic import remove_duplicate_element, feature_pick, regex_expr
 
