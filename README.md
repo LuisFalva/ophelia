@@ -1,4 +1,4 @@
-# This is [Ophel.ia](https://ophilea.readme.io/)
+# [Ophelia](https://ophelia.readme.io/)
 
 *Ophelia* Hamlet's beloved beautiful woman (and is the name of the package too), is known because of her madness and immortal love for Hamlet; but Shakespeare's entire master piece does not do justice to her magnificent character.
 
@@ -262,7 +262,7 @@ Cheers 🍻!
 
 ### Support or Contact 📠
 
-Having trouble with Ophilea? Yo can DM me at falvaluis@gmail.com and I’ll help you sort it out.
+Having trouble with Ophilea? Yo can DM me at [falvaluis@gmail.com](https://mail.google.com/mail/u/0/?tab=rm&ogbl#inbox?compose=CllgCJZZQVJHBJKmdjtXgzlrRcRktFLwFQsvWKqcTRtvQTVcHvgTNSxVzjZqjvDFhZlVJlPKqtg) and I’ll help you sort it out.
 
 ### License 📃
 
