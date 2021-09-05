@@ -73,10 +73,10 @@ class OpheliaInfo:
         self.__build_info()
         self.__build_mask()
 
-    def print_info(self, mask, meta_info=False):
+    def print_info(self, mask, meta):
         if mask:
             return self.__build_ophelia_message()
-        if mask and meta_info:
-            self.__logger.info(meta_info)
+        if mask and meta:
+            self.__logger.info(self.__meta_info)
             return self.__build_ophelia_message()
         return self.__build_info()
