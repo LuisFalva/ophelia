@@ -1,6 +1,6 @@
 class Ophelia:
 
-    def __init__(self, app_name=None, no_mask=False):
+    def __init__(self, app_name=None, no_mask=False, meta_info=False):
         from ._info import OpheliaInfo
         from .write.spark_write import Write
         from .read.spark_read import Read
@@ -49,7 +49,7 @@ class Ophelia:
             'singular_vd': SingularVD,
             'smote_sample': SyntheticSample
         }
-        OpheliaInfo(transformers).print_info(no_mask)
+        OpheliaInfo(transformers).print_info(no_mask, meta_info)
         self.Spark = OpheliaSpark()
         self.SparkSession = self.Spark.build_spark_session(app_name)
         self.SC = self.Spark.build_spark_context()
