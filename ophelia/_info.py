@@ -69,6 +69,10 @@ class OpheliaInfo:
         self.__logger.mask(self.__auto_space("  █ █ █ █ █ █ █ █ █ █ █ ╬ ╬ ╬ ╬ █ ╬ ╬ ╬ ╬ █ █ █ █ █ █ █ █ █ █ █"))
         self.__logger.mask(self.__auto_space("  █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █\n"))
 
+    def __meta_object_info(self):
+        meta_info = self.__meta_info
+        return meta_info
+
     def __build_ophelia_message(self):
         self.__build_info()
         self.__build_mask()
@@ -77,6 +81,6 @@ class OpheliaInfo:
         if mask:
             return self.__build_ophelia_message()
         if mask and meta:
-            self.__logger.info(self.__meta_info)
+            self.__logger.info(self.__meta_object_info())
             return self.__build_ophelia_message()
         return self.__build_info()
