@@ -2,14 +2,20 @@ import os
 import re
 import random
 import pandas as pd
+
 from itertools import chain
 from py4j.protocol import Py4JJavaError
 from dask import dataframe as dask_df, array as dask_arr
-from pyspark.sql import DataFrame, Window, SparkSession
+from pyspark import SparkContext
 from pyspark.sql.column import _to_seq
+from pyspark.sql import DataFrame, Window, SparkSession
 from pyspark.sql.functions import (
-    when, col, lit, row_number, monotonically_increasing_id, create_map, explode, struct, array, round as spark_round,
-    lag, expr, sum, broadcast, count, isnan
+    when, col, lit, row_number,
+    monotonically_increasing_id,
+    create_map, explode, struct,
+    array, lag, expr, sum, count,
+    round as spark_round, isnan,
+    broadcast
 )
 from pyspark.sql.types import StructField, StringType, StructType
 from pyspark.ml.stat import Correlation
@@ -18,9 +24,18 @@ from .session.spark import OpheliaSpark
 from . import SparkMethods, OpheliaFunctionsException
 from .generic import remove_duplicate_element, feature_pick, regex_expr
 
-__all__ = ["NullDebugWrapper", "CorrMatWrapper", "ShapeWrapper", "MapItemsWrapper",
-           "RollingWrapper", "DynamicSamplingWrapper", "SelectWrapper",
-           "ReshapeWrapper", "PctChangeWrapper", "CrossTabularWrapper"]
+__all__ = [
+    "NullDebugWrapper",
+    "CorrMatWrapper",
+    "ShapeWrapper",
+    "MapItemsWrapper",
+    "RollingWrapper",
+    "DynamicSamplingWrapper",
+    "SelectWrapper",
+    "ReshapeWrapper",
+    "PctChangeWrapper",
+    "CrossTabularWrapper"
+]
 
 
 class NullDebug:

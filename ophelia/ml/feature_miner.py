@@ -4,7 +4,12 @@ from pyspark.sql.types import Row
 from pyspark.ml import Pipeline, PipelineModel, Transformer
 from pyspark.ml.linalg import DenseVector
 from pyspark.ml.feature import (
-    StringIndexer, VectorAssembler, OneHotEncoder, OneHotEncoderModel, StandardScaler, StandardScalerModel
+    StringIndexer,
+    VectorAssembler,
+    OneHotEncoder,
+    OneHotEncoderModel,
+    StandardScaler,
+    StandardScalerModel
 )
 from .._logger import OpheliaLogger
 from ophelia import OpheliaMLMinerException
