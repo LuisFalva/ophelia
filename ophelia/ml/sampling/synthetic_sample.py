@@ -2,7 +2,7 @@ import random
 import numpy as np
 from sklearn import neighbors
 from pyspark.sql import DataFrame
-from ml.feature_miner import BuildVectorAssembler, SparkToNumpy, NumpyToVector
+from ..feature_miner import BuildVectorAssembler, SparkToNumpy, NumpyToVector
 from ophelia import InstanceError
 
 
