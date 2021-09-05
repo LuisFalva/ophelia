@@ -487,7 +487,7 @@ class Reshape(DataFrame):
                     renamed_cols = [col(c).alias(f"{c}") for c in pivot_df.columns[1:]]
                     return pivot_df.select(f'{group_by}', *renamed_cols)
 
-            return self.groupBy(group_by_expr).pivot(pivot_col).agg(*agg_list).repartition(rep).na.fill(0)
+            return Reshape(self.groupBy(group_by_expr).pivot(pivot_col).agg(*agg_list).repartition(rep).na.fill(0))
         except TypeError as te:
             raise OpheliaFunctionsException(f"An error occurred while calling wide_format() method: {te}")
 
