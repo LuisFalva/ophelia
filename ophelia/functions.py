@@ -413,7 +413,7 @@ class MapItemsWrapper:
     DataFrame.mapItem = MapItem.map_item
 
 
-class Reshape:
+class Reshape(DataFrame):
 
     def __init__(self, df):
         super(Reshape, self).__init__(df._jdf, df.sql_ctx)
