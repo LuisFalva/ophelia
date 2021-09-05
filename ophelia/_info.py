@@ -3,9 +3,10 @@ from ._logger import OpheliaLogger
 
 class OpheliaInfo:
 
-    def __init__(self):
+    def __init__(self, meta_info_store):
         self.__logger = OpheliaLogger()
         self.__version = 'Ophelia.0.0.1'
+        self.__meta_info = meta_info_store
         self.__info = {
             "who is": "Hello! This engine is for data mining & ml pipelines in PySpark",
             "welcome": "Welcome to Ophelia Spark miner engine",
@@ -68,11 +69,14 @@ class OpheliaInfo:
         self.__logger.mask(self.__auto_space("  █ █ █ █ █ █ █ █ █ █ █ ╬ ╬ ╬ ╬ █ ╬ ╬ ╬ ╬ █ █ █ █ █ █ █ █ █ █ █"))
         self.__logger.mask(self.__auto_space("  █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █\n"))
 
-    def __build_ophilea_message(self):
+    def __build_ophelia_message(self):
         self.__build_info()
         self.__build_mask()
 
-    def print_info(self, mask):
+    def print_info(self, mask, meta_info=False):
         if mask:
-            return self.__build_ophilea_message()
+            return self.__build_ophelia_message()
+        if mask and meta_info:
+            self.__logger.info(meta_info)
+            return self.__build_ophelia_message()
         return self.__build_info()
