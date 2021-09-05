@@ -19,3 +19,6 @@
 
 # Spark warehouse
 *spark-warehouse/
+
+# Tests
+tutorials/erick-tests

@@ -2,25 +2,41 @@ import os
 import re
 import random
 import pandas as pd
+
 from itertools import chain
 from py4j.protocol import Py4JJavaError
 from dask import dataframe as dask_df, array as dask_arr
-from pyspark.sql import DataFrame, Window, SparkSession
+from pyspark import SparkContext
 from pyspark.sql.column import _to_seq
+from pyspark.sql import DataFrame, Window, SparkSession
 from pyspark.sql.functions import (
-    when, col, lit, row_number, monotonically_increasing_id, create_map, explode, struct, array, round as spark_round,
-    lag, expr, sum, broadcast, count, isnan
+    when, col, lit, row_number,
+    monotonically_increasing_id,
+    create_map, explode, struct,
+    array, lag, expr, sum, count,
+    round as spark_round, isnan,
+    broadcast
 )
 from pyspark.sql.types import StructField, StringType, StructType
 from pyspark.ml.stat import Correlation
 from pyspark.ml.feature import VectorAssembler
-from session.spark import OpheliaSpark
+from .session.spark import OpheliaSpark
 from . import SparkMethods, OpheliaFunctionsException
 from .generic import remove_duplicate_element, feature_pick, regex_expr
 
-__all__ = ["NullDebugWrapper", "CorrMatWrapper", "ShapeWrapper", "MapItemsWrapper",
-           "RollingWrapper", "DynamicSamplingWrapper", "SelectWrapper",
-           "ReshapeWrapper", "PctChangeWrapper", "CrossTabularWrapper"]
+__all__ = [
+    "NullDebugWrapper",
+    "CorrMatWrapper",
+    "ShapeWrapper",
+    "MapItemsWrapper",
+    "RollingWrapper",
+    "DynamicSamplingWrapper",
+    "SelectWrapper",
+    "ReshapeWrapper",
+    "PctChangeWrapper",
+    "CrossTabularWrapper",
+    "DaskSparkWrapper"
+]
 
 
 class NullDebug:
@@ -52,7 +68,7 @@ class NullDebug:
         return gen_part.select('partition_id', *cleansing_list)
 
 
-class NullDebugWrapper(DataFrame):
+class NullDebugWrapper:
     """
     Class NullDebugWrapper is a class for wrapping methods from NullDebug class
     adding this functionality to Spark DataFrame class
@@ -124,7 +140,7 @@ class CorrMat:
         return corr_test.rdd.map(extract).toDF(corr_cols)
 
 
-class CorrMatWrapper(DataFrame):
+class CorrMatWrapper:
 
     DataFrame.uniqueRow = CorrMat.unique_row
     DataFrame.cartRDD = CorrMat.cartesian_rdd
@@ -142,7 +158,7 @@ class Shape:
         return self.count(), len(self.columns)
 
 
-class ShapeWrapper(DataFrame):
+class ShapeWrapper:
 
     DataFrame.Shape = property(lambda self: Shape.shape(self))
 
@@ -168,7 +184,7 @@ class Rolling:
         return self.select('*', rolling)
 
 
-class RollingWrapper(DataFrame):
+class RollingWrapper:
 
     DataFrame.rollingDown = Rolling.rolling_down
 
@@ -204,19 +220,13 @@ class DynamicSampling:
         return DynamicSampling.union_all(sample_list).drop('n')
 
 
-class DynamicSamplingWrapper(DataFrame):
+class DynamicSamplingWrapper:
 
     DataFrame.emptyScan = DynamicSampling.empty_scan
     DataFrame.simple_sample = DynamicSampling.sample_n
 
 
-class Selects(DataFrame):
-
-    def __init__(self, jdf, sql_ctx):
-        super(Selects, self).__init__(jdf, sql_ctx)
-        self._jdf = jdf
-        self.sql_ctx = sql_ctx
-        self._sc = sql_ctx and sql_ctx._sc
+class Selects:
 
     @staticmethod
     def regex_expr(regex_name):
@@ -372,7 +382,7 @@ class Selects(DataFrame):
                 'numeric': self.select_numerical(df)}
 
 
-class SelectWrapper(DataFrame):
+class SelectWrapper:
 
     DataFrame.selectRegex = Selects.select_regex
     DataFrame.selectStartswith = Selects.select_startswith
@@ -398,12 +408,12 @@ class MapItem:
         return self.select('*', (map_expr[self[origin_col]]).alias(map_col))
 
 
-class MapItemsWrapper(DataFrame):
+class MapItemsWrapper:
 
     DataFrame.mapItem = MapItem.map_item
 
 
-class Reshape(DataFrame):
+class Reshape:
 
     def __init__(self, df):
         super(Reshape, self).__init__(df._jdf, df.sql_ctx)
@@ -482,7 +492,7 @@ class Reshape(DataFrame):
             raise OpheliaFunctionsException(f"An error occurred while calling wide_format() method: {te}")
 
 
-class ReshapeWrapper(DataFrame):
+class ReshapeWrapper:
 
     DataFrame.toWide = Reshape.wide_format
     DataFrame.toNarrow = Reshape.narrow_format
@@ -552,7 +562,7 @@ class PctChange:
         return primary_list
 
 
-class PctChangeWrapper(DataFrame):
+class PctChangeWrapper:
 
     DataFrame.pctChange = PctChange.pct_change
     DataFrame.remove_element = PctChange.remove_element
@@ -618,7 +628,7 @@ class CrossTabular:
             return union_df.select(f'{group_by}_{pivot_col}', *func)
 
 
-class CrossTabularWrapper(DataFrame):
+class CrossTabularWrapper:
 
     DataFrame.foreachCol = CrossTabular.foreach_col
     DataFrame.resumeDF = CrossTabular.resume_dataframe
@@ -648,7 +658,7 @@ class Joins:
         return self.join(broadcast(small_df), on, how)
 
 
-class JoinsWrapper(DataFrame):
+class JoinsWrapper:
 
     DataFrame.joinSmall = Joins.join_small_df
 
@@ -757,11 +767,11 @@ class DaskSpark:
             dask_array = self.toPandasSeries(column_series)
             return dask_arr.from_array(dask_array.compute())
         else:
-            dask_pandas_series = DaskSpark.__spark_to_dask(self)
+            dask_pandas_series = DaskSpark.spark_to_dask(self)
             return dask_pandas_series.to_dask_array()
 
 
-class DaskSparkWrapper(DataFrame):
+class DaskSparkWrapper:
 
     DataFrame.toPandasSeries = DaskSpark.spark_to_series
     DataFrame.toNumpyArray = DaskSpark.spark_to_numpy

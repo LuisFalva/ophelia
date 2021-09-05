@@ -7,11 +7,30 @@ from pyspark.sql.functions import col, year, month, dayofmonth, row_number, udf,
 from . import OpheliaUtilitiesException
 from ._logger import OpheliaLogger
 
-__all__ = ['split_date', 'row_index', 'lag_min_max_data', 'regex_expr', 'remove_duplicate_element',
-           'year_array', 'dates_index', 'sorted_date_list', 'feature_pick', 'binary_search', 'century_from_year',
-           'simple_average', 'delta_series', 'simple_moving_average', 'average', 'weight_moving_average',
-           'single_exp_smooth', 'double_exp_smooth', 'initial_seasonal_components', 'triple_exp_smooth',
-           'row_indexing', 'string_match']
+__all__ = [
+    'split_date',
+    'row_index',
+    'lag_min_max_data',
+    'regex_expr',
+    'remove_duplicate_element',
+    'year_array',
+    'dates_index',
+    'sorted_date_list',
+    'feature_pick',
+    'binary_search',
+    'century_from_year',
+    'simple_average',
+    'delta_series',
+    'simple_moving_average',
+    'average',
+    'weight_moving_average',
+    'single_exp_smooth',
+    'double_exp_smooth',
+    'initial_seasonal_components',
+    'triple_exp_smooth',
+    'row_indexing',
+    'string_match'
+]
 logger = OpheliaLogger()
 
 
