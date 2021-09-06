@@ -1,12 +1,11 @@
 import numpy as np
 from typing import List
 from functools import lru_cache, reduce
-from pyspark.sql import Window
+from pyspark.sql import Window, SparkSession
 from pyspark.sql.types import IntegerType, LongType, StructField, StructType, Row
 from pyspark.sql.functions import col, year, month, dayofmonth, row_number, udf, desc, asc
 from . import OpheliaUtilitiesException
 from ._logger import OpheliaLogger
-from .session.spark import OpheliaSpark
 
 __all__ = [
     'union_all',
@@ -45,7 +44,6 @@ def union_all(dfs: list):
     try:
         first = dfs[0]
         union_dfs = first.sql_ctx._sc.union([df.cache().rdd for df in dfs])
-        OpheliaSpark().clear_cache()
         return first.sql_ctx.createDataFrame(union_dfs, first.schema)
     except Exception as e:
         raise OpheliaUtilitiesException(f"An error occurred on union_all() method: {e}")
