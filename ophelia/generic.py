@@ -45,8 +45,7 @@ def union_all(dfs: list):
     try:
         first = dfs[0]
         union_dfs = first.sql_ctx._sc.union([df.cache().rdd for df in dfs])
-        spark = OpheliaSpark().ophelia_active_session()
-        spark.catalog.clearCache()
+        OpheliaSpark().clear_cache()
         return first.sql_ctx.createDataFrame(union_dfs, first.schema)
     except Exception as e:
         raise OpheliaUtilitiesException(f"An error occurred on union_all() method: {e}")
