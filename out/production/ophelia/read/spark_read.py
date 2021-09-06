@@ -101,7 +101,7 @@ class Read:
                 raise ValueError("Params Must Be Not None")
             if source not in Read.__format.all:
                 Read.__logger.error(f"Format Type '{source}' Not Available In Spark")
-                raise ValueError("'source' Type Must Be: {'parquet', 'excel', 'csv', 'json'}")
+                raise TypeError("'source' Type Must Be: {'parquet', 'excel', 'csv', 'json'}")
             read_object = {
                 Read.__format.parquet: None if source != "parquet" else Read.read_parquet(self, path_source),
                 Read.__format.csv: None if source != "csv" else Read.read_csv(self, path_source, header, infer_schema),
@@ -109,8 +109,8 @@ class Read:
                 Read.__format.json: None if source != "json" else Read.read_json(self, path_source)
             }
             return read_object[source]
-        except ValueError as error:
-            raise OpheliaReadFileException(f"An error occurred while calling read_file() method: {error}")
+        except TypeError as te:
+            raise OpheliaReadFileException(f"An error occurred while calling read_file() method: {te}")
 
     @staticmethod
     def scan_update_data(self, path_pattern, partition: str = 'partition_id',
@@ -119,36 +119,33 @@ class Read:
         Scan update data helps to read the las available chunk of data.
         :param self: spark Session instance
         :param path_pattern: str, pattern path from loading directory
-        :param partition: str, name of partition for each path, 'partition_id' set as default
-        :param since_date: int, year from reading, '2010' set as default
-        :param source: str, source type for reading file, 'parquet' set as default
+        :param partition: str, name of partition for each path
+        :param since_date: int, year from reading
+        :param source: str, source type for reading file
         :return: spark DataFrame
         """
-        try:
-            now = date.today()
-            scan_dates = list(range(since_date, now.year + 1))
+        now = date.today()
+        scan_dates = list(range(since_date, now.year + 1))
 
-            df_list = []
-            non_paths = []
-            for date_i in scan_dates[::-1]:
-                scan_path = path_pattern + f'{partition}={date_i}'
-                try:
-                    scan = self.readFile(scan_path, source)
-                    df_list.append(scan)
-                except Exception:
-                    Read.__logger.warning(f'This Path Does Not Exist. {scan_path}')
-                    non_paths.append(scan_path)
-                    continue
-            Read.__logger.error(f'List Of Non Existing Elements. {non_paths}')
+        df_list = []
+        non_paths = []
+        for date_i in scan_dates[::-1]:
+            scan_path = path_pattern + f'{partition}={date_i}'
+            try:
+                scan = self.readFile(scan_path, source)
+                df_list.append(scan)
+            except Exception:
+                Read.__logger.warning(f'This Path Does Not Exist. {scan_path}')
+                non_paths.append(scan_path)
+                continue
+        Read.__logger.error(f'List Of Non Existing Elements. {non_paths}')
 
-            df_union = union_all(df_list)
+        df_union = union_all(df_list)
 
-            return {'df': df_union, 'df_list': df_list, 'non_exist': non_paths}
-        except ValueError as error:
-            raise OpheliaReadFileException(f"An error occurred while calling scan_update_data() method: {error}")
+        return {'dataframe_list': df_list, 'non_exist': non_paths, 'df': df_union}
 
 
 class SparkReadWrapper(SparkSession):
 
     SparkSession.readFile = Read.read_file
-    SparkSession.scan_update = Read.scan_update_data
+    SparkSession.scan_update = R
