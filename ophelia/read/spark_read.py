@@ -136,10 +136,10 @@ class Read:
                     scan = self.readFile(scan_path, source)
                     df_list.append(scan)
                 except Exception:
-                    Read.__logger.warning(f'This Path Does Not Exist. {scan_path}')
+                    Read.__logger.error(f"Path '{scan_path}' Does Not Exist.")
                     non_paths.append(scan_path.split("/")[-1])
                     continue
-            Read.__logger.error(f'List Of Non Existing Elements. {non_paths}')
+            Read.__logger.error(f"List Of Non Existing Elements. {non_paths}")
 
             df_union = union_all(df_list)
             self.catalog.clearCache()
