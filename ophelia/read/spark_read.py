@@ -142,7 +142,7 @@ class Read:
             Read.__logger.error(f'List Of Non Existing Elements. {non_paths}')
 
             df_union = union_all(df_list)
-
+            self.catalog.clearCache()
             return {'df': df_union, 'df_list': df_list, 'non_exist': non_paths}
         except ValueError as error:
             raise OpheliaReadFileException(f"An error occurred while calling scan_update_data() method: {error}")
