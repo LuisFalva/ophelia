@@ -137,7 +137,7 @@ class Read:
                     df_list.append(scan)
                 except Exception:
                     Read.__logger.warning(f'This Path Does Not Exist. {scan_path}')
-                    non_paths.append(scan_path)
+                    non_paths.append(scan_path.split("/")[-1])
                     continue
             Read.__logger.error(f'List Of Non Existing Elements. {non_paths}')
 
