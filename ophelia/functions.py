@@ -478,7 +478,7 @@ class Reshape(DataFrame):
                     group_by_expr = col(group_by).alias(f'{group_by}')
 
             if len(list(agg_dict)) == 1:
-                pivot_df = self.groupBy(group_by_expr).repartition(rep).pivot(pivot_col).agg(*agg_list).na.fill(0)
+                pivot_df = self.repartition(rep).groupBy(group_by_expr).pivot(pivot_col).agg(*agg_list).na.fill(0)
 
                 if rename_col:
                     renamed_cols = [col(c).alias(f"{c}_{keys}_{values}") for c in pivot_df.columns[1:]]
@@ -487,7 +487,7 @@ class Reshape(DataFrame):
                     renamed_cols = [col(c).alias(f"{c}") for c in pivot_df.columns[1:]]
                     return pivot_df.select(f'{group_by}', *renamed_cols)
 
-            return Reshape(self.groupBy(group_by_expr).repartition(rep).pivot(pivot_col).agg(*agg_list).na.fill(0))
+            return Reshape(self.repartition(rep).groupBy(group_by_expr).pivot(pivot_col).agg(*agg_list).na.fill(0))
         except TypeError as te:
             raise OpheliaFunctionsException(f"An error occurred while calling wide_format() method: {te}")
 
