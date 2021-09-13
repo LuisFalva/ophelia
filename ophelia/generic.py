@@ -1,8 +1,14 @@
 import numpy as np
 from typing import List
 from functools import lru_cache, reduce
-from pyspark.sql import Window, SparkSession
-from pyspark.sql.types import IntegerType, LongType, StructField, StructType, Row
+from pyspark.sql import Window
+from pyspark.sql.types import (
+    IntegerType,
+    LongType,
+    StructField,
+    StructType,
+    Row
+)
 from pyspark.sql.functions import col, year, month, dayofmonth, row_number, udf, desc, asc
 from . import OpheliaUtilitiesException
 from ._logger import OpheliaLogger

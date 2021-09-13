@@ -54,12 +54,12 @@ class OpheliaSpark:
         Build spark context is the builder method to initialize spark context given a spark session
         :return: spark context
         """
-        OpheliaSpark.__logger.info("Spark Context Initialized Success")
+        OpheliaSpark.__logger.info("Spark Context Initialized Successfully")
         return self.ophelia_spark.sparkContext
 
     def clear_cache(self):
         self.ophelia_spark.catalog.clearCache()
-        OpheliaSpark.__logger.info("Clear Spark Cache Success")
+        OpheliaSpark.__logger.info("Clear Spark Cache Successfully")
 
     @staticmethod
     def ophelia_active_session():

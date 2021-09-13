@@ -2,13 +2,15 @@ import os
 import re
 import random
 import pandas as pd
-
 from itertools import chain
 from py4j.protocol import Py4JJavaError
-from dask import dataframe as dask_df, array as dask_arr
+from dask import (
+    dataframe as dask_df,
+    array as dask_arr
+)
 from pyspark import SparkContext
-from pyspark.sql.column import _to_seq
 from pyspark.sql import DataFrame, Window, SparkSession
+from pyspark.sql.column import _to_seq
 from pyspark.sql.functions import (
     when, col, lit, row_number,
     monotonically_increasing_id,
@@ -18,34 +20,56 @@ from pyspark.sql.functions import (
     broadcast
 )
 from pyspark.sql.types import StructField, StringType, StructType
-from pyspark.ml.stat import Correlation
+from pyspark.ml.stat import Correlation as SparkCorrelation
 from pyspark.ml.feature import VectorAssembler
 from .session.spark import OpheliaSpark
+from .generic import (
+    remove_duplicate_element,
+    feature_pick, regex_expr,
+    union_all
+)
+from ._logger import OpheliaLogger
+from ._wrapper import DataFrameWrapper
 from . import SparkMethods, OpheliaFunctionsException
-from .generic import remove_duplicate_element, feature_pick, regex_expr, union_all
 
 __all__ = [
     "NullDebugWrapper",
     "CorrMatWrapper",
     "ShapeWrapper",
-    "MapItemsWrapper",
+    "MapItemWrapper",
     "RollingWrapper",
     "DynamicSamplingWrapper",
-    "SelectWrapper",
+    "SelectsWrapper",
     "ReshapeWrapper",
     "PctChangeWrapper",
     "CrossTabularWrapper",
+    "JoinsWrapper",
     "DaskSparkWrapper"
 ]
 
 
+def _wrapper(wrap_object):
+    _wrap = DataFrameWrapper(DataFrame)
+    if isinstance(wrap_object, list):
+        for obj in wrap_object:
+            _wrap(wrap_object=obj)
+        return None
+    _wrap(wrap_object=wrap_object)
+    return None
+
+
 class NullDebug:
+
+    __logger = OpheliaLogger()
+    __spark = OpheliaSpark().ophelia_active_session()
 
     @staticmethod
     def __cleansing_list(self, partition_by=None, offset: float = 0.5):
         if partition_by is None:
             raise TypeError(f"'partition_by' required parameter, invalid {partition_by} input.")
-        return self.toNarrow(partition_by, ['pivot', 'value']).groupBy('pivot') \
+        cache_transpose = self.toNarrow(partition_by, ['pivot', 'value']).cache()
+        NullDebug.__logger.info("Clean Null Data")
+        return cache_transpose.groupBy('pivot') \
             .agg(count(when(isnan('value') | col('value').isNull(), 'value')).alias('null_count')) \
             .select('*', (col('null_count') / self.Shape[0]).alias('null_pct')) \
             .where(col('null_pct') <= offset).uniqueRow('pivot')
@@ -60,12 +84,17 @@ class NullDebug:
         :param offset: float, number for offset controller
         :return: new Spark DataFrame without columns that had more Nulls than the set offset
         """
-        if partition_by:
-            cleansing_list = NullDebug.__cleansing_list(self, partition_by, offset)
-            return self.select(partition_by, *cleansing_list)
-        gen_part = self.select(monotonically_increasing_id().alias('partition_id'), "*")
-        cleansing_list = NullDebug.__cleansing_list(gen_part, 'partition_id', offset)
-        return gen_part.select('partition_id', *cleansing_list)
+        try:
+            if partition_by:
+                cleansing_list = NullDebug.__cleansing_list(self, partition_by, offset)
+                NullDebug.__spark.catalog.clearCache()
+                return self.select(partition_by, *cleansing_list)
+            gen_part = self.select(monotonically_increasing_id().alias('partition_id'), "*")
+            cleansing_list = NullDebug.__cleansing_list(gen_part, 'partition_id', offset)
+            NullDebug.__spark.catalog.clearCache()
+            return gen_part.select('partition_id', *cleansing_list)
+        except Exception as error:
+            raise OpheliaFunctionsException(f"An error occurred on null_clean() method: {error}")
 
 
 class NullDebugWrapper:
@@ -73,10 +102,12 @@ class NullDebugWrapper:
     Class NullDebugWrapper is a class for wrapping methods from NullDebug class
     adding this functionality to Spark DataFrame class
     """
-    DataFrame.nullDebug = NullDebug.null_clean
+    _wrapper(wrap_object=NullDebug.null_clean)
 
 
 class CorrMat:
+
+    __spark = OpheliaSpark().ophelia_active_session()
 
     @staticmethod
     def __corr(pair):
@@ -120,6 +151,8 @@ class CorrMat:
 
     @staticmethod
     def unique_row(self, col):
+        # TODO: cambiar el collect() por transponer el panel de datos agrupado
+        # TODO: y obtener la lista de columnas que serán en este caso las filas unicas
         categories_rows = self.select(col).groupBy(col).count().collect()
         return sorted([categories_rows[i][0] for i in range(len(categories_rows))])
 
@@ -129,24 +162,51 @@ class CorrMat:
         return vec_assembler.transform(self)
 
     @staticmethod
+    def corr_test(self, group_by, pivot_col, agg_dict, method='pearson'):
+        matrix_df = self.toWide(
+            group_by=group_by,
+            pivot_col=pivot_col,
+            agg_dict=agg_dict
+        ).cache()
+        vec_df = CorrMat.vector_assembler(
+            self=matrix_df,
+            cols_name=matrix_df.columns[1:]
+        )
+        return SparkCorrelation.corr(vec_df, 'features', method)\
+                               .select(col(f'{method}(features)').alias(f'{method}_features'))
+
+    @staticmethod
     def spark_correlation(self, group_by, pivot_col, agg_dict, method='pearson'):
-        categories_list = self.uniqueRow(pivot_col)
-        matrix_df = self.toWide(group_by=group_by, pivot_col=pivot_col, agg_dict=agg_dict)
-        vec_df = matrix_df.vecAssembler(matrix_df.columns[1:])
-        corr_test = Correlation.corr(vec_df, 'features', method) \
-            .select(col(f'{method}(features)').alias(f'{method}_features'))
-        corr_cols = [f"{method}_{c}_{b}" for c in categories_list for b in categories_list]
-        extract = (lambda row: tuple(float(x) for x in row[f'{method}_features'].values))
-        return corr_test.rdd.map(extract).toDF(corr_cols)
+        try:
+            categories_list = self.uniqueRow(pivot_col)
+            corr_test = CorrMat.corr_test(
+                self=self,
+                group_by=group_by,
+                pivot_col=pivot_col,
+                agg_dict=agg_dict,
+                method=method
+            ).cache()
+            corr_cols = [f"{method}_{c}_{b}" for c in categories_list for b in categories_list]
+            rdd_map = corr_test.rdd.map(lambda row: tuple(float(x) for x in row[f'{method}_features'].values))
+            CorrMat.__spark.catalog.clearCache()
+            return rdd_map.toDF(corr_cols)
+        except Exception as error:
+            raise OpheliaFunctionsException(f"An error occurred on spark_correlation() method: {error}")
 
 
 class CorrMatWrapper:
-
-    DataFrame.uniqueRow = CorrMat.unique_row
-    DataFrame.cartRDD = CorrMat.cartesian_rdd
-    DataFrame.corrMatrix = CorrMat.correlation_matrix
-    DataFrame.vecAssembler = CorrMat.vector_assembler
-    DataFrame.corrStat = CorrMat.spark_correlation
+    """
+    Class CorrMatWrapper is a class for wrapping methods from CorrMat class
+    adding this functionality to Spark DataFrame class
+    """
+    func = (
+        CorrMat.unique_row,
+        CorrMat.cartesian_rdd,
+        CorrMat.correlation_matrix,
+        CorrMat.vector_assembler,
+        CorrMat.spark_correlation
+    )
+    _wrapper(wrap_object=func)
 
 
 class Shape:
@@ -159,37 +219,49 @@ class Shape:
 
 
 class ShapeWrapper:
-
+    """
+    Class ShapeWrapper is a class for wrapping methods from Shape class
+    adding this functionality to Spark DataFrame class
+    """
     DataFrame.Shape = property(lambda self: Shape.shape(self))
 
 
 class Rolling:
 
+    __spark_methods = SparkMethods()
+
     @staticmethod
     def rolling_down(self, op_col, nat_order, min_p=2, window=2, method='sum'):
         w = Window.orderBy(nat_order).rowsBetween(
-            Window.currentRow - (window - 1), Window.currentRow)
+            Window.currentRow - (window - 1), Window.currentRow
+        )
         if method == 'count':
             if isinstance(op_col, list):
-                rolling = SparkMethods()[method]([c for c in op_col][0])
+                rolling = Rolling.__spark_methods[method]([c for c in op_col][0])
                 return self.select(rolling)
-            rolling = SparkMethods()[method](op_col).over(w).alias(f'{op_col}_rolling_{method}')
+            rolling = Rolling.__spark_methods[method](op_col).over(w).alias(f'{op_col}_rolling_{method}')
             return self.select('*', rolling)
         _unbounded_w = Window.orderBy(nat_order).rowsBetween(
-            Window.unboundedPreceding, Window.currentRow)
+            Window.unboundedPreceding, Window.currentRow
+        )
         rolling = when(
             row_number().over(_unbounded_w) >= min_p,
-            SparkMethods()[method](op_col).over(w),
+            Rolling.__spark_methods[method](op_col).over(w),
             ).otherwise(lit(None)).alias(f'{op_col}_rolling_{method}')
         return self.select('*', rolling)
 
 
 class RollingWrapper:
-
-    DataFrame.rollingDown = Rolling.rolling_down
+    """
+    Class RollingWrapper is a class for wrapping methods from Rolling class
+    adding this functionality to Spark DataFrame class
+    """
+    _wrapper(wrap_object=Rolling.rolling_down)
 
 
 class DynamicSampling:
+
+    __spark = OpheliaSpark().ophelia_active_session()
 
     @staticmethod
     def empty_scan(self):
@@ -203,21 +275,26 @@ class DynamicSampling:
 
     @staticmethod
     def sample_n(self, n):
-        spark = OpheliaSpark().ophelia_active_session()
         _ = DynamicSampling.__id_row_number(self, 'n')
         max_n = _.select('n').orderBy(col('n').desc()).limit(1).cache()
         sample_list = []
         for sample in range(n):
             # In this case collect() operation is permitted since we're collecting one single row
             sample_list.append(_.where(col('n') == random.randint(0, max_n.collect()[0][0])))
-        spark.catalog.clearCache()
+        DynamicSampling.__spark.catalog.clearCache()
         return union_all(sample_list).drop('n')
 
 
 class DynamicSamplingWrapper:
-
-    DataFrame.emptyScan = DynamicSampling.empty_scan
-    DataFrame.simple_sample = DynamicSampling.sample_n
+    """
+    Class DynamicSamplingWrapper is a class for wrapping methods from DynamicSampling class
+    adding this functionality to Spark DataFrame class
+    """
+    func = (
+        DynamicSampling.empty_scan,
+        DynamicSampling.sample_n
+    )
+    _wrapper(wrap_object=func)
 
 
 class Selects:
@@ -376,38 +453,58 @@ class Selects:
                 'numeric': self.select_numerical(df)}
 
 
-class SelectWrapper:
-
-    DataFrame.selectRegex = Selects.select_regex
-    DataFrame.selectStartswith = Selects.select_startswith
-    DataFrame.selectEndswith = Selects.select_endswith
-    DataFrame.selectContains = Selects.select_contains
-    DataFrame.sortColAsc = Selects.sort_columns_asc
-    DataFrame.selectFreqItems = Selects.select_freqitems
-    DataFrame.selectStrings = Selects.select_strings
-    DataFrame.selectInts = Selects.select_integers
-    DataFrame.selectFloats = Selects.select_floats
-    DataFrame.selectDoubles = Selects.select_doubles
-    DataFrame.selectDecimals = Selects.select_decimals
-    DataFrame.selectLongs = Selects.select_longs
-    DataFrame.selectDates = Selects.select_dates
-    DataFrame.selectFeatures = Selects.select_features
+class SelectsWrapper:
+    """
+    Class SelectsWrapper is a class for wrapping methods from Selects class
+    adding this functionality to Spark DataFrame class
+    """
+    func = (
+        Selects.select_regex,
+        Selects.select_startswith,
+        Selects.select_endswith,
+        Selects.select_contains,
+        Selects.sort_columns_asc,
+        Selects.select_freqitems,
+        Selects.select_strings,
+        Selects.select_integers,
+        Selects.select_floats,
+        Selects.select_doubles,
+        Selects.select_decimals,
+        Selects.select_longs,
+        Selects.select_dates,
+        Selects.select_features
+    )
+    _wrapper(wrap_object=func)
 
 
 class MapItem:
 
     @staticmethod
-    def map_item(self, origin_col, map_col, map_val):
+    def map_item(self, map_val, origin_col):
+
         map_expr = create_map([lit(x) for x in chain(*map_val.items())])
-        return self.select('*', (map_expr[self[origin_col]]).alias(map_col))
+        DataFrame.metadata = {"cols_to_drop": origin_col}
+
+        if isinstance(origin_col, list):
+            prune_cols = self.drop(*origin_col).columns
+            mapping_list = [(map_expr[self[c]]).alias(c + "_bin") for c in origin_col]
+            return self.select(*prune_cols, *mapping_list)
+
+        prune_cols = self.drop(origin_col).columns
+        return self.select(*prune_cols, (map_expr[self[origin_col]]).alias(origin_col + "_bin"))
 
 
-class MapItemsWrapper:
-
-    DataFrame.mapItem = MapItem.map_item
+class MapItemWrapper:
+    """
+    Class MapItemWrapper is a class for wrapping methods from MapItem class
+    adding this functionality to Spark DataFrame class
+    """
+    _wrapper(wrap_object=MapItem.map_item)
 
 
 class Reshape(DataFrame):
+
+    __spark_methods = SparkMethods()
 
     def __init__(self, df):
         super(Reshape, self).__init__(df._jdf, df.sql_ctx)
@@ -463,7 +560,7 @@ class Reshape(DataFrame):
             for k in agg_dict:
                 for i in range(len(agg_dict[k].split(','))):
                     strip_string = agg_dict[k].replace(' ', '').split(',')
-                    agg_item = spark_round(SparkMethods()[strip_string[i]](k), rnd).alias(f'{strip_string[i]}_{k}')
+                    agg_item = spark_round(Reshape.__spark_methods[strip_string[i]](k), rnd).alias(f'{strip_string[i]}_{k}')
                     agg_list.append(agg_item)
 
             if isinstance(group_by, list):
@@ -478,7 +575,8 @@ class Reshape(DataFrame):
                     group_by_expr = col(group_by).alias(f'{group_by}')
 
             if len(list(agg_dict)) == 1:
-                pivot_df = self.repartition(rep).groupBy(group_by_expr).pivot(pivot_col).agg(*agg_list).na.fill(0)
+                # TODO: revisar el preformance de este .repartition(rep)
+                pivot_df = self.groupBy(group_by_expr).pivot(pivot_col).agg(*agg_list).na.fill(0)
 
                 if rename_col:
                     renamed_cols = [col(c).alias(f"{c}_{keys}_{values}") for c in pivot_df.columns[1:]]
@@ -486,16 +584,22 @@ class Reshape(DataFrame):
                 else:
                     renamed_cols = [col(c).alias(f"{c}") for c in pivot_df.columns[1:]]
                     return pivot_df.select(f'{group_by}', *renamed_cols)
-
-            return Reshape(self.repartition(rep).groupBy(group_by_expr).pivot(pivot_col).agg(*agg_list).na.fill(0))
+            # TODO: revisar el preformance de este .repartition(rep)
+            return Reshape(self.groupBy(group_by_expr).pivot(pivot_col).agg(*agg_list).na.fill(0))
         except TypeError as te:
             raise OpheliaFunctionsException(f"An error occurred while calling wide_format() method: {te}")
 
 
 class ReshapeWrapper:
-
-    DataFrame.toWide = Reshape.wide_format
-    DataFrame.toNarrow = Reshape.narrow_format
+    """
+    Class ReshapeWrapper is a class for wrapping methods from Reshape class
+    adding this functionality to Spark DataFrame class
+    """
+    func = (
+        Reshape.wide_format,
+        Reshape.narrow_format
+    )
+    _wrapper(wrap_object=func)
 
 
 class PctChange:
@@ -563,9 +667,15 @@ class PctChange:
 
 
 class PctChangeWrapper:
-
-    DataFrame.pctChange = PctChange.pct_change
-    DataFrame.remove_element = PctChange.remove_element
+    """
+    Class PctChangeWrapper is a class for wrapping methods from PctChange class
+    adding this functionality to Spark DataFrame class
+    """
+    func = (
+        PctChange.pct_change,
+        PctChange.remove_element
+    )
+    _wrapper(wrap_object=func)
 
 
 class CrossTabular:
@@ -629,19 +739,25 @@ class CrossTabular:
 
 
 class CrossTabularWrapper:
-
-    DataFrame.foreachCol = CrossTabular.foreach_col
-    DataFrame.resumeDF = CrossTabular.resume_dataframe
-    DataFrame.tabularTable = CrossTabular.tab_table
-    DataFrame.crossPct = CrossTabular.cross_pct
+    """
+    Class CrossTabularWrapper is a class for wrapping methods from CrossTabular class
+    adding this functionality to Spark DataFrame class
+    """
+    func = (
+        CrossTabular.foreach_col,
+        CrossTabular.resume_dataframe,
+        CrossTabular.tab_table,
+        CrossTabular.cross_pct
+    )
+    _wrapper(wrap_object=func)
 
 
 class Joins:
 
     @staticmethod
-    def join_small_df(self, small_df, on, how):
+    def join_small_right(self, small_df, on, how):
         """
-        Join Small wrapper broadcasts small sized DataFrames generating a copy of the same
+        Join Small Right wrapper broadcasts small sized DataFrames generating a copy of the same
         DataFrame in every worker.
         :param self: heritage DataFrame class object
         :param small_df: refers to the small size DataFrame to copy
@@ -653,14 +769,40 @@ class Joins:
         :return
 
         Example:
-        ' >>> big_df.join_small(small_df, on='On_Var', how='left') '
+        ' >>> big_df.join_small_right(small_df, on='On_Var', how='left') '
         """
         return self.join(broadcast(small_df), on, how)
 
+    @staticmethod
+    def join_small_left(self, df, on, how):
+        """
+        Join Small Left wrapper broadcasts small sized DataFrames generating a copy of the same
+        DataFrame in every worker.
+        :param self: heritage DataFrame class object
+        :param df: refers to the big size DataFrame to copy
+        :param on: str for the join column name or a list of Columns
+        :param how: str default 'inner'. Must be one of: {'inner', 'cross', 'outer',
+        'full', 'fullouter', 'full_outer', 'left', 'leftouter', 'left_outer',
+        'right', 'rightouter', 'right_outer', 'semi', 'leftsemi', 'left_semi',
+        'anti', 'leftanti', 'left_anti'}
+        :return
+
+        Example:
+        ' >>> small_df.join_small_left(big_df, on='On_Var', how='left') '
+        """
+        return df.join(broadcast(self), on, how)
+
 
 class JoinsWrapper:
-
-    DataFrame.joinSmall = Joins.join_small_df
+    """
+    Class JoinsWrapper is a class for wrapping methods from Joins class
+    adding this functionality to Spark DataFrame class
+    """
+    func = (
+        Joins.join_small_right,
+        Joins.join_small_left
+    )
+    _wrapper(wrap_object=func)
 
 
 class DaskSpark:
@@ -772,6 +914,13 @@ class DaskSpark:
 
 
 class DaskSparkWrapper:
-
-    DataFrame.toPandasSeries = DaskSpark.spark_to_series
-    DataFrame.toNumpyArray = DaskSpark.spark_to_numpy
+    """
+    Class DaskSparkWrapper is a class for wrapping methods from DaskSpark class
+    adding this functionality to Spark DataFrame class
+    """
+    func = (
+        DaskSpark.spark_to_dask,
+        DaskSpark.spark_to_series,
+        DaskSpark.spark_to_numpy
+    )
+    _wrapper(wrap_object=func)
