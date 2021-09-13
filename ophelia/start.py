@@ -5,7 +5,7 @@ class Ophelia:
         from .write.spark_write import Write
         from .read.spark_read import Read
         from .session.spark import OpheliaSpark
-        from ._wrapper import (
+        from .functions import (
             NullDebugWrapper,
             CorrMatWrapper,
             ShapeWrapper,
