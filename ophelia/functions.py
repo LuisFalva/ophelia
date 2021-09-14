@@ -51,9 +51,10 @@ __all__ = [
 def _wrapper(wrap_object):
     _wrap = DataFrameWrapper()
     if isinstance(wrap_object, tuple):
-        for _ in wrap_object:
-            _wrap(wrap_object=_)
-    _wrap(wrap_object=wrap_object)
+        for wo in wrap_object:
+            _wrap(wrap_object=wo)
+    else:
+        _wrap(wrap_object=wrap_object)
 
 
 class NullDebug:
