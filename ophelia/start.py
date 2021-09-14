@@ -1,6 +1,6 @@
 class Ophelia:
 
-    def __init__(self, app_name=None, no_mask=False, meta_info=False):
+    def __init__(self, app_name=None, no_mask=False):
         from ._info import OpheliaInfo
         from .write.spark_write import Write
         from .read.spark_read import Read

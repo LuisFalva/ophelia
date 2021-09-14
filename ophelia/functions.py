@@ -50,7 +50,7 @@ __all__ = [
 
 
 def _wrapper(wrap_object):
-    _wrap = DataFrameWrapper(DataFrame)
+    _wrap = DataFrameWrapper()
     if isinstance(wrap_object, list):
         for obj in wrap_object:
             return _wrap(wrap_object=obj)

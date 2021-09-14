@@ -1,10 +1,11 @@
+from pyspark.sql import DataFrame
 from ._logger import OpheliaLogger
 
 
 class DataFrameWrapper:
 
-    def __init__(self, SparkDataFrameClass):
-        self.__df_class = SparkDataFrameClass.__qualname__
+    def __init__(self):
+        self.__df_class = DataFrame.__qualname__
         self.__logger = OpheliaLogger()
         self.metadata = None
 
