@@ -33,7 +33,6 @@ from ._wrapper import DataFrameWrapper
 from . import SparkMethods, OpheliaFunctionsException
 
 __all__ = [
-    "NullDebug",
     "NullDebugWrapper",
     "CorrMatWrapper",
     "ShapeWrapper",
@@ -51,9 +50,9 @@ __all__ = [
 
 def _wrapper(wrap_object):
     _wrap = DataFrameWrapper()
-    if isinstance(wrap_object, list):
-        for obj in wrap_object:
-            return _wrap(wrap_object=obj)
+    if isinstance(wrap_object, tuple):
+        for _ in wrap_object:
+            return _wrap(wrap_object=_)
     return _wrap(wrap_object=wrap_object)
 
 
