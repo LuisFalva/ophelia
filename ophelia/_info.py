@@ -6,7 +6,6 @@ class OpheliaInfo:
     def __init__(self, meta_info_store):
         self.__logger = OpheliaLogger()
         self.__version = 'Ophelia.0.0.1'
-        self.__meta_info = meta_info_store
         self.__info = {
             "who is": "Hello! This engine is for data mining & ml pipelines in PySpark",
             "welcome": "Welcome to Ophelia Spark miner engine",
@@ -68,10 +67,6 @@ class OpheliaInfo:
         self.__logger.mask(self.__auto_space("  █ █ █ █ █ █ █ █ █ ╬ ╬ ╬ ╬ ╬ █ █ █ ╬ ╬ ╬ ╬ ╬ █ █ █ █ █ █ █ █ █"))
         self.__logger.mask(self.__auto_space("  █ █ █ █ █ █ █ █ █ █ █ ╬ ╬ ╬ ╬ █ ╬ ╬ ╬ ╬ █ █ █ █ █ █ █ █ █ █ █"))
         self.__logger.mask(self.__auto_space("  █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █\n"))
-
-    def __meta_object_info(self):
-        meta_info = self.__meta_info
-        return meta_info
 
     def __build_ophelia_message(self):
         self.__build_info()
