@@ -3,13 +3,6 @@ from ._logger import OpheliaLogger
 
 class DataFrameWrapper:
 
-    from .functions import (
-        NullDebug,
-
-    )
-
-    __all__ = [NullDebug]
-
     def __init__(self, SparkDataFrameClass):
         self.__df_class = SparkDataFrameClass.__qualname__
         self.__logger = OpheliaLogger()
@@ -18,6 +11,7 @@ class DataFrameWrapper:
     def __call__(self, wrap_object):
         class_func = wrap_object.__qualname__
         name_py_function = class_func.split('.')[1]
+        exec(f"from .functions import {class_func.split('.')[0]}")
         exec(f"{self.__df_class}.{name_py_function} = {class_func}")
         self.__logger.info(f"Ophelia Wrapped '{wrap_object}' Class Function")
 
