@@ -3,7 +3,7 @@ from ._logger import OpheliaLogger
 
 class OpheliaInfo:
 
-    def __init__(self, meta_info_store):
+    def __init__(self):
         self.__logger = OpheliaLogger()
         self.__version = 'Ophelia.0.0.1'
         self.__info = {
