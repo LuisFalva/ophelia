@@ -52,10 +52,8 @@ def _wrapper(wrap_object):
     _wrap = DataFrameWrapper(DataFrame)
     if isinstance(wrap_object, list):
         for obj in wrap_object:
-            _wrap(wrap_object=obj)
-        return None
-    _wrap(wrap_object=wrap_object)
-    return None
+            return _wrap(wrap_object=obj)
+    return _wrap(wrap_object=wrap_object)
 
 
 class NullDebug:
