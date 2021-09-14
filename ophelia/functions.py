@@ -33,6 +33,7 @@ from ._wrapper import DataFrameWrapper
 from . import SparkMethods, OpheliaFunctionsException
 
 __all__ = [
+    "NullDebug",
     "NullDebugWrapper",
     "CorrMatWrapper",
     "ShapeWrapper",
