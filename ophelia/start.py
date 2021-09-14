@@ -61,7 +61,7 @@ class Ophelia:
             'singular_vd': SingularVD,
             'smote_sample': SyntheticSample
         }
-        OpheliaInfo(transformers).print_info(no_mask, meta_info)
+        OpheliaInfo(transformers).print_info(no_mask)
         self.Spark = OpheliaSpark()
         self.SparkSession = self.Spark.build_spark_session(app_name)
         self.SC = self.Spark.build_spark_context()
