@@ -3,6 +3,13 @@ from ._logger import OpheliaLogger
 
 class DataFrameWrapper:
 
+    from .functions import (
+        NullDebug,
+
+    )
+
+    __all__ = [NullDebug]
+
     def __init__(self, SparkDataFrameClass):
         self.__df_class = SparkDataFrameClass.__qualname__
         self.__logger = OpheliaLogger()
