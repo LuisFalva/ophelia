@@ -37,7 +37,7 @@ if __name__ == "__main__":
           description=description,
           long_description=readme,
           author='Luis Vargas',
-          author_email='falva.luis@gmail.com',
+          author_email='falvaluis@gmail.com',
           url='https://github.com/Vendetta-Gentleman-Club/ophelia',
           download_url='https://github.com/Vendetta-Gentleman-Club/ophelia/tarball/0.0.1',
           license='Free for non-commercial use',
