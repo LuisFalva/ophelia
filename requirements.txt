@@ -1,5 +1,5 @@
 pyspark==3.0.0
-numpy==1.19.1
+numpy==1.21.0
 pyhocon==0.3.45
 pandas==1.2.3
 py4j>=0.10.9
