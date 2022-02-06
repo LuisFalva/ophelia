@@ -4,6 +4,7 @@ from setuptools import setup, find_packages
 import os
 import pip
 
+__version__ = "0.1.0"
 pip_major = int(pip.__version__.split(".")[0])
 
 if pip_major < 10:
@@ -33,13 +34,12 @@ if __name__ == "__main__":
     '''
 
     setup(name='Ophelia',
-          version='0.1.dev0',
+          version=__version__,
           description=description,
           long_description=readme,
           author='Luis Vargas',
-          author_email='falvaluis@gmail.com',
-          url='https://github.com/Vendetta-Gentleman-Club/ophelia',
-          download_url='https://github.com/Vendetta-Gentleman-Club/ophelia/tarball/0.0.1',
+          author_email='falva.luis@gmail.com',
+          url='https://https://github.com/LuisFalva/ophelia',
           license='Free for non-commercial use',
           keywords='Ophelia',
           install_requires=requirements,

@@ -65,7 +65,7 @@ test-coverage: install-requirements_test ## check code coverage
 
 .PHONY: version
 version:
-	@echo 0.1.dev0 #version
+	@echo 0.1.0 #version
 
 .PHONY: artifact
 artifact:
@@ -78,6 +78,7 @@ endif
 .PHONY: install
 install:
 	pip install .
+	echo "[Ophelia] Successfully installed ophelia:0.1.0. Have fun! =)"
 
 .PHONY: docs
 docs: install-requirements_dev ## generate and shows documentation
