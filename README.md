@@ -30,24 +30,20 @@ Additionally, if you want to use the Ophelia package, you'll also need Python (s
 
 Just clone the `Ophelia` repo and import `Ophelia`:
 ```sh   
-git clone https://github.com/LuisFalva/ophilea.git
+git clone https://github.com/LuisFalva/ophelia.git
 ```
 
 After wiring and clone the `Ophelia` repo go to:
 ```sh   
-cd ophilea
+cd ophelia
 ```
 ### First time installation 📡
 > For the very first time running and installing Ophelia in your local machine you need to wire with Ophelia's main repo.
 Just run the following script in order to setup correctly:
 
-```sh
-./build/ophelia_wire.sh
-```
-
-And execute the following bash script:
+And execute the following `make` instruction:
 ```sh   
-./build/ophelia_install.sh
+make install
 ```
 
 ☝️**First Important Note**: You must see a successful message like the one below:

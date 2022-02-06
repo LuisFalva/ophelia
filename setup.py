@@ -33,13 +33,12 @@ if __name__ == "__main__":
     '''
 
     setup(name='Ophelia',
-          version='0.1.dev0',
+          version='0.0.1',
           description=description,
           long_description=readme,
           author='Luis Vargas',
-          author_email='falvaluis@gmail.com',
-          url='https://github.com/Vendetta-Gentleman-Club/ophelia',
-          download_url='https://github.com/Vendetta-Gentleman-Club/ophelia/tarball/0.0.1',
+          author_email='falva.luis@gmail.com',
+          url='https://https://github.com/LuisFalva/ophelia',
           license='Free for non-commercial use',
           keywords='Ophelia',
           install_requires=requirements,
