@@ -48,15 +48,7 @@ make install
 
 ☝️**First Important Note**: You must see a successful message like the one below:
 ```sh   
-Successfully installed Ophelia-0.1.dev0
-********************************************************
-Ophelia is now installed in your local env. Have fun! =)
-********************************************************
-```
-
-✌️**Second Important Note**: If you want to update your Ophelia local installation execute the following script
-```sh   
-./build/ophelia_update.sh
+[Ophelia] Successfully installed ophelia:0.1.0. Have fun! =)
 ```
 
 ### Importing and initializing Ophelia 📦
@@ -70,7 +62,7 @@ To initialize `Ophelia` with Spark embedded session use:
 01:20:50.384 Ophelia [TAPE] +-----------------------------------------------------------------+
 01:20:50.385 Ophelia [INFO] | Hello! This engine is for data mining & ml pipelines in PySpark |
 01:20:50.385 Ophelia [INFO] | Welcome to Ophelia Spark miner engine                           |
-01:20:50.386 Ophelia [INFO] | Package Version Ophelia.0.0.1                                   |
+01:20:50.386 Ophelia [INFO] | Package Version ophelia:0.1.0                                   |
 01:20:50.386 Ophelia [WARN] | V for Vendata...                                                |
 01:20:50.386 Ophelia [TAPE] +-----------------------------------------------------------------+
 01:20:50.386 Ophelia [WARN]                   - Ophelia a Spark miner -                    

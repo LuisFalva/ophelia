@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 container_name=luisfalva/ophelia
-tagname=0.0.1
+tagname=0.1.0
 
 docker_image_name=${container_name}:${tagname}
 
