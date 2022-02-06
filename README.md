@@ -46,12 +46,12 @@ And execute the following `make` instruction:
 make install
 ```
 
-☝️**First Important Note**: You must see a successful message like the one below,
+☝️**First Important Note**: You must see a successful message like the one below.
 ```sh   
 [Ophelia] Successfully installed ophelia:0.1.0. Have fun! =)
 ```
 
-✌️️**Second Important Note**: You also can pull Ophelia 0.1.0 docker image and use it as base image from another one,
+✌️️**Second Important Note**: You also can pull Ophelia 0.1.0 docker image and use it as base image for new images.
 ```sh   
 docker pull luisfalva/ophelia:0.1.0
 ```
