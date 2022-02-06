@@ -39,16 +39,21 @@ cd ophelia
 ```
 ### First time installation 📡
 > For the very first time running and installing Ophelia in your local machine you need to wire with Ophelia's main repo.
-Just run the following script in order to setup correctly:
+Just run the following script in order to set up correctly:
 
 And execute the following `make` instruction:
 ```sh   
 make install
 ```
 
-☝️**First Important Note**: You must see a successful message like the one below:
+☝️**First Important Note**: You must see a successful message like the one below.
 ```sh   
 [Ophelia] Successfully installed ophelia:0.1.0. Have fun! =)
+```
+
+✌️️**Second Important Note**: You also can pull Ophelia 0.1.0 docker image and use it as base image for new images.
+```sh   
+docker pull luisfalva/ophelia:0.1.0
 ```
 
 ### Importing and initializing Ophelia 📦
