@@ -4,8 +4,12 @@
 *.pytest_cache/
 *.build/
 *.dist/
-*.ophelia.egg-info/
+*.egg-info/
 *.tox/
+
+# Wheel directories
+build
+dist
 
 # Virtualenv env
 *env/

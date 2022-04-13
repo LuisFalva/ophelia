@@ -7,7 +7,11 @@ from pyspark.sql.functions import (
     max as spark_max
 )
 
+"""Top-level package for ophelia."""
 
+__author__ = """LuisFalva"""
+__email__ = 'falvaluis@gmail.com'
+__version__ = '0.1.0'
 __all__ = [
     "SparkMethods",
     "ClassType",
