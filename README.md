@@ -26,7 +26,7 @@ Before starting, you'll need to have installed pyspark >= 3.0.x, pandas >= 1.1.3
 
 Additionally, if you want to use the Ophelia package, you'll also need Python (supported 3.7 and 3.8 versions) and pip installed.
 
-### Building from source 🛠️
+### Building from the source 🛠️
 
 Just clone the `Ophelia` repo and import `Ophelia`:
 ```sh   
@@ -51,9 +51,16 @@ make install
 [Ophelia] Successfully installed ophelia:0.1.0. Have fun! =)
 ```
 
-✌️️**Second Important Note**: You also can pull Ophelia 0.1.0 docker image and use it as base image for new images.
+✌️️**Second Important Note**: You also can pull Ophelia 0.1.0
+[or make sure version matches with the one you need`and configure the env OPHELIA_DOCKER_VERSION]`
+docker image and use it as base image for new images.
 ```sh   
-docker pull luisfalva/ophelia:0.1.0
+make docker-pull
+```
+
+Also, you can push new changes to your corresponding version as follows:
+```sh   
+make docker-build
 ```
 
 ### Importing and initializing Ophelia 📦

@@ -24,11 +24,14 @@ if __name__ == "__main__":
     with open(os.path.join(here, 'README.md')) as f:
         readme = f.read()
 
-    session = PipSession()
-    parse_req = (lambda file: list(parse_requirements(file, session=session)))
-    requirements = [str(ir.requirement) for ir in parse_req('requirements.txt')]
-    test_requirements = [str(ir.requirement) for ir in parse_req('requirements_test.txt')]
-    dev_requirements = [str(ir.requirement) for ir in parse_req('requirements_dev.txt')]
+    def parser_req(requirements_file):
+        session = PipSession()
+        parse_req = (lambda file: list(parse_requirements(file, session=session)))
+        return [str(ir.requirement) for ir in parse_req(requirements_file)]
+
+    requirements = parser_req('requirements.txt')
+    test_requirements = parser_req('requirements_test.txt')
+    dev_requirements = parser_req('requirements_dev.txt')
 
     description = '''
     Ophelia is an spark miner AI engine that builds data mining & ml pipelines with PySpark.
