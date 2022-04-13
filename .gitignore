@@ -12,13 +12,13 @@
 *venv/
 
 # File extensions
-*.csv
 *.pyc
 *.pylint.txt
 *.DS_Store
 
 # Spark warehouse
 *spark-warehouse/
+*_SUCCESS
 
 # Tests
 *out/
