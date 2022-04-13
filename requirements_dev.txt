@@ -1,5 +1,5 @@
 -r requirements_test.txt
-pip==19.2.3
+pip==21.1
 bump2version==0.5.11
 Sphinx==1.8.5
 recommonmark==0.4.0
