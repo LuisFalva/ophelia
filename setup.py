@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from setuptools import setup, find_packages
+from setuptools import setup
 import os
 import pip
 
@@ -27,24 +27,31 @@ if __name__ == "__main__":
     session = PipSession()
     parse_req = (lambda file: list(parse_requirements(file, session=session)))
     requirements = [str(ir.requirement) for ir in parse_req('requirements.txt')]
-    test_requirements = [str(ir.requirement) for ir in parse_req('requirements_dev.txt')]
+    test_requirements = [str(ir.requirement) for ir in parse_req('requirements_test.txt')]
+    dev_requirements = [str(ir.requirement) for ir in parse_req('requirements_dev.txt')]
 
     description = '''
     Ophelia is an spark miner AI engine that builds data mining & ml pipelines with PySpark.
     '''
 
-    setup(name='Ophelia',
+    setup(name='ophelia',
           version=__version__,
           description=description,
           long_description=readme,
+          long_description_content_type='text/markdown',
           author='Luis Vargas',
           author_email='falva.luis@gmail.com',
           url='https://https://github.com/LuisFalva/ophelia',
           license='Free for non-commercial use',
-          keywords='Ophelia',
+          keywords='ophelia',
+          packages=['ophelia'],
+          package_dir={'ophelia': 'ophelia'},
+          include_package_data=True,
+          python_requires='>=3.6',
           install_requires=requirements,
           extras_require={
               'tests': test_requirements,
+              'dev': dev_requirements,
           },
           classifiers=[
               'Development Status :: 1 - Planning',
@@ -59,5 +66,4 @@ if __name__ == "__main__":
               'Topic :: Office/Business :: Financial :: Investment',
               'Topic :: Scientific/Engineering :: Artificial Intelligence',
               'Topic :: Scientific/Engineering :: Information Analysis'
-          ],
-          packages=find_packages())
+          ])
