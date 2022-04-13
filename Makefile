@@ -78,7 +78,6 @@ endif
 .PHONY: install
 install:
 	pip install .
-	echo "[Ophelia] Successfully installed ophelia:0.1.0. Have fun! =)"
 
 .PHONY: docs
 docs: install-requirements_dev ## generate and shows documentation
@@ -86,3 +85,10 @@ docs: install-requirements_dev ## generate and shows documentation
 	# Replace files with .md extension with .html extension
 	@find ./docs/_build/ -name '*.html' -exec sed -i 's/\(\w*\)\.md\(W*\)/\1.html\2/g' {} \;
 	@python -m webbrowser -t docs/_build/html/index.html
+
+docker-build:
+	./docker_build.sh local-test
+
+OPHELIA_DOCKER_VERSION=ophelia:0.1.0
+docker-pull:
+	docker pull luisfalva/${OPHELIA_DOCKER_VERSION}
