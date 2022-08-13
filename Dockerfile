@@ -2,8 +2,8 @@
 FROM godatadriven/pyspark:latest AS builder
 #   Set name of working dir. By convention 'app'
 WORKDIR /ophelia
-#   Copy *.txt requirements files for dev and test.
-COPY COPY requirements.txt requirements_dev.txt requirements_test.txt .
+#   Copy all txt requirements files for ophelia, dev and test.
+COPY requirements.txt requirements_dev.txt requirements_test.txt .
 #   Copy *.md README files for setup.py configuration.
 RUN pip install --no-cache-dir -r requirements_dev.txt
 #   Copy Ophelia source
