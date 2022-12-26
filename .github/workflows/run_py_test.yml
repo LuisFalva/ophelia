@@ -9,4 +9,4 @@ jobs:
     - uses: actions/checkout@v2
     - name: Run Unit Tests
       run: |
-        pwd
+        python -m unittest /home/runner/work/ophelia/ophelia/tests/functions_tests.py
