@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install twine
-          run: pip install twine
-            - name: Publish to PyPI
-              run: |
-                twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
+        run: pip install twine
+      - name: Publish to PyPI
+        run: |
+          twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
