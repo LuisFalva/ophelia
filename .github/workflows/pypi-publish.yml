@@ -17,10 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: pypa/twine@v1.1.0
-        with:
-          username: __token__
-          password: ${{ secrets.PYPI_TOKEN }}
-          distributions: sdist bdist_wheel
-          repository: pypi
-          skip_existing: true
+      - name: Install twine
+          run: pip install twine
+            - name: Publish to PyPI
+              run: |
+                twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
