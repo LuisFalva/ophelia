@@ -9,4 +9,4 @@ jobs:
     - uses: actions/checkout@v2
     - name: Run Unit Tests
       run: |
-        python -m unittest functions_tests.py
+        pwd
