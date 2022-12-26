@@ -7,6 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Install pyspark
+        run: |
+          # Replace '3.10' with the version of Python you are using
+          which python
     - name: Run Unit Tests
       run: |
         python -m unittest /home/runner/work/ophelia/ophelia/tests/functions_tests.py
