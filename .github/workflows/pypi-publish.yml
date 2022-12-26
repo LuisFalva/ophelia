@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: pypa/twine@v3
+      - uses: pypa/twine@v2
         with:
           username: __token__
           password: ${{ secrets.PYPI_TOKEN }}
