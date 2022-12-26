@@ -1,0 +1,27 @@
+name: Publish to PyPI
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/python-package@v2
+        with:
+          test: true
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: pypa/twine@v3
+        with:
+          username: __token__
+          password: ${{ secrets.PYPI_TOKEN }}
+          distributions: sdist bdist_wheel
+          repository: pypi
+          skip_existing: true

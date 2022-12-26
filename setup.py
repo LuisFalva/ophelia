@@ -43,7 +43,7 @@ if __name__ == "__main__":
           long_description=readme,
           long_description_content_type='text/markdown',
           author='Luis Vargas',
-          author_email='falva.luis@gmail.com',
+          author_email='falvaluis@gmail.com',
           url='https://https://github.com/LuisFalva/ophelia',
           license='Free for non-commercial use',
           keywords='ophelia',
