@@ -1,6 +1,6 @@
 import unittest
-from pyspark.sql import SparkSession
-from ophelia.functions import Reshape
+from pyspark.sql import SparkSession, DataFrame
+from ophelia.functions import Reshape, MapItem
 
 class TestNarrowFormat(unittest.TestCase):
 
@@ -56,6 +56,42 @@ class TestWideFormat(unittest.TestCase):
 
     def tearDown(self):
         self.spark.stop()
+
+
+class TestMapItem(unittest.TestCase):
+
+    def setUp(self):
+        self.spark = SparkSession.builder.appName("TestMapItem").getOrCreate()
+        self.df = self.spark.createDataFrame([
+            (1, "a"),
+            (2, "b"),
+            (3, "c")],
+            ("id", "val"))
+
+    def tearDown(self):
+        self.spark.stop()
+
+    def test_map_item(self):
+        map_expr = {"a": "x", "b": "y", "c": "z"}
+
+        result = MapItem.map_item(self.df, map_expr, "val")
+        expected_output = self.spark.createDataFrame([
+            (1, "a", "x"),
+            (2, "b", "y"),
+            (3, "c", "z")],
+            ("id", "val", "val_bin"))
+        self.assertEqual(result.collect(), expected_output.collect())
+        self.assertIsInstance(result, DataFrame)
+
+        result = MapItem.map_item(self.df, map_expr, ["val"])
+        expected_output = self.spark.createDataFrame([
+            (1, "a", "x"),
+            (2, "b", "y"),
+            (3, "c", "z")],
+            ("id", "val", "val_bin"))
+        self.assertEqual(result.collect(), expected_output.collect())
+        self.assertIsInstance(result, DataFrame)
+
 
 if __name__ == '__main__':
     unittest.main()
