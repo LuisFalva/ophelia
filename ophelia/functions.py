@@ -150,10 +150,8 @@ class CorrMat:
 
     @staticmethod
     def unique_row(self, col):
-        # TODO: cambiar el collect() por transponer el panel de datos agrupado
-        # TODO: y obtener la lista de columnas que serán en este caso las filas unicas
-        categories_rows = self.select(col).groupBy(col).count().collect()
-        return sorted([categories_rows[i][0] for i in range(len(categories_rows))])
+        categories_rows = self.select(col).groupBy(col).count().toPandas()
+        return sorted(categories_rows[col].unique())
 
     @staticmethod
     def vector_assembler(self, cols_name):
@@ -306,18 +304,9 @@ class Selects:
 
     @staticmethod
     def select_regex(self, reg_expr):
-        # Todo: es posible llamar el atributo _jdf sin necesidad de quitar el decorador @staticmethod, se remueven por
-        # Todo: que producen error de ejecucion por el momento
-        # Todo: se deja el codigo muestra de version anterior
-        """
-        stream = self._jdf.columns
-        regex_list = [line for regex in regex_expr for line in stream if re.compile(regex).match(line)]
-        clean_regex_list = remove_duplicated_elements(regex_list)
-        return DataFrame(self._jdf.select(clean_regex_list), self.sql_ctx)
-        """
-        stream = self.columns
-        regex_list = [line for regex in reg_expr for line in stream if re.compile(regex).match(line)]
-        clean_regex_list = remove_duplicate_element(regex_list)
+        compiled_regexes = [re.compile(regex) for regex in reg_expr]
+        filtered_stream = filter(lambda line: any(regex.match(line) for regex in compiled_regexes), self.columns)
+        clean_regex_list = set(filtered_stream)
         return self.select(clean_regex_list)
 
     @staticmethod
@@ -479,18 +468,14 @@ class SelectsWrapper:
 class MapItem:
 
     @staticmethod
-    def map_item(self, map_val, origin_col):
-
-        map_expr = create_map([lit(x) for x in chain(*map_val.items())])
+    def map_item(self, map_expr, origin_col):
         DataFrame.metadata = {"cols_to_drop": origin_col}
-
-        if isinstance(origin_col, list):
-            prune_cols = self.drop(*origin_col).columns
-            mapping_list = [(map_expr[self[c]]).alias(c + "_bin") for c in origin_col]
-            return self.select(*prune_cols, *mapping_list)
-
-        prune_cols = self.drop(origin_col).columns
-        return self.select(*prune_cols, (map_expr[self[origin_col]]).alias(origin_col + "_bin"))
+        if type(origin_col) is list:
+            for c in origin_col:
+                self = self.withColumn(c + "_bin", map_expr[self[c]])
+        else:
+            self = self.withColumn(origin_col + "_bin", map_expr[self[origin_col]])
+        return self
 
 
 class MapItemWrapper:
@@ -539,6 +524,24 @@ class Reshape(DataFrame):
             raise OpheliaFunctionsException(f"An error occurred while calling narrow_format() method: {e}")
 
     @staticmethod
+    def narrow_format_v2(self, fix_cols, new_cols=None):
+        try:
+            if new_cols is None:
+                pivot_col, value_col = 'no_name_pivot_col', 'no_name_value_col'
+            elif isinstance(new_cols, str):
+                pivot_col, value_col = new_cols.split(',')[0], new_cols.split(',')[1]
+            elif isinstance(new_cols, list):
+                pivot_col, value_col = new_cols[0], new_cols[1]
+            cols, dtype = zip(*[(c, t) for (c, t) in self.dtypes if c not in [fix_cols]])
+            generator_explode = explode(array([
+                struct(lit(c).alias(pivot_col), col(c).alias(value_col)) for c in cols
+            ])).alias('column_explode')
+            column_to_explode = (f'column_explode.{pivot_col}', f'column_explode.{value_col}')
+            return self.selectExpr(fix_cols, *column_to_explode)
+        except Exception as e:
+            raise OpheliaFunctionsException(f"An error occurred while calling narrow_format() method: {e}")
+
+    @staticmethod
     def wide_format(self, group_by, pivot_col, agg_dict, rnd=6, rep=20, rename_col=False):
         """
         Wide format method will reshape from narrow multidimensional
@@ -579,10 +582,10 @@ class Reshape(DataFrame):
 
                 if rename_col:
                     renamed_cols = [col(c).alias(f"{c}_{keys}_{values}") for c in pivot_df.columns[1:]]
-                    return pivot_df.select(f'{group_by}_{pivot_col}', *renamed_cols)
+                    return Reshape(pivot_df.select(f'{group_by}_{pivot_col}', *renamed_cols))
                 else:
                     renamed_cols = [col(c).alias(f"{c}") for c in pivot_df.columns[1:]]
-                    return pivot_df.select(f'{group_by}', *renamed_cols)
+                    return Reshape(pivot_df.select(f'{group_by}', *renamed_cols))
             # TODO: revisar el preformance de este .repartition(rep)
             return Reshape(self.groupBy(group_by_expr).pivot(pivot_col).agg(*agg_list).na.fill(0))
         except TypeError as te:
