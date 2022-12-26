@@ -8,7 +8,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           test: true
 
@@ -16,11 +16,11 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: pypa/twine@v2
+      - uses: actions/checkout@v3
+      - name: Install twine
+        run: pip install twine
+      - name: Publish to PyPI
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          username: __token__
-          password: ${{ secrets.PYPI_TOKEN }}
-          distributions: sdist bdist_wheel
-          repository: pypi
-          skip_existing: true
+          password: ${{ secrets.PYPI_API_TOKEN }}
