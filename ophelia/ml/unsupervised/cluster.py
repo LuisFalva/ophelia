@@ -1,13 +1,16 @@
 from pyspark.ml.clustering import FuzzyKMeans, BisectingKMeans
+from pyspark.ml import Transformer
+from pyspark.ml.linalg import DenseVector, SparseVector
+from pyspark.sql.functions import udf
 
 
-class KMeansCluster:
+class KMeansCluster(Transformer):
     """
     traditional spark clustering
     """
 
 
-class FuzzyClusterMeans:
+class FuzzyClusterMeans(Transformer):
     """
     FuzzyCMeans in ml.
     A class for performing fuzzy clustering using the FuzzyKMeans algorithm in PySpark.
@@ -48,7 +51,7 @@ class FuzzyClusterMeans:
         model = fuzzy_kmeans.fit(self.data)
         return model
 
-    def transform(self, model, data):
+    def _transform(self, model, data):
         """
         Predict the cluster assignments for new data using the trained FuzzyKMeans model.
 
@@ -63,7 +66,7 @@ class FuzzyClusterMeans:
         return model.transform(data)
 
 
-class BKM:
+class BKM(Transformer):
     """
     A class for implementing the Bisecting K-Means (BKM) algorithm in PySpark.
 
@@ -88,6 +91,7 @@ class BKM:
     clustered_data = bkm.transform(data)
     """
     def __init__(self, k=2, max_iter=20, seed=None, features_col='features'):
+        super(BKM, self).__init__()
         self.k = k
         self.max_iter = max_iter
         self.seed = seed
@@ -112,7 +116,7 @@ class BKM:
         self.model = bkm.fit(data)
         return self.model
 
-    def transform(self, data):
+    def _transform(self, data):
         """
         Apply the BKM model to the input data to create clusters.
 
@@ -135,31 +139,85 @@ class BKM:
         return self.model.summary.clusterSizes
 
 
-class GaussianM:
+class GaussianM(Transformer):
     """
     traditional spark clustering
     """
 
 
-class LatentDirichlet:
+class LatentDirichlet(Transformer):
     """
     traditional spark clustering
     """
 
 
-class ClusterFeatureTree:
+class ClusterFeatureTree(Transformer):
     """
     BIRCH algorithm
     """
 
 
-class HierarchicalCluster:
+class HierarchicalCluster(Transformer):
     """
     SparkPinkMST
     """
 
 
-class HiddenMarkov:
-    """
-    SparkPinkMST
-    """
+class HiddenMarkov(Transformer):
+    def __init__(
+            self,
+            num_states,
+            num_observations,
+            transition_probabilities,
+            observation_probabilities,
+            initial_probabilities
+    ):
+        self.num_states = num_states
+        self.num_observations = num_observations
+        self.transition_probabilities = transition_probabilities
+        self.observation_probabilities = observation_probabilities
+        self.initial_probabilities = initial_probabilities
+
+    def forward(self, observations):
+        T = len(observations)
+        alpha = [[0.0 for _ in range(self.num_states)] for _ in range(T)]
+        alpha[0] = [
+            self.initial_probabilities[i] *
+            self.observation_probabilities[i][observations[0]] for i in range(self.num_states)]
+        for t in range(1, T):
+            for j in range(self.num_states):
+                alpha[t][j] = sum([alpha[t-1][i] *
+                                   self.transition_probabilities[i][j] for i in range(self.num_states)]) * \
+                              self.observation_probabilities[j][observations[t]]
+        return alpha
+
+    def backward(self, observations):
+        T = len(observations)
+        beta = [[0.0 for _ in range(self.num_states)] for _ in range(T)]
+        beta[T-1] = [1.0 for _ in range(self.num_states)]
+        for t in range(T-2, -1, -1):
+            for i in range(self.num_states):
+                beta[t][i] = sum([self.transition_probabilities[i][j] *
+                                  self.observation_probabilities[j][observations[t+1]] *
+                                  beta[t+1][j] for j in range(self.num_states)])
+        return beta
+
+    def viterbi(self, observations):
+        T = len(observations)
+        delta = [[0.0 for _ in range(self.num_states)] for _ in range(T)]
+        psi = [[0 for _ in range(self.num_states)] for _ in range(T)]
+        delta[0] = [
+            self.initial_probabilities[i] *
+            self.observation_probabilities[i][observations[0]] for i in range(self.num_states)]
+        for t in range(1, T):
+            for j in range(self.num_states):
+                delta[t][j] = max([
+                    delta[t-1][i] * self.transition_probabilities[i][j] *
+                    self.observation_probabilities[j][observations[t]] for i in range(self.num_states)
+                ])
+                psi[t][j] = max([
+                    (delta[t-1][i] * self.transition_probabilities[i][j], i) for i in range(self.num_states)])[1]
+        path = [max([(delta[T-1][i], i) for i in range(self.num_states)])[1]]
+        for t in range(T-1, 0, -1):
+            path.insert(0, psi[t][path[0]])
+        return path
