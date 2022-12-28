@@ -2,35 +2,38 @@ import os
 import re
 import random
 import pandas as pd
-from itertools import chain
+from typing import List
+from quadprog import solve_qp
 from py4j.protocol import Py4JJavaError
 from dask import (
     dataframe as dask_df,
     array as dask_arr
 )
 from pyspark import SparkContext
-from pyspark.sql import DataFrame, Window, SparkSession
+from pyspark.sql import DataFrame, Window, SparkSession, SQLContext
 from pyspark.sql.column import _to_seq
 from pyspark.sql.functions import (
     when, col, lit, row_number,
     monotonically_increasing_id,
     create_map, explode, struct,
-    array, lag, expr, sum, count,
+    array, lag, expr, sum as spark_sum, count,
     round as spark_round, isnan,
-    broadcast
+    broadcast, stddev, mean, variance
 )
 from pyspark.sql.types import StructField, StringType, StructType
 from pyspark.ml.stat import Correlation as SparkCorrelation
 from pyspark.ml.feature import VectorAssembler
-from .session.spark import OpheliaSpark
-from .generic import (
+from pyspark.ml.optim import LBFGS
+
+from ophelia.session.spark import OpheliaSpark
+from ophelia.generic import (
     remove_duplicate_element,
     feature_pick, regex_expr,
     union_all
 )
-from ._logger import OpheliaLogger
-from ._wrapper import DataFrameWrapper
-from . import SparkMethods, OpheliaFunctionsException
+from ophelia._logger import OpheliaLogger
+from ophelia._wrapper import DataFrameWrapper
+from ophelia import SparkMethods, OpheliaFunctionsException
 
 __all__ = [
     "NullDebugWrapper",
@@ -926,3 +929,124 @@ class DaskSparkWrapper:
         DaskSpark.spark_to_numpy
     )
     _wrapper(wrap_object=func)
+
+
+class SortinoRatioCalculator:
+    def __init__(self, df: DataFrame):
+        self.df = df
+
+    def return_on_investment(self):
+        df = self.df.withColumn("prev_close", lag("close").over(Window.orderBy("date")))
+        return df.withColumn("roi", (df["close"] - df["prev_close"]) / df["prev_close"])
+
+    def downside_deviation(self, df):
+        negative_roi = df.filter(df["roi"] < 0).select("roi")
+        downside_deviation = negative_roi.select(stddev("roi")).first()[0]
+        return downside_deviation
+
+    def sortino_ratio(self):
+        df = self.return_on_investment()
+        downside_deviation = self.downside_deviation(df)
+        positive_roi = df.filter(df["roi"] >= 0).select("roi")
+        mean_positive_roi = positive_roi.select(mean("roi")).first()[0]
+        sortino_ratio = mean_positive_roi / downside_deviation
+        return sortino_ratio
+
+
+class SharpeRatioCalculator:
+    def __init__(self, data: DataFrame, returns_col: str, risk_free_rate: float):
+        self.data = data
+        self.returns_col = returns_col
+        self.risk_free_rate = risk_free_rate
+
+    def calculate(self):
+        """
+        Calculate the Sharpe ratio for the given data.
+        """
+        mean_return = self.data.select(mean(self.returns_col)).first()[0]
+        std_dev = self.data.select(stddev(self.returns_col)).first()[0]
+        sharpe_ratio = (mean_return - self.risk_free_rate) / std_dev
+        return sharpe_ratio
+
+
+class EfficientFrontierRatioCalculator:
+    def __init__(self, dataframe):
+        self.df = dataframe.cache()
+
+    def expected_returns(self):
+        returns = self.df.agg(mean('return')).first()[0]
+        return returns
+
+    def expected_variances(self):
+        cov_matrix = self.df.agg(variance('return')).first()[0]
+        return cov_matrix
+
+    @staticmethod
+    def efficient_frontier(cov_matrix, returns):
+        weights = solve_qp(cov_matrix, -returns, None, None)
+        return weights
+
+    def calculate_efficient_frontier_ratio(self):
+        returns = self.expected_returns()
+        cov_matrix = self.expected_variances()
+        weights = self.efficient_frontier(cov_matrix, returns)
+
+        min_var_ret = weights @ returns
+        max_ret_var = weights @ cov_matrix @ weights
+        eff_frontier_ratio = min_var_ret / max_ret_var
+        return eff_frontier_ratio
+
+
+class RiskParityCalculator:
+    def __init__(
+            self,
+            returns_columns,
+            asset_column,
+            weight_column,
+            risk_columns,
+            dataframe: DataFrame,
+            sql_context: SQLContext
+    ):
+        self.returns_columns = returns_columns
+        self.asset_column = asset_column
+        self.weight_columns = weight_columns
+        self.risk_columns = risk_columns
+        self.dataframe = dataframe
+        self.sql_context = sql_context
+
+    def calculate_asset_risk(self):
+        returns_df = self.dataframe.select(self.returns_columns)
+        std_df = returns_df.agg(*[stddev(c).alias(c + '_std') for c in returns_df.columns])
+        var_df = returns_df.agg(*[variance(c).alias(c + '_var') for c in returns_df.columns])
+        return self.dataframe.join(std_df, on=self.asset_column).join(var_df, on=self.asset_column)
+
+    def calculate_total_risk(self):
+        risk_df = self.dataframe.select(self.weight_columns + self.risk_columns)
+        for col in self.risk_columns:
+            risk_df = risk_df.withColumn(col + '_weighted', col * risk_df[self.weight_columns])
+        total_risk_df = risk_df.agg(sum(c(c + '_weighted') for c in self.risk_columns))
+        return total_risk_df
+
+    def calculate_risk_parity_weights(self):
+        objective = sum(self.dataframe[c + '_weighted'] for c in self.risk_columns)
+        constraints = [when(self.dataframe[c] == 1, 1.0).otherwise(0.0) for c in self.weight_columns]
+        objective_column = objective.alias('objective')
+        constraints_column = sum(constraints).alias('constraints')
+        variables_ds = self.dataframe.select(self.weight_columns).toDF(self.weight_columns)
+        optimizer = LBFGS().setObjective(
+            objective_column
+        ).setConstraints(
+            constraints_column
+        ).setFeaturesCol(
+            self.weight_columns
+        )
+        model = optimizer.fit(variables_ds)
+        weights = model.coefficients.toDF(self.weight_columns)
+        return weights
+
+    def update_weights(self, risk_parity_weights_df):
+        updated_df = self.dataframe.join(risk_parity_weights_df, on=self.asset_column)
+        updated_df = updated_df.withColumn(self.weight_columns, updated_df[self.weight_columns + '_risk_parity']).drop(
+            self.weight_columns + '_risk_parity').withColumnRenamed(
+            self.weight_columns, self.weight_columns + '_original')
+        return updated_df
