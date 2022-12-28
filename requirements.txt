@@ -1,4 +1,4 @@
-pyspark==3.2.2
+pyspark==3.2.1
 numpy>=1.21
 pyhocon==0.3.45
 pandas==1.2.3
