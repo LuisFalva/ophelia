@@ -2,7 +2,7 @@ import os
 import re
 import random
 import pandas as pd
-from typing import List
+import numpy as np
 from quadprog import solve_qp
 from py4j.protocol import Py4JJavaError
 from dask import (
@@ -23,7 +23,6 @@ from pyspark.sql.functions import (
 from pyspark.sql.types import StructField, StringType, StructType
 from pyspark.ml.stat import Correlation as SparkCorrelation
 from pyspark.ml.feature import VectorAssembler
-from pyspark.ml.optim import LBFGS
 
 from ophelia.session.spark import OpheliaSpark
 from ophelia.generic import (
@@ -31,6 +30,7 @@ from ophelia.generic import (
     feature_pick, regex_expr,
     union_all
 )
+from ophelia.ml.optim.utils import LBFGS
 from ophelia._logger import OpheliaLogger
 from ophelia._wrapper import DataFrameWrapper
 from ophelia import SparkMethods, OpheliaFunctionsException
@@ -47,7 +47,11 @@ __all__ = [
     "PctChangeWrapper",
     "CrossTabularWrapper",
     "JoinsWrapper",
-    "DaskSparkWrapper"
+    "DaskSparkWrapper",
+    "SortinoRatioCalculatorWrapper",
+    "SharpeRatioCalculatorWrapper",
+    "EfficientFrontierRatioCalculatorWrapper",
+    "RiskParityCalculatorWrapper"
 ]
 
 
@@ -953,6 +957,17 @@ class SortinoRatioCalculator:
         return sortino_ratio
 
 
+class SortinoRatioCalculatorWrapper:
+    """
+    Class SortinoRatioCalculatorWrapper is a class for wrapping methods from SortinoRatioCalculator class
+    adding this functionality to Spark DataFrame class.
+    """
+    func = (
+        SortinoRatioCalculator.sortino_ratio
+    )
+    _wrapper(wrap_object=func)
+
+
 class SharpeRatioCalculator:
     def __init__(self, data: DataFrame, returns_col: str, risk_free_rate: float):
         self.data = data
@@ -967,6 +982,17 @@ class SharpeRatioCalculator:
         std_dev = self.data.select(stddev(self.returns_col)).first()[0]
         sharpe_ratio = (mean_return - self.risk_free_rate) / std_dev
         return sharpe_ratio
+
+
+class SharpeRatioCalculatorWrapper:
+    """
+    Class SharpeRatioCalculatorWrapper is a class for wrapping methods from SharpeRatioCalculator class
+    adding this functionality to Spark DataFrame class.
+    """
+    func = (
+        SharpeRatioCalculator.calculate
+    )
+    _wrapper(wrap_object=func)
 
 
 class EfficientFrontierRatioCalculator:
@@ -997,12 +1023,24 @@ class EfficientFrontierRatioCalculator:
         return eff_frontier_ratio
 
 
+class EfficientFrontierRatioCalculatorWrapper:
+    """
+    Class EfficientFrontierRatioCalculatorWrapper is a class for wrapping
+    methods from EfficientFrontierRatioCalculator class
+    adding this functionality to Spark DataFrame class.
+    """
+    func = (
+        EfficientFrontierRatioCalculator.calculate_efficient_frontier_ratio
+    )
+    _wrapper(wrap_object=func)
+
+
 class RiskParityCalculator:
     def __init__(
             self,
             returns_columns,
             asset_column,
-            weight_column,
+            weight_columns,
             risk_columns,
             dataframe: DataFrame,
             sql_context: SQLContext
@@ -1028,20 +1066,27 @@ class RiskParityCalculator:
         return total_risk_df
 
     def calculate_risk_parity_weights(self):
-        objective = sum(self.dataframe[c + '_weighted'] for c in self.risk_columns)
-        constraints = [when(self.dataframe[c] == 1, 1.0).otherwise(0.0) for c in self.weight_columns]
-        objective_column = objective.alias('objective')
-        constraints_column = sum(constraints).alias('constraints')
-        variables_ds = self.dataframe.select(self.weight_columns).toDF(self.weight_columns)
-        optimizer = LBFGS().setObjective(
-            objective_column
-        ).setConstraints(
-            constraints_column
-        ).setFeaturesCol(
-            self.weight_columns
-        )
-        model = optimizer.fit(variables_ds)
-        weights = model.coefficients.toDF(self.weight_columns)
+        # Define the objective function and the constraints
+        def obj_func(w):
+            return sum(self.dataframe[c + '_weighted'].dot(w) for c in self.risk_columns)
+
+        def grad_obj_func(ws):
+            return np.array([self.dataframe[c + '_weighted'].dot(ws) for c in self.risk_columns])
+
+        def constraint_func(we):
+            return sum(when(self.dataframe[c] == 1, 1.0).otherwise(0.0).dot(we) for c in self.weight_columns)
+
+        def grad_constraint_func(wes):
+            return np.array(
+                [when(self.dataframe[c] == 1, 1.0).otherwise(0.0).dot(wes) for c in self.weight_columns])
+
+        # Initialize the LBFGS optimization
+        optimizer = LBFGS(x0=np.zeros(len(self.weight_columns)), func=obj_func, grad=grad_obj_func, m=5)
+
+        # Minimize the objective function subject to the constraints
+        weights = optimizer.minimize(constraint_func=constraint_func, grad_constraint_func=grad_constraint_func)
+
+        # Return the optimized weights
         return weights
 
     def update_weights(self, risk_parity_weights_df):
@@ -1050,3 +1095,14 @@ class RiskParityCalculator:
             self.weight_columns + '_risk_parity').withColumnRenamed(
             self.weight_columns, self.weight_columns + '_original')
         return updated_df
+
+class RiskParityCalculatorWrapper:
+    """
+    Class RiskParityCalculatorWrapper is a class for wrapping
+    methods from RiskParityCalculator class
+    adding this functionality to Spark DataFrame class.
+    """
+    func = (
+        RiskParityCalculator.calculate_risk_parity_weights
+    )
+    _wrapper(wrap_object=func)
