@@ -15,8 +15,8 @@ from pyspark.sql.column import _to_seq
 from pyspark.sql.functions import (
     when, col, lit, row_number,
     monotonically_increasing_id,
-    create_map, explode, struct,
-    array, lag, expr, sum as spark_sum, count,
+    explode, struct, concat_ws,
+    array, lag, expr, count,
     round as spark_round, isnan,
     broadcast, stddev, mean, variance
 )
@@ -569,7 +569,9 @@ class Reshape(DataFrame):
             for k in agg_dict:
                 for i in range(len(agg_dict[k].split(','))):
                     strip_string = agg_dict[k].replace(' ', '').split(',')
-                    agg_item = spark_round(Reshape.__spark_methods[strip_string[i]](k), rnd).alias(f'{strip_string[i]}_{k}')
+                    agg_item = spark_round(
+                        Reshape.__spark_methods[strip_string[i]](k), rnd
+                    ).alias(f'{strip_string[i]}_{k}')
                     agg_list.append(agg_item)
 
             if isinstance(group_by, list):
@@ -661,6 +663,14 @@ class PctChange:
             return f_pick['int']
 
     @staticmethod
+    def __infer_lag_columnv2(df):
+        numeric_cols = df.select(lambda col_name: df[col_name].dtype in (float, int, long)).columns
+        if numeric_cols:
+            return numeric_cols[0]
+        else:
+            return None
+
+    @staticmethod
     def pct_change(self, periods=1, order_by=None, pct_cols=None, partition_by=None, desc=None):
         if (order_by is None) and (pct_cols is None):
             infer_sort = PctChange.__infer_sort_column(self)[0]
@@ -712,8 +722,38 @@ class CrossTabular:
         return df.select('*', *func)
 
     @staticmethod
+    def foreach_colv2(self, group_by, pivot_col, agg_dict, oper):
+        df = self.toWide(group_by, pivot_col, agg_dict)
+        df = df.groupBy(group_by).pivot(pivot_col).agg(agg_dict)
+        df = df.groupBy(group_by).agg(expr(f"{oper}({', '.join(agg_dict.keys())})"))
+        df = df.select(concat_ws("_", *[col(c).alias(c) for c in df.columns]).alias("new_col"))
+        return df
+
+    @staticmethod
     def resume_dataframe(self, group_by=None, new_col=None):
         cols_types = [k for k, v in self.dtypes if v != 'string']
+        if group_by is None:
+            try:
+                agg_df = self.agg(*[sum(c).alias(c) for c in cols_types])
+                return agg_df.withColumn(new_col, lit('+++ total')).select(new_col, *cols_types)
+            except Py4JJavaError as e:
+                raise AssertionError(f"empty expression found. {e}")
+        return self.groupBy(group_by).agg(*[sum(c).alias(c) for c in cols_types])
+
+    @staticmethod
+    def resume_dataframev2(self, group_by=None, new_col=None):
+
+        if self.rdd.isEmpty():
+            return self.sql_ctx.createDataFrame([], self.schema)
+
+        cols_types = [k for k, v in self.dtypes if v != 'string']
+
+        if group_by is not None and group_by in self.columns:
+            if self.columns.count(group_by) > 1:
+                raise AssertionError(f"duplicate column found: {group_by}")
+            if self.groupBy(group_by)._jdf.isStreaming():
+                raise AssertionError(f"the dataframe is not grouped by column: {group_by}")
+
         if group_by is None:
             try:
                 agg_df = self.agg(*[sum(c).alias(c) for c in cols_types])
@@ -745,6 +785,19 @@ class CrossTabular:
             return union_df.select('*', *func)
         else:
             return union_df.select(f'{group_by}_{pivot_col}', *func)
+
+    @staticmethod
+    def cross_pctv2(self, group_by, pivot_col, agg_dict, operand='sum', cols=None):
+        grouped_df = self.groupBy(group_by, pivot_col).agg(agg_dict)
+        grouped_df = grouped_df.withColumn("proportion", grouped_df[operand]/grouped_df[operand].sum())
+        pivot_col_list = grouped_df.drop(grouped_df.columns[0:2]).columns
+        for ix in range(len(pivot_col_list)):
+            grouped_df = grouped_df.withColumnRenamed(pivot_col_list[ix], f'{pivot_col_list[ix]}_prop')
+        union_df = grouped_df.union(self)
+        if cols == 'all':
+            return union_df
+        else:
+            return union_df.select(f'{group_by}_{pivot_col}', *pivot_col_list)
 
 
 class CrossTabularWrapper:

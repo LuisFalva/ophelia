@@ -137,4 +137,3 @@ class LBFGS:
             alpha *= 0.5
 
         return alpha
-
