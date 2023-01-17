@@ -2,7 +2,7 @@ name: Python package
 
 on:
   push:
-    branches: [ main ]
+    branches: [ feature/add_ml_class ]
 
 jobs:
   build:
