@@ -38,7 +38,7 @@ jobs:
 
     - name: Deploy to PyPI
       if: success()
-      uses: pypa/gh-action-pypi-publish@v1
+      uses: python-publish-action/publish-action@v1
       with:
         distributions: sdist bdist_wheel
         repository: pypi
