@@ -16,19 +16,18 @@ class PCAnalysis(Transformer):
     """
     def __init__(self, k=None, metadata_path=None):
         super(PCAnalysis, self).__init__()
-        self.__logger = OpheliaLogger()
         self.__k = k
         self.__metadata_path = metadata_path
 
     def __build_pca(self, df, metadata_path):
-        pca = PCA(k=self.k, inputCol='scaled_features', outputCol='pca_features')
-        if self.__metadata:
+        pca = PCA(k=self.__k, inputCol='scaled_features', outputCol='pca_features')
+        if self.__metadata_path:
             pca.fit(df).write().overwrite().save(metadata_path)
             return PCAModel.load(metadata_path).transform(df)
         return pca.fit(df).transform(df)
 
     def _transform(self, dataset):
-        return self.build_pca(dataset, self.__metadata_path)
+        return self.__build_pca(dataset, self.__metadata_path)
 
 
 class SingularVD(Transformer):

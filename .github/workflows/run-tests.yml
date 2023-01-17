@@ -9,9 +9,7 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install pypi dependencies
       run: |
-        python -m pip install pyspark
-        python -m pip install pandas
-        python -m pip install dask
+        python -m pip install -r requirements_test.txt
     - name: Run Unit Tests
       run: |
         python -m unittest /home/runner/work/ophelia/ophelia/tests/functions_tests.py

@@ -3,6 +3,7 @@ from typing import List
 from functools import lru_cache, reduce
 from pyspark.sql import Window
 from pyspark.sql.types import (
+    TimestampType,
     IntegerType,
     LongType,
     StructField,
@@ -98,11 +99,10 @@ def lag_min_max_data(df, is_max=True, col_lag: str = "operation_date"):
     :return: DataFrame
     """
     try:
-        col_values = df.select(col_lag).distinct().collect()
         if is_max:
-            lag_date = max(col_values)[0]
+            lag_date = df.agg(max(col(col_lag).cast(TimestampType()))).first()[0]
         else:
-            lag_date = min(col_values)[0]
+            lag_date = df.agg(min(col(col_lag).cast(TimestampType()))).first()[0]
         lag_data = df.where(col(col_lag) < lag_date).select([col(c).alias(f'{c}_lag') for c in df.columns])
         logger.info("Lag-Over Dates In DataFrame")
         return lag_data
@@ -181,6 +181,24 @@ def sorted_date_list(df, col_collect: str):
         raise OpheliaUtilitiesException(f"An error occurred on sorted_date_list() method: {e}")
 
 
+@lru_cache(maxsize=60)
+def sorted_date_listv2(df, col_collect: str):
+    """
+    Builds a sorted list of every value for a date column in a given DataFrame
+    :param df: data to analyze
+    :param col_collect: column to analyze
+    :return: list
+    """
+    try:
+        logger.info("Order Date List")
+        unique_date = set(df[col_collect])
+        unique_date = list(unique_date)
+        unique_date.sort()
+        return unique_date
+    except Exception as e:
+        raise OpheliaUtilitiesException(f"An error occurred on sorted_date_listv2() method: {e}")
+
+
 def feature_pick(df):
     """
     Feature pick function helps to split variable names from spark DataFrame
@@ -201,6 +219,35 @@ def feature_pick(df):
         return {'string': s, 'int': i, 'long': l, 'double': d, 'float': f, 'date': t, 'other': o}
     except ValueError as ve:
         raise OpheliaUtilitiesException(f"An error occurred on feature_pick() method: {ve}")
+
+
+def feature_pickv2(df):
+    """
+    Feature pick function helps to split variable names from spark DataFrame
+    into 'string', 'int', 'bigint', 'double', 'float', 'date' and 'other' type in separated list
+    :param df: spark DataFrame with fields to analyze
+    :return: dict
+    """
+    try:
+        column_types = {'string': [], 'int': [], 'long': [], 'double': [], 'float': [], 'date': [], 'other': []}
+        for k, v in df.dtypes:
+            if v in ['str', 'string']:
+                column_types['string'].append(k)
+            elif v in ['int', 'integer']:
+                column_types['int'].append(k)
+            elif v in ['bigint', 'long']:
+                column_types['long'].append(k)
+            elif v in ['double']:
+                column_types['double'].append(k)
+            elif v in ['float']:
+                column_types['float'].append(k)
+            elif v in ['date', 'timestamp']:
+                column_types['date'].append(k)
+            else:
+                column_types['other'].append(k)
+        return column_types
+    except ValueError as ve:
+        raise OpheliaUtilitiesException(f"An error occurred on feature_pickv2() method: {ve}")
 
 
 def __binary_helper_search(array, target, left_p, right_p):

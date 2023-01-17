@@ -18,6 +18,10 @@ class Ophelia:
             CrossTabularWrapper,
             JoinsWrapper,
             DaskSparkWrapper,
+            SortinoRatioCalculatorWrapper,
+            SharpeRatioCalculatorWrapper,
+            EfficientFrontierRatioCalculatorWrapper,
+            RiskParityCalculatorWrapper
         )
         from .ml.feature_miner import (
             BuildStandardScaler,
@@ -49,6 +53,10 @@ class Ophelia:
             'crosstab': CrossTabularWrapper,
             'joins': JoinsWrapper,
             'dask_spark': DaskSparkWrapper,
+            'sortino_calculator': SortinoRatioCalculatorWrapper,
+            'sharpe_calculator' : SharpeRatioCalculatorWrapper,
+            'efficient_frontier': EfficientFrontierRatioCalculatorWrapper,
+            'risk_parity': RiskParityCalculatorWrapper,
             # Feature miner class
             'standard_scaler': BuildStandardScaler,
             'vector_assembler': BuildVectorAssembler,
