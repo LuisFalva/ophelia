@@ -2,35 +2,38 @@ import os
 import re
 import random
 import pandas as pd
-from itertools import chain
+import numpy as np
+from quadprog import solve_qp
 from py4j.protocol import Py4JJavaError
 from dask import (
     dataframe as dask_df,
     array as dask_arr
 )
 from pyspark import SparkContext
-from pyspark.sql import DataFrame, Window, SparkSession
+from pyspark.sql import DataFrame, Window, SparkSession, SQLContext
 from pyspark.sql.column import _to_seq
 from pyspark.sql.functions import (
     when, col, lit, row_number,
     monotonically_increasing_id,
-    create_map, explode, struct,
-    array, lag, expr, sum, count,
+    explode, struct, concat_ws,
+    array, lag, expr, count,
     round as spark_round, isnan,
-    broadcast
+    broadcast, stddev, mean, variance
 )
 from pyspark.sql.types import StructField, StringType, StructType
 from pyspark.ml.stat import Correlation as SparkCorrelation
 from pyspark.ml.feature import VectorAssembler
-from .session.spark import OpheliaSpark
-from .generic import (
+
+from ophelia.session.spark import OpheliaSpark
+from ophelia.generic import (
     remove_duplicate_element,
     feature_pick, regex_expr,
     union_all
 )
-from ._logger import OpheliaLogger
-from ._wrapper import DataFrameWrapper
-from . import SparkMethods, OpheliaFunctionsException
+from ophelia.ml.optim.utils import LBFGS
+from ophelia._logger import OpheliaLogger
+from ophelia._wrapper import DataFrameWrapper
+from ophelia import SparkMethods, OpheliaFunctionsException
 
 __all__ = [
     "NullDebugWrapper",
@@ -44,7 +47,11 @@ __all__ = [
     "PctChangeWrapper",
     "CrossTabularWrapper",
     "JoinsWrapper",
-    "DaskSparkWrapper"
+    "DaskSparkWrapper",
+    "SortinoRatioCalculatorWrapper",
+    "SharpeRatioCalculatorWrapper",
+    "EfficientFrontierRatioCalculatorWrapper",
+    "RiskParityCalculatorWrapper"
 ]
 
 
@@ -562,7 +569,9 @@ class Reshape(DataFrame):
             for k in agg_dict:
                 for i in range(len(agg_dict[k].split(','))):
                     strip_string = agg_dict[k].replace(' ', '').split(',')
-                    agg_item = spark_round(Reshape.__spark_methods[strip_string[i]](k), rnd).alias(f'{strip_string[i]}_{k}')
+                    agg_item = spark_round(
+                        Reshape.__spark_methods[strip_string[i]](k), rnd
+                    ).alias(f'{strip_string[i]}_{k}')
                     agg_list.append(agg_item)
 
             if isinstance(group_by, list):
@@ -654,6 +663,14 @@ class PctChange:
             return f_pick['int']
 
     @staticmethod
+    def __infer_lag_columnv2(df):
+        numeric_cols = df.select(lambda col_name: df[col_name].dtype in (float, int, long)).columns
+        if numeric_cols:
+            return numeric_cols[0]
+        else:
+            return None
+
+    @staticmethod
     def pct_change(self, periods=1, order_by=None, pct_cols=None, partition_by=None, desc=None):
         if (order_by is None) and (pct_cols is None):
             infer_sort = PctChange.__infer_sort_column(self)[0]
@@ -705,8 +722,38 @@ class CrossTabular:
         return df.select('*', *func)
 
     @staticmethod
+    def foreach_colv2(self, group_by, pivot_col, agg_dict, oper):
+        df = self.toWide(group_by, pivot_col, agg_dict)
+        df = df.groupBy(group_by).pivot(pivot_col).agg(agg_dict)
+        df = df.groupBy(group_by).agg(expr(f"{oper}({', '.join(agg_dict.keys())})"))
+        df = df.select(concat_ws("_", *[col(c).alias(c) for c in df.columns]).alias("new_col"))
+        return df
+
+    @staticmethod
     def resume_dataframe(self, group_by=None, new_col=None):
         cols_types = [k for k, v in self.dtypes if v != 'string']
+        if group_by is None:
+            try:
+                agg_df = self.agg(*[sum(c).alias(c) for c in cols_types])
+                return agg_df.withColumn(new_col, lit('+++ total')).select(new_col, *cols_types)
+            except Py4JJavaError as e:
+                raise AssertionError(f"empty expression found. {e}")
+        return self.groupBy(group_by).agg(*[sum(c).alias(c) for c in cols_types])
+
+    @staticmethod
+    def resume_dataframev2(self, group_by=None, new_col=None):
+
+        if self.rdd.isEmpty():
+            return self.sql_ctx.createDataFrame([], self.schema)
+
+        cols_types = [k for k, v in self.dtypes if v != 'string']
+
+        if group_by is not None and group_by in self.columns:
+            if self.columns.count(group_by) > 1:
+                raise AssertionError(f"duplicate column found: {group_by}")
+            if self.groupBy(group_by)._jdf.isStreaming():
+                raise AssertionError(f"the dataframe is not grouped by column: {group_by}")
+
         if group_by is None:
             try:
                 agg_df = self.agg(*[sum(c).alias(c) for c in cols_types])
@@ -738,6 +785,19 @@ class CrossTabular:
             return union_df.select('*', *func)
         else:
             return union_df.select(f'{group_by}_{pivot_col}', *func)
+
+    @staticmethod
+    def cross_pctv2(self, group_by, pivot_col, agg_dict, operand='sum', cols=None):
+        grouped_df = self.groupBy(group_by, pivot_col).agg(agg_dict)
+        grouped_df = grouped_df.withColumn("proportion", grouped_df[operand]/grouped_df[operand].sum())
+        pivot_col_list = grouped_df.drop(grouped_df.columns[0:2]).columns
+        for ix in range(len(pivot_col_list)):
+            grouped_df = grouped_df.withColumnRenamed(pivot_col_list[ix], f'{pivot_col_list[ix]}_prop')
+        union_df = grouped_df.union(self)
+        if cols == 'all':
+            return union_df
+        else:
+            return union_df.select(f'{group_by}_{pivot_col}', *pivot_col_list)
 
 
 class CrossTabularWrapper:
@@ -924,5 +984,178 @@ class DaskSparkWrapper:
         DaskSpark.spark_to_dask,
         DaskSpark.spark_to_series,
         DaskSpark.spark_to_numpy
+    )
+    _wrapper(wrap_object=func)
+
+
+class SortinoRatioCalculator:
+    def __init__(self, df: DataFrame):
+        self.df = df
+
+    def return_on_investment(self):
+        df = self.df.withColumn("prev_close", lag("close").over(Window.orderBy("date")))
+        return df.withColumn("roi", (df["close"] - df["prev_close"]) / df["prev_close"])
+
+    def downside_deviation(self, df):
+        negative_roi = df.filter(df["roi"] < 0).select("roi")
+        downside_deviation = negative_roi.select(stddev("roi")).first()[0]
+        return downside_deviation
+
+    def sortino_ratio(self):
+        df = self.return_on_investment()
+        downside_deviation = self.downside_deviation(df)
+        positive_roi = df.filter(df["roi"] >= 0).select("roi")
+        mean_positive_roi = positive_roi.select(mean("roi")).first()[0]
+        sortino_ratio = mean_positive_roi / downside_deviation
+        return sortino_ratio
+
+
+class SortinoRatioCalculatorWrapper:
+    """
+    Class SortinoRatioCalculatorWrapper is a class for wrapping methods from SortinoRatioCalculator class
+    adding this functionality to Spark DataFrame class.
+    """
+    func = (
+        SortinoRatioCalculator.sortino_ratio
+    )
+    _wrapper(wrap_object=func)
+
+
+class SharpeRatioCalculator:
+    def __init__(self, data: DataFrame, returns_col: str, risk_free_rate: float):
+        self.data = data
+        self.returns_col = returns_col
+        self.risk_free_rate = risk_free_rate
+
+    def calculate(self):
+        """
+        Calculate the Sharpe ratio for the given data.
+        """
+        mean_return = self.data.select(mean(self.returns_col)).first()[0]
+        std_dev = self.data.select(stddev(self.returns_col)).first()[0]
+        sharpe_ratio = (mean_return - self.risk_free_rate) / std_dev
+        return sharpe_ratio
+
+
+class SharpeRatioCalculatorWrapper:
+    """
+    Class SharpeRatioCalculatorWrapper is a class for wrapping methods from SharpeRatioCalculator class
+    adding this functionality to Spark DataFrame class.
+    """
+    func = (
+        SharpeRatioCalculator.calculate
+    )
+    _wrapper(wrap_object=func)
+
+
+class EfficientFrontierRatioCalculator:
+    def __init__(self, dataframe):
+        self.df = dataframe.cache()
+
+    def expected_returns(self):
+        returns = self.df.agg(mean('return')).first()[0]
+        return returns
+
+    def expected_variances(self):
+        cov_matrix = self.df.agg(variance('return')).first()[0]
+        return cov_matrix
+
+    @staticmethod
+    def efficient_frontier(cov_matrix, returns):
+        weights = solve_qp(cov_matrix, -returns, None, None)
+        return weights
+
+    def calculate_efficient_frontier_ratio(self):
+        returns = self.expected_returns()
+        cov_matrix = self.expected_variances()
+        weights = self.efficient_frontier(cov_matrix, returns)
+
+        min_var_ret = weights @ returns
+        max_ret_var = weights @ cov_matrix @ weights
+        eff_frontier_ratio = min_var_ret / max_ret_var
+        return eff_frontier_ratio
+
+
+class EfficientFrontierRatioCalculatorWrapper:
+    """
+    Class EfficientFrontierRatioCalculatorWrapper is a class for wrapping
+    methods from EfficientFrontierRatioCalculator class
+    adding this functionality to Spark DataFrame class.
+    """
+    func = (
+        EfficientFrontierRatioCalculator.calculate_efficient_frontier_ratio
+    )
+    _wrapper(wrap_object=func)
+
+
+class RiskParityCalculator:
+    def __init__(
+            self,
+            returns_columns,
+            asset_column,
+            weight_columns,
+            risk_columns,
+            dataframe: DataFrame,
+            sql_context: SQLContext
+    ):
+        self.returns_columns = returns_columns
+        self.asset_column = asset_column
+        self.weight_columns = weight_columns
+        self.risk_columns = risk_columns
+        self.dataframe = dataframe
+        self.sql_context = sql_context
+
+    def calculate_asset_risk(self):
+        returns_df = self.dataframe.select(self.returns_columns)
+        std_df = returns_df.agg(*[stddev(c).alias(c + '_std') for c in returns_df.columns])
+        var_df = returns_df.agg(*[variance(c).alias(c + '_var') for c in returns_df.columns])
+        return self.dataframe.join(std_df, on=self.asset_column).join(var_df, on=self.asset_column)
+
+    def calculate_total_risk(self):
+        risk_df = self.dataframe.select(self.weight_columns + self.risk_columns)
+        for col in self.risk_columns:
+            risk_df = risk_df.withColumn(col + '_weighted', col * risk_df[self.weight_columns])
+        total_risk_df = risk_df.agg(sum(c(c + '_weighted') for c in self.risk_columns))
+        return total_risk_df
+
+    def calculate_risk_parity_weights(self):
+        # Define the objective function and the constraints
+        def obj_func(w):
+            return sum(self.dataframe[c + '_weighted'].dot(w) for c in self.risk_columns)
+
+        def grad_obj_func(ws):
+            return np.array([self.dataframe[c + '_weighted'].dot(ws) for c in self.risk_columns])
+
+        def constraint_func(we):
+            return sum(when(self.dataframe[c] == 1, 1.0).otherwise(0.0).dot(we) for c in self.weight_columns)
+
+        def grad_constraint_func(wes):
+            return np.array(
+                [when(self.dataframe[c] == 1, 1.0).otherwise(0.0).dot(wes) for c in self.weight_columns])
+
+        # Initialize the LBFGS optimization
+        optimizer = LBFGS(x0=np.zeros(len(self.weight_columns)), func=obj_func, grad=grad_obj_func, m=5)
+
+        # Minimize the objective function subject to the constraints
+        weights = optimizer.minimize(constraint_func=constraint_func, grad_constraint_func=grad_constraint_func)
+
+        # Return the optimized weights
+        return weights
+
+    def update_weights(self, risk_parity_weights_df):
+        updated_df = self.dataframe.join(risk_parity_weights_df, on=self.asset_column)
+        updated_df = updated_df.withColumn(self.weight_columns, updated_df[self.weight_columns + '_risk_parity']).drop(
+            self.weight_columns + '_risk_parity').withColumnRenamed(
+            self.weight_columns, self.weight_columns + '_original')
+        return updated_df
+
+class RiskParityCalculatorWrapper:
+    """
+    Class RiskParityCalculatorWrapper is a class for wrapping
+    methods from RiskParityCalculator class
+    adding this functionality to Spark DataFrame class.
+    """
+    func = (
+        RiskParityCalculator.calculate_risk_parity_weights
     )
     _wrapper(wrap_object=func)

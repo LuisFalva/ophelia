@@ -1,8 +1,9 @@
 import numpy as np
 from pyspark.sql import DataFrame
+from pyspark.ml import Transformer
 from pyspark.ml.linalg import DenseVector, DenseMatrix
 from pyspark.ml.classification import LogisticRegression, LogisticRegressionModel, \
-    BinaryLogisticRegressionTrainingSummary
+    BinaryLogisticRegressionTrainingSummary, RandomForestClassificationModel
 
 
 class LogitRegression:
@@ -118,8 +119,19 @@ class LogitRegression:
         return summary.areaUnderROC
 
 
-class RandomForest:
+class RandomForestModel(Transformer):
+    def __init__(self, num_trees=20, max_depth=5, label_col="label", features_col="features"):
+        super(RandomForestModel, self).__init__()
+        self.num_trees = num_trees
+        self.max_depth = max_depth
+        self.label_col = label_col
+        self.features_col = features_col
+        self.model = RandomForestClassificationModel(
+            numTrees=self.num_trees,
+            maxDepth=self.max_depth,
+            labelCol=self.label_col,
+            featuresCol=self.features_col
+        )
 
-    @staticmethod
-    def create_model():
-        pass
+    def _transform(self, dataset):
+        return self.model.transform(dataset)
