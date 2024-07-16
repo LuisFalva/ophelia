@@ -5,13 +5,13 @@ class OpheliaLogger:
 
     @staticmethod
     def get_current_time():
-        time_format = '%H:%M:%S.%f'
+        time_format = "%H:%M:%S.%f"
         return datetime.now().time().strftime(time_format)[:-3]
 
     def get_message(self, message, level):
         time = self.get_current_time()
         ophelia_name = "Ophelia"
-        return "{0} {1} [{2}] {3}".format(time, ophelia_name, level, message)
+        return f"{time} {ophelia_name} [{level}] {message}"
 
     def debug(self, message):
         print(self.get_message(message, "DEBUG"))
@@ -30,4 +30,4 @@ class OpheliaLogger:
 
     def tape(self, message, adjust_tape=1):
         length = len(message) - adjust_tape
-        print(self.get_message("+"+"-"*length+"+", "TAPE"))
+        print(self.get_message("+" + "-" * length + "+", "TAPE"))

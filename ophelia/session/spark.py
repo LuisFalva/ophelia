@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession
+
 from .._logger import OpheliaLogger
 
 
@@ -13,7 +14,9 @@ class OpheliaSpark:
         self.ophelia_spark = SparkSession.builder.appName(app_name).getOrCreate()
 
     def __build_spark(self):
-        self.ophelia_spark = SparkSession.builder.appName("No 'appName' configured").getOrCreate()
+        self.ophelia_spark = SparkSession.builder.appName(
+            "No 'appName' configured"
+        ).getOrCreate()
 
     def __app_name(self):
         return self.ophelia_spark.sparkContext.appName
@@ -38,7 +41,9 @@ class OpheliaSpark:
             OpheliaSpark.__logger.info("Build Spark Session")
             self.__build_spark()
             OpheliaSpark.__logger.info("Spark Version: " + self.__spark_version())
-            OpheliaSpark.__logger.warning("Please, Be Aware To Set App Name Next Time...")
+            OpheliaSpark.__logger.warning(
+                "Please, Be Aware To Set App Name Next Time..."
+            )
             OpheliaSpark.__logger.info("Spark UI Address: '" + self.__spark_ui_port())
             return self.ophelia_spark
         else:

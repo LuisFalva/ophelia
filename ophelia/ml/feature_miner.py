@@ -1,18 +1,21 @@
-import numpy as np
 from math import log
-from pyspark.sql.types import Row
+
+import numpy as np
 from pyspark.ml import Pipeline, PipelineModel, Transformer
-from pyspark.ml.linalg import DenseVector
 from pyspark.ml.feature import (
-    StringIndexer,
-    VectorAssembler,
     OneHotEncoder,
     OneHotEncoderModel,
     StandardScaler,
-    StandardScalerModel
+    StandardScalerModel,
+    StringIndexer,
+    VectorAssembler,
 )
-from .._logger import OpheliaLogger
+from pyspark.ml.linalg import DenseVector
+from pyspark.sql.types import Row
+
 from ophelia import OpheliaMLMinerException
+
+from .._logger import OpheliaLogger
 
 
 class BuildStringIndex(Transformer):
@@ -41,7 +44,7 @@ class BuildStringIndex(Transformer):
     """
 
     def __init__(self, input_cols, path=None, dir_name=None):
-        super(BuildStringIndex, self).__init__()
+        super().__init__()
         self.__logger = OpheliaLogger()
         self.__input_cols = input_cols
         self.__dir_name = dir_name
@@ -55,9 +58,11 @@ class BuildStringIndex(Transformer):
         """
         try:
             self.__logger.info("Creating Single String Indexers")
-            return StringIndexer(inputCol=single_col, outputCol="{COL}_index".format(COL=single_col))
+            return StringIndexer(inputCol=single_col, outputCol=f"{single_col}_index")
         except TypeError as te:
-            raise OpheliaMLMinerException(f"An error occurred while calling single_string_indexer() method: {te}")
+            raise OpheliaMLMinerException(
+                f"An error occurred while calling single_string_indexer() method: {te}"
+            )
 
     def __multi_string_indexer(self, multi_col):
         """
@@ -68,11 +73,14 @@ class BuildStringIndex(Transformer):
         """
         try:
             self.__logger.info("Creating Multi String Indexers")
-            return [StringIndexer(
-                inputCol=column,
-                outputCol="{COLS}_index".format(COLS=column)) for column in multi_col]
+            return [
+                StringIndexer(inputCol=column, outputCol=f"{column}_index")
+                for column in multi_col
+            ]
         except TypeError as te:
-            raise OpheliaMLMinerException(f"An error occurred while calling multi_string_indexer() method: {te}")
+            raise OpheliaMLMinerException(
+                f"An error occurred while calling multi_string_indexer() method: {te}"
+            )
 
     def __build_string_indexer(self, df, col_name, dir_name):
         """
@@ -84,29 +92,39 @@ class BuildStringIndex(Transformer):
         """
         try:
             if isinstance(col_name, list):
-                pipe_model = Pipeline(stages=[*self.__multi_string_indexer(multi_col=col_name)])
+                pipe_model = Pipeline(
+                    stages=[*self.__multi_string_indexer(multi_col=col_name)]
+                )
                 if self.__estimator_path:
                     estimator_path = self.__estimator_path + dir_name
                     self.__logger.info(f"Estimator Metadata Path: {estimator_path}")
                     pipe_model.fit(df).write().overwrite().save(estimator_path)
-                    self.__logger.info("Loading Multi String Indexer Estimator For Prediction")
+                    self.__logger.info(
+                        "Loading Multi String Indexer Estimator For Prediction"
+                    )
                     return PipelineModel.load(estimator_path).transform(df)
                 else:
                     self.__logger.info("Compute Multi String Indexer")
                     return pipe_model.fit(df).transform(df)
             else:
-                pipe_model = Pipeline(stages=[self.__single_string_indexer(single_col=col_name)])
+                pipe_model = Pipeline(
+                    stages=[self.__single_string_indexer(single_col=col_name)]
+                )
                 if self.__estimator_path:
                     estimator_path = self.__estimator_path + dir_name
                     self.__logger.info(f"Estimator Metadata Path: {estimator_path}")
                     pipe_model.fit(df).write().overwrite().save(estimator_path)
-                    self.__logger.info("Loading Single String Indexer Estimator For Prediction")
+                    self.__logger.info(
+                        "Loading Single String Indexer Estimator For Prediction"
+                    )
                     return PipelineModel.load(estimator_path).transform(df)
                 else:
                     self.__logger.info("Compute Single String Indexer")
                     return pipe_model.fit(df).transfrom(df)
         except TypeError as te:
-            raise OpheliaMLMinerException(f"An error occurred while calling __build_string_indexer() method: {te}")
+            raise OpheliaMLMinerException(
+                f"An error occurred while calling __build_string_indexer() method: {te}"
+            )
 
     def _transform(self, dataset):
         return self.__build_string_indexer(dataset, self.__input_cols, self.__dir_name)
@@ -140,8 +158,16 @@ class BuildOneHotEncoder(Transformer):
 
     """
 
-    def __init__(self, input_cols, path=None, dir_name=None, indexer=False, drop_last=True, handle_invalid='error'):
-        super(BuildOneHotEncoder, self).__init__()
+    def __init__(
+        self,
+        input_cols,
+        path=None,
+        dir_name=None,
+        indexer=False,
+        drop_last=True,
+        handle_invalid="error",
+    ):
+        super().__init__()
         self.__logger = OpheliaLogger()
         self.__input_cols = input_cols
         self.__estimator_path = path
@@ -160,11 +186,16 @@ class BuildOneHotEncoder(Transformer):
             self.__logger.info("Creating Feature Encoders")
             return OneHotEncoder(
                 inputCols=[indexer.getOutputCol() for indexer in indexer_cols],
-                outputCols=["{COLS}_encoded".format(COLS=indexer.getOutputCol()) for indexer in indexer_cols],
-                dropLast=self.__drop_last, handleInvalid=self.__handle_invalid
+                outputCols=[
+                    f"{indexer.getOutputCol()}_encoded" for indexer in indexer_cols
+                ],
+                dropLast=self.__drop_last,
+                handleInvalid=self.__handle_invalid,
             )
         except TypeError as te:
-            raise OpheliaMLMinerException(f"An error occurred while calling ohe_estimator() method: {te}")
+            raise OpheliaMLMinerException(
+                f"An error occurred while calling ohe_estimator() method: {te}"
+            )
 
     def __build_one_hot_encoder(self, df, col_name, dir_name, indexer):
         """
@@ -194,16 +225,20 @@ class BuildOneHotEncoder(Transformer):
             self.__logger.info("Compute One Hot Encoder Estimator DataFrame")
             return encoder.fit(df).transform(df)
         except TypeError as te:
-            raise OpheliaMLMinerException(f"An error occurred while calling __build_one_hot_encoder() method: {te}")
+            raise OpheliaMLMinerException(
+                f"An error occurred while calling __build_one_hot_encoder() method: {te}"
+            )
 
     def _transform(self, dataset):
-        return self.build_one_hot_encoder(dataset, self.__input_cols, self.__dir_name, self.__indexer)
+        return self.build_one_hot_encoder(
+            dataset, self.__input_cols, self.__dir_name, self.__indexer
+        )
 
 
 class BuildVectorAssembler(Transformer):
 
-    def __init__(self, input_cols, name_vec='features'):
-        super(BuildVectorAssembler, self).__init__()
+    def __init__(self, input_cols, name_vec="features"):
+        super().__init__()
         self.__logger = OpheliaLogger()
         self.__input_cols = input_cols
         self.__name_vec = name_vec
@@ -217,23 +252,34 @@ class BuildVectorAssembler(Transformer):
         :return: Vector Assembler Transformation
         """
         try:
-            vec_assembler = VectorAssembler(inputCols=input_cols, outputCol=name_vec_col)
+            vec_assembler = VectorAssembler(
+                inputCols=input_cols, outputCol=name_vec_col
+            )
             self.__logger.info("Build Vector Assembler DataFrame")
             return vec_assembler.transform(df)
         except TypeError as te:
-            raise OpheliaMLMinerException(f"An error occurred while calling build_vector_assembler() method: {te}")
+            raise OpheliaMLMinerException(
+                f"An error occurred while calling build_vector_assembler() method: {te}"
+            )
 
     def _transform(self, dataset):
-        return self.__build_vector_assembler(dataset, self.__input_cols, self.__name_vec)
+        return self.__build_vector_assembler(
+            dataset, self.__input_cols, self.__name_vec
+        )
 
 
 class BuildStandardScaler(Transformer):
-    """
+    """ """
 
-    """
-
-    def __init__(self, with_mean=False, with_std=True, path=None, input_col='features', output_col='scaled_features'):
-        super(BuildStandardScaler, self).__init__()
+    def __init__(
+        self,
+        with_mean=False,
+        with_std=True,
+        path=None,
+        input_col="features",
+        output_col="scaled_features",
+    ):
+        super().__init__()
         self.__logger = OpheliaLogger()
         self.__with_mean = with_mean
         self.__with_std = with_std
@@ -241,8 +287,15 @@ class BuildStandardScaler(Transformer):
         self.__input_col = input_col
         self.__output_col = output_col
 
-    def build_standard_scaler(self, df, with_mean=False, with_std=True, persist_estimator_path=None,
-                              input_col='features', output_col='scaled_features'):
+    def build_standard_scaler(
+        self,
+        df,
+        with_mean=False,
+        with_std=True,
+        persist_estimator_path=None,
+        input_col="features",
+        output_col="scaled_features",
+    ):
         """
         Standard Scaler estimator builder and transformer for dense feature vectors.
         Warnings: It will build a dense output, so take care when applying to sparse input.
@@ -255,11 +308,16 @@ class BuildStandardScaler(Transformer):
         :return: Standard Scaler model
         """
         std_scaler = StandardScaler(
-            withMean=with_mean, withStd=with_std, inputCol=input_col, outputCol=output_col
+            withMean=with_mean,
+            withStd=with_std,
+            inputCol=input_col,
+            outputCol=output_col,
         )
         if persist_estimator_path:
             self.__logger.info("Compute Feature Standard ScalerModel Metadata")
-            self.__logger.warning(f"Persist Metadata Model Path: {persist_estimator_path}")
+            self.__logger.warning(
+                f"Persist Metadata Model Path: {persist_estimator_path}"
+            )
             std_scaler.fit(df).write().overwrite().save(persist_estimator_path)
             self.__logger.info("Loading Scaler Estimator For Prediction")
             return StandardScalerModel.load(persist_estimator_path).tansfrom(df)
@@ -267,16 +325,21 @@ class BuildStandardScaler(Transformer):
         return std_scaler.fit(df).transform(df)
 
     def _transform(self, dataset):
-        return self.build_standard_scaler(dataset, self.__with_mean, self.__with_std,
-                                          self.__path, self.__input_col, self.__output_col)
+        return self.build_standard_scaler(
+            dataset,
+            self.__with_mean,
+            self.__with_std,
+            self.__path,
+            self.__input_col,
+            self.__output_col,
+        )
 
 
 class SparkToNumpy(Transformer):
-    """
+    """ """
 
-    """
     def __init__(self, list_columns=None):
-        super(SparkToNumpy, self).__init__()
+        super().__init__()
         self.__logger = OpheliaLogger()
         self.__list_columns = list_columns
 
@@ -288,9 +351,11 @@ class SparkToNumpy(Transformer):
         :return: np.array with features
         """
         if columns is None:
-            np_numbers = ['float', 'double', 'decimal', 'integer']
+            np_numbers = ["float", "double", "decimal", "integer"]
             columns = [k for k, v in df.dtypes if v in np_numbers]
-        feature_df = BuildVectorAssembler(columns).transform(df).select("features").cache()
+        feature_df = (
+            BuildVectorAssembler(columns).transform(df).select("features").cache()
+        )
         to_numpy = np.asarray(feature_df.rdd.map(lambda x: x[0]).collect())
         feature_df.unpersist()
         self.__logger.info("Spark to Numpy Converter")
@@ -300,12 +365,11 @@ class SparkToNumpy(Transformer):
         return self.__spark_to_numpy(dataset, self.__list_columns)
 
 
-class NumpyToVector(object):
-    """
+class NumpyToVector:
+    """ """
 
-    """
     def __init__(self):
-        super(NumpyToVector, self).__init__()
+        super().__init__()
         self.__logger = OpheliaLogger()
 
     def __numpy_to_vector_assembler(self, np_object, label_t=1):
@@ -338,21 +402,23 @@ class NumpyToVector(object):
         _, percents = self.probability_class(node)
         # donde i contiene la probabilidad calculada del nodo en cuestión
         score = round(1 - sum([i**2 for i in percents.values()]), 3)
-        self.__logger.info(f'Gini Score for node {node}: {score}')
+        self.__logger.info(f"Gini Score for node {node}: {score}")
         return score
 
     def entropy_score(self, node):
         _, percents = self.probability_class(node)
         score = round(sum([-i * log(i, 2) for i in percents.values()]), 3)
-        self.__logger.info(f'Entropy Score for node {node}: {score}')
+        self.__logger.info(f"Entropy Score for node {node}: {score}")
         return score
 
     def information_gain(self, parent, children, criterion):
-        score = {'gini': self.gini_score, 'entropy': self.entropy_score}
+        score = {"gini": self.gini_score, "entropy": self.entropy_score}
         metric = score[criterion](parent)
         parent_score = metric
         parent_sum = sum(parent.values())
-        weighted_child_score = sum([metric(i) * sum(i.values()) / parent_sum for i in children])
+        weighted_child_score = sum(
+            [metric(i) * sum(i.values()) / parent_sum for i in children]
+        )
         gain = round((parent_score - weighted_child_score), 2)
-        self.__logger.info(f'Information gain: {gain}')
+        self.__logger.info(f"Information gain: {gain}")
         return gain

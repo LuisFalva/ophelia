@@ -1,4 +1,4 @@
-from pyspark import SparkContext, SparkConf
+from pyspark import SparkConf, SparkContext
 from pyspark.streaming import StreamingContext
 
 
@@ -22,7 +22,8 @@ class PySparkStreaming:
     def stop(self):
         self.ssc.stop(stopSparkContext=True, stopGraceFully=True)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     stream = PySparkStreaming("My Streaming App", "local[*]")
     stream.create_dstream("localhost", 9999)
     stream.process_dstream()

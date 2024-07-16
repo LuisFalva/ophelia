@@ -1,39 +1,47 @@
 import os
-import re
 import random
-import pandas as pd
+import re
+
 import numpy as np
-from quadprog import solve_qp
+import pandas as pd
+from dask import array as dask_arr
+from dask import dataframe as dask_df
 from py4j.protocol import Py4JJavaError
-from dask import (
-    dataframe as dask_df,
-    array as dask_arr
-)
 from pyspark import SparkContext
-from pyspark.sql import DataFrame, Window, SparkSession, SQLContext
+from pyspark.ml.feature import VectorAssembler
+from pyspark.ml.stat import Correlation as SparkCorrelation
+from pyspark.sql import DataFrame, SparkSession, SQLContext, Window
 from pyspark.sql.column import _to_seq
 from pyspark.sql.functions import (
-    when, col, lit, row_number,
+    array,
+    broadcast,
+    col,
+    concat_ws,
+    count,
+    explode,
+    expr,
+    isnan,
+    lag,
+    lit,
+    mean,
     monotonically_increasing_id,
-    explode, struct, concat_ws,
-    array, lag, expr, count,
-    round as spark_round, isnan,
-    broadcast, stddev, mean, variance
 )
-from pyspark.sql.types import StructField, StringType, StructType
-from pyspark.ml.stat import Correlation as SparkCorrelation
-from pyspark.ml.feature import VectorAssembler
+from pyspark.sql.functions import round as spark_round
+from pyspark.sql.functions import row_number, stddev, struct, variance, when
+from pyspark.sql.types import StringType, StructField, StructType
+from quadprog import solve_qp
 
-from ophelia.session.spark import OpheliaSpark
-from ophelia.generic import (
-    remove_duplicate_element,
-    feature_pick, regex_expr,
-    union_all
-)
-from ophelia.ml.optim.utils import LBFGS
+from ophelia import OpheliaFunctionsException, SparkMethods
 from ophelia._logger import OpheliaLogger
 from ophelia._wrapper import DataFrameWrapper
-from ophelia import SparkMethods, OpheliaFunctionsException
+from ophelia.generic import (
+    feature_pick,
+    regex_expr,
+    remove_duplicate_element,
+    union_all,
+)
+from ophelia.ml.optim.utils import LBFGS
+from ophelia.session.spark import OpheliaSpark
 
 __all__ = [
     "NullDebugWrapper",
@@ -51,7 +59,7 @@ __all__ = [
     "SortinoRatioCalculatorWrapper",
     "SharpeRatioCalculatorWrapper",
     "EfficientFrontierRatioCalculatorWrapper",
-    "RiskParityCalculatorWrapper"
+    "RiskParityCalculatorWrapper",
 ]
 
 
@@ -72,13 +80,22 @@ class NullDebug:
     @staticmethod
     def __cleansing_list(self, partition_by=None, offset: float = 0.5):
         if partition_by is None:
-            raise TypeError(f"'partition_by' required parameter, invalid {partition_by} input.")
-        cache_transpose = self.toNarrow(partition_by, ['pivot', 'value']).cache()
+            raise TypeError(
+                f"'partition_by' required parameter, invalid {partition_by} input."
+            )
+        cache_transpose = self.toNarrow(partition_by, ["pivot", "value"]).cache()
         NullDebug.__logger.info("Clean Null Data")
-        return cache_transpose.groupBy('pivot') \
-            .agg(count(when(isnan('value') | col('value').isNull(), 'value')).alias('null_count')) \
-            .select('*', (col('null_count') / self.Shape[0]).alias('null_pct')) \
-            .where(col('null_pct') <= offset).uniqueRow('pivot')
+        return (
+            cache_transpose.groupBy("pivot")
+            .agg(
+                count(when(isnan("value") | col("value").isNull(), "value")).alias(
+                    "null_count"
+                )
+            )
+            .select("*", (col("null_count") / self.Shape[0]).alias("null_pct"))
+            .where(col("null_pct") <= offset)
+            .uniqueRow("pivot")
+        )
 
     @staticmethod
     def null_clean(self, partition_by, offset):
@@ -95,12 +112,18 @@ class NullDebug:
                 cleansing_list = NullDebug.__cleansing_list(self, partition_by, offset)
                 NullDebug.__spark.catalog.clearCache()
                 return self.select(partition_by, *cleansing_list)
-            gen_part = self.select(monotonically_increasing_id().alias('partition_id'), "*")
-            cleansing_list = NullDebug.__cleansing_list(gen_part, 'partition_id', offset)
+            gen_part = self.select(
+                monotonically_increasing_id().alias("partition_id"), "*"
+            )
+            cleansing_list = NullDebug.__cleansing_list(
+                gen_part, "partition_id", offset
+            )
             NullDebug.__spark.catalog.clearCache()
-            return gen_part.select('partition_id', *cleansing_list)
+            return gen_part.select("partition_id", *cleansing_list)
         except Exception as error:
-            raise OpheliaFunctionsException(f"An error occurred on null_clean() method: {error}")
+            raise OpheliaFunctionsException(
+                f"An error occurred on null_clean() method: {error}"
+            )
 
 
 class NullDebugWrapper:
@@ -108,6 +131,7 @@ class NullDebugWrapper:
     Class NullDebugWrapper is a class for wrapping methods from NullDebug class
     adding this functionality to Spark DataFrame class
     """
+
     _wrapper(wrap_object=NullDebug.null_clean)
 
 
@@ -131,10 +155,18 @@ class CorrMat:
         min_level = 0.1
         mid_level = 0.3
         max_level = 0.5
-        return when(col(f'{mtd}_coeff') < min_level, lit('very_low')).otherwise(
-            when((col(f'{mtd}_coeff') < min_level) & (col(f'{mtd}_coeff') <= mid_level), lit('low')).otherwise(
-                when((col(f'{mtd}_coeff') < mid_level) & (col(f'{mtd}_coeff') <= max_level), lit('mid')).otherwise(
-                    when(col(f'{mtd}_coeff') > max_level, lit('high')))))
+        return when(col(f"{mtd}_coeff") < min_level, lit("very_low")).otherwise(
+            when(
+                (col(f"{mtd}_coeff") < min_level) & (col(f"{mtd}_coeff") <= mid_level),
+                lit("low"),
+            ).otherwise(
+                when(
+                    (col(f"{mtd}_coeff") < mid_level)
+                    & (col(f"{mtd}_coeff") <= max_level),
+                    lit("mid"),
+                ).otherwise(when(col(f"{mtd}_coeff") > max_level, lit("high")))
+            )
+        )
 
     @staticmethod
     def cartesian_rdd(self, default_pivot, rep=20):
@@ -142,18 +174,30 @@ class CorrMat:
             raise ValueError("'default_pivot' must be specified")
         rep_df = self.repartition(rep)
         numerical_cols = rep_df.columns[1:]
-        to_wide_rdd = rep_df.rdd.map(lambda x: (x[default_pivot], [x[c] for c in numerical_cols]))
+        to_wide_rdd = rep_df.rdd.map(
+            lambda x: (x[default_pivot], [x[c] for c in numerical_cols])
+        )
         return to_wide_rdd.cartesian(to_wide_rdd)
 
     @staticmethod
-    def correlation_matrix(self, pivot_col=None, method='pearson', offset=0.7, rep=20):
+    def correlation_matrix(self, pivot_col=None, method="pearson", offset=0.7, rep=20):
         default_pivot = pivot_col if pivot_col is not None else self.columns[0]
-        cartesian_rdd = CorrMat.cartesian_rdd(self, default_pivot=default_pivot, rep=rep)
-        new_col_list = [f'{default_pivot}_m_dim', f'{default_pivot}_n_dim', f'{method}_coeff']
+        cartesian_rdd = CorrMat.cartesian_rdd(
+            self, default_pivot=default_pivot, rep=rep
+        )
+        new_col_list = [
+            f"{default_pivot}_m_dim",
+            f"{default_pivot}_n_dim",
+            f"{method}_coeff",
+        ]
         corr_df = cartesian_rdd.map(CorrMat.__corr).toDF(schema=new_col_list)
-        offset_condition = when(col(f'{method}_coeff') >= offset, lit(1.0)).otherwise(0.0)
+        offset_condition = when(col(f"{method}_coeff") >= offset, lit(1.0)).otherwise(
+            0.0
+        )
         corr_label = CorrMat.__build_corr_label(method)
-        return corr_df.select('*', offset_condition.alias('offset'), corr_label.alias(f'{method}_label'))
+        return corr_df.select(
+            "*", offset_condition.alias("offset"), corr_label.alias(f"{method}_label")
+        )
 
     @staticmethod
     def unique_row(self, col):
@@ -162,25 +206,23 @@ class CorrMat:
 
     @staticmethod
     def vector_assembler(self, cols_name):
-        vec_assembler = VectorAssembler(inputCols=cols_name, outputCol='features')
+        vec_assembler = VectorAssembler(inputCols=cols_name, outputCol="features")
         return vec_assembler.transform(self)
 
     @staticmethod
-    def corr_test(self, group_by, pivot_col, agg_dict, method='pearson'):
+    def corr_test(self, group_by, pivot_col, agg_dict, method="pearson"):
         matrix_df = self.toWide(
-            group_by=group_by,
-            pivot_col=pivot_col,
-            agg_dict=agg_dict
+            group_by=group_by, pivot_col=pivot_col, agg_dict=agg_dict
         ).cache()
         vec_df = CorrMat.vector_assembler(
-            self=matrix_df,
-            cols_name=matrix_df.columns[1:]
+            self=matrix_df, cols_name=matrix_df.columns[1:]
         )
-        return SparkCorrelation.corr(vec_df, 'features', method)\
-                               .select(col(f'{method}(features)').alias(f'{method}_features'))
+        return SparkCorrelation.corr(vec_df, "features", method).select(
+            col(f"{method}(features)").alias(f"{method}_features")
+        )
 
     @staticmethod
-    def spark_correlation(self, group_by, pivot_col, agg_dict, method='pearson'):
+    def spark_correlation(self, group_by, pivot_col, agg_dict, method="pearson"):
         try:
             categories_list = self.uniqueRow(pivot_col)
             corr_test = CorrMat.corr_test(
@@ -188,14 +230,20 @@ class CorrMat:
                 group_by=group_by,
                 pivot_col=pivot_col,
                 agg_dict=agg_dict,
-                method=method
+                method=method,
             ).cache()
-            corr_cols = [f"{method}_{c}_{b}" for c in categories_list for b in categories_list]
-            rdd_map = corr_test.rdd.map(lambda row: tuple(float(x) for x in row[f'{method}_features'].values))
+            corr_cols = [
+                f"{method}_{c}_{b}" for c in categories_list for b in categories_list
+            ]
+            rdd_map = corr_test.rdd.map(
+                lambda row: tuple(float(x) for x in row[f"{method}_features"].values)
+            )
             CorrMat.__spark.catalog.clearCache()
             return rdd_map.toDF(corr_cols)
         except Exception as error:
-            raise OpheliaFunctionsException(f"An error occurred on spark_correlation() method: {error}")
+            raise OpheliaFunctionsException(
+                f"An error occurred on spark_correlation() method: {error}"
+            )
 
 
 class CorrMatWrapper:
@@ -203,12 +251,13 @@ class CorrMatWrapper:
     Class CorrMatWrapper is a class for wrapping methods from CorrMat class
     adding this functionality to Spark DataFrame class
     """
+
     func = (
         CorrMat.unique_row,
         CorrMat.cartesian_rdd,
         CorrMat.correlation_matrix,
         CorrMat.vector_assembler,
-        CorrMat.spark_correlation
+        CorrMat.spark_correlation,
     )
     _wrapper(wrap_object=func)
 
@@ -218,7 +267,7 @@ class Shape:
     @staticmethod
     def shape(self):
         if len(self.columns) == 1:
-            return self.count(),
+            return (self.count(),)
         return self.count(), len(self.columns)
 
 
@@ -227,6 +276,7 @@ class ShapeWrapper:
     Class ShapeWrapper is a class for wrapping methods from Shape class
     adding this functionality to Spark DataFrame class
     """
+
     DataFrame.Shape = property(lambda self: Shape.shape(self))
 
 
@@ -235,24 +285,32 @@ class Rolling:
     __spark_methods = SparkMethods()
 
     @staticmethod
-    def rolling_down(self, op_col, nat_order, min_p=2, window=2, method='sum'):
+    def rolling_down(self, op_col, nat_order, min_p=2, window=2, method="sum"):
         w = Window.orderBy(nat_order).rowsBetween(
             Window.currentRow - (window - 1), Window.currentRow
         )
-        if method == 'count':
+        if method == "count":
             if isinstance(op_col, list):
                 rolling = Rolling.__spark_methods[method]([c for c in op_col][0])
                 return self.select(rolling)
-            rolling = Rolling.__spark_methods[method](op_col).over(w).alias(f'{op_col}_rolling_{method}')
-            return self.select('*', rolling)
+            rolling = (
+                Rolling.__spark_methods[method](op_col)
+                .over(w)
+                .alias(f"{op_col}_rolling_{method}")
+            )
+            return self.select("*", rolling)
         _unbounded_w = Window.orderBy(nat_order).rowsBetween(
             Window.unboundedPreceding, Window.currentRow
         )
-        rolling = when(
-            row_number().over(_unbounded_w) >= min_p,
-            Rolling.__spark_methods[method](op_col).over(w),
-            ).otherwise(lit(None)).alias(f'{op_col}_rolling_{method}')
-        return self.select('*', rolling)
+        rolling = (
+            when(
+                row_number().over(_unbounded_w) >= min_p,
+                Rolling.__spark_methods[method](op_col).over(w),
+            )
+            .otherwise(lit(None))
+            .alias(f"{op_col}_rolling_{method}")
+        )
+        return self.select("*", rolling)
 
 
 class RollingWrapper:
@@ -260,6 +318,7 @@ class RollingWrapper:
     Class RollingWrapper is a class for wrapping methods from Rolling class
     adding this functionality to Spark DataFrame class
     """
+
     _wrapper(wrap_object=Rolling.rolling_down)
 
 
@@ -270,23 +329,27 @@ class DynamicSampling:
     @staticmethod
     def empty_scan(self):
         cols = self.columns
-        schema = StructType([StructField(col_name, StringType(), True) for col_name in cols])
+        schema = StructType(
+            [StructField(col_name, StringType(), True) for col_name in cols]
+        )
         return self.sql_ctx.createDataFrame(self.sql_ctx._sc.emptyRDD(), schema)
 
     @staticmethod
     def __id_row_number(df, alias):
-        return df.select('*', monotonically_increasing_id().alias(alias))
+        return df.select("*", monotonically_increasing_id().alias(alias))
 
     @staticmethod
     def sample_n(self, n):
-        _ = DynamicSampling.__id_row_number(self, 'n')
-        max_n = _.select('n').orderBy(col('n').desc()).limit(1).cache()
+        _ = DynamicSampling.__id_row_number(self, "n")
+        max_n = _.select("n").orderBy(col("n").desc()).limit(1).cache()
         sample_list = []
         for sample in range(n):
             # In this case collect() operation is permitted since we're collecting one single row
-            sample_list.append(_.where(col('n') == random.randint(0, max_n.collect()[0][0])))
+            sample_list.append(
+                _.where(col("n") == random.randint(0, max_n.collect()[0][0]))
+            )
         DynamicSampling.__spark.catalog.clearCache()
-        return union_all(sample_list).drop('n')
+        return union_all(sample_list).drop("n")
 
 
 class DynamicSamplingWrapper:
@@ -294,10 +357,8 @@ class DynamicSamplingWrapper:
     Class DynamicSamplingWrapper is a class for wrapping methods from DynamicSampling class
     adding this functionality to Spark DataFrame class
     """
-    func = (
-        DynamicSampling.empty_scan,
-        DynamicSampling.sample_n
-    )
+
+    func = (DynamicSampling.empty_scan, DynamicSampling.sample_n)
     _wrapper(wrap_object=func)
 
 
@@ -306,13 +367,16 @@ class Selects:
     @staticmethod
     def regex_expr(regex_name):
         if isinstance(regex_name, list):
-            return [f'.*{regex}' for regex in regex_name]
-        return [f'.*{regex_name}']
+            return [f".*{regex}" for regex in regex_name]
+        return [f".*{regex_name}"]
 
     @staticmethod
     def select_regex(self, reg_expr):
         compiled_regexes = [re.compile(regex) for regex in reg_expr]
-        filtered_stream = filter(lambda line: any(regex.match(line) for regex in compiled_regexes), self.columns)
+        filtered_stream = filter(
+            lambda line: any(regex.match(line) for regex in compiled_regexes),
+            self.columns,
+        )
         clean_regex_list = set(filtered_stream)
         return self.select(clean_regex_list)
 
@@ -320,14 +384,18 @@ class Selects:
     def select_startswith(self, regex):
         cols_list = self.columns
         if isinstance(regex, list):
-            return self.select([c for c in cols_list for reg in regex if c.startswith(reg)])
+            return self.select(
+                [c for c in cols_list for reg in regex if c.startswith(reg)]
+            )
         return self.select([c for c in cols_list if c.startswith(regex)])
 
     @staticmethod
     def select_endswith(self, regex):
         cols_list = self.columns
         if isinstance(regex, list):
-            return self.select([c for c in cols_list for reg in regex if c.endswith(reg)])
+            return self.select(
+                [c for c in cols_list for reg in regex if c.endswith(reg)]
+            )
         return self.select([c for c in cols_list if c.endswith(regex)])
 
     @staticmethod
@@ -363,7 +431,9 @@ class Selects:
             raise ValueError("cols must be a list or tuple of column names as strings.")
         if not support:
             support = 0.01
-        return DataFrame(self._jdf.stat().freqItems(_to_seq(self._sc, cols), support), self.sql_ctx)
+        return DataFrame(
+            self._jdf.stat().freqItems(_to_seq(self._sc, cols), support), self.sql_ctx
+        )
 
     @staticmethod
     def __type_list(datatype, select_type):
@@ -372,80 +442,82 @@ class Selects:
     @staticmethod
     def select_strings(self):
         dtype = self.dtypes
-        stype = ['string', 'str', 'AnyStr', 'char']
+        stype = ["string", "str", "AnyStr", "char"]
         return Selects.__type_list(datatype=dtype, select_type=stype)
 
     @staticmethod
     def select_integers(self):
         dtype = self.dtypes
-        stype = ['int', 'integer']
+        stype = ["int", "integer"]
         return Selects.__type_list(datatype=dtype, select_type=stype)
 
     @staticmethod
     def select_floats(self):
         dtype = self.dtypes
-        stype = ['float']
+        stype = ["float"]
         return Selects.__type_list(datatype=dtype, select_type=stype)
 
     @staticmethod
     def select_doubles(self):
         dtype = self.dtypes
-        stype = ['double']
+        stype = ["double"]
         return Selects.__type_list(datatype=dtype, select_type=stype)
 
     @staticmethod
     def select_decimals(self):
         dtype = self.dtypes
-        stype = ['decimal']
+        stype = ["decimal"]
         return Selects.__type_list(datatype=dtype, select_type=stype)
 
     @staticmethod
     def select_longs(self):
         dtype = self.dtypes
-        stype = ['long', 'bigint']
+        stype = ["long", "bigint"]
         return Selects.__type_list(datatype=dtype, select_type=stype)
 
     @staticmethod
     def select_dates(self):
         dtype = self.dtypes
-        stype = ['date', 'timestamp']
+        stype = ["date", "timestamp"]
         return self.select(Selects.__type_list(datatype=dtype, select_type=stype))
 
     @staticmethod
     def select_complex(self):
         dtype = self.dtypes
-        stype = ['complex']
+        stype = ["complex"]
         return self.select(Selects.__type_list(datatype=dtype, select_type=stype))
 
     @staticmethod
     def select_structs(self):
         dtype = self.dtypes
-        stype = ['list', 'tuple', 'array', 'vector']
+        stype = ["list", "tuple", "array", "vector"]
         return self.select(Selects.__type_list(datatype=dtype, select_type=stype))
 
     @staticmethod
     def select_categorical(self):
         dtype = self.dtypes
-        stype = ['string', 'long', 'bigint']
+        stype = ["string", "long", "bigint"]
         return self.select(Selects.__type_list(datatype=dtype, select_type=stype))
 
     @staticmethod
     def select_numerical(self):
         dtype = self.dtypes
-        stype = ['double', 'decimal', 'integer', 'int', 'float', 'complex']
+        stype = ["double", "decimal", "integer", "int", "float", "complex"]
         return self.select(Selects.__type_list(datatype=dtype, select_type=stype))
 
     def select_features(self, df):
-        return {'string': self.select_strings(df),
-                'int': self.select_integers(df),
-                'long': self.select_longs(df),
-                'double': self.select_doubles(df),
-                'float': self.select_floats(df),
-                'date': self.select_dates(df),
-                'complex': self.select_complex(df),
-                'struct': self.select_structs(df),
-                'categorical': self.select_categorical(df),
-                'numeric': self.select_numerical(df)}
+        return {
+            "string": self.select_strings(df),
+            "int": self.select_integers(df),
+            "long": self.select_longs(df),
+            "double": self.select_doubles(df),
+            "float": self.select_floats(df),
+            "date": self.select_dates(df),
+            "complex": self.select_complex(df),
+            "struct": self.select_structs(df),
+            "categorical": self.select_categorical(df),
+            "numeric": self.select_numerical(df),
+        }
 
 
 class SelectsWrapper:
@@ -453,6 +525,7 @@ class SelectsWrapper:
     Class SelectsWrapper is a class for wrapping methods from Selects class
     adding this functionality to Spark DataFrame class
     """
+
     func = (
         Selects.select_regex,
         Selects.select_startswith,
@@ -467,7 +540,7 @@ class SelectsWrapper:
         Selects.select_decimals,
         Selects.select_longs,
         Selects.select_dates,
-        Selects.select_features
+        Selects.select_features,
     )
     _wrapper(wrap_object=func)
 
@@ -490,6 +563,7 @@ class MapItemWrapper:
     Class MapItemWrapper is a class for wrapping methods from MapItem class
     adding this functionality to Spark DataFrame class
     """
+
     _wrapper(wrap_object=MapItem.map_item)
 
 
@@ -498,7 +572,7 @@ class Reshape(DataFrame):
     __spark_methods = SparkMethods()
 
     def __init__(self, df):
-        super(Reshape, self).__init__(df._jdf, df.sql_ctx)
+        super().__init__(df._jdf, df.sql_ctx)
         self._df = df
 
     @staticmethod
@@ -514,42 +588,72 @@ class Reshape(DataFrame):
         """
         try:
             if isinstance(new_cols, str):
-                pivot_col, value_col = new_cols.split(',')[0], new_cols.split(',')[1]
+                pivot_col, value_col = new_cols.split(",")[0], new_cols.split(",")[1]
             elif new_cols is not None and isinstance(new_cols, list):
                 pivot_col, value_col = new_cols[0], new_cols[1]
             else:
-                pivot_col, value_col = 'no_name_pivot_col', 'no_name_value_col'
-            cols, dtype = zip(*[(c, t) for (c, t) in self.dtypes if c not in [fix_cols]])
+                pivot_col, value_col = "no_name_pivot_col", "no_name_value_col"
+            cols, dtype = zip(
+                *[(c, t) for (c, t) in self.dtypes if c not in [fix_cols]]
+            )
 
-            generator_explode = explode(array([
-                struct(lit(c).alias(pivot_col), col(c).alias(value_col)) for c in cols
-            ])).alias('column_explode')
-            column_to_explode = [f'column_explode.{pivot_col}', f'column_explode.{value_col}']
+            generator_explode = explode(
+                array(
+                    [
+                        struct(lit(c).alias(pivot_col), col(c).alias(value_col))
+                        for c in cols
+                    ]
+                )
+            ).alias("column_explode")
+            column_to_explode = [
+                f"column_explode.{pivot_col}",
+                f"column_explode.{value_col}",
+            ]
 
-            return Reshape(self.select([fix_cols] + [generator_explode]).select([fix_cols] + column_to_explode))
+            return Reshape(
+                self.select([fix_cols] + [generator_explode]).select(
+                    [fix_cols] + column_to_explode
+                )
+            )
         except Exception as e:
-            raise OpheliaFunctionsException(f"An error occurred while calling narrow_format() method: {e}")
+            raise OpheliaFunctionsException(
+                f"An error occurred while calling narrow_format() method: {e}"
+            )
 
     @staticmethod
     def narrow_format_v2(self, fix_cols, new_cols=None):
         try:
             if new_cols is None:
-                pivot_col, value_col = 'no_name_pivot_col', 'no_name_value_col'
+                pivot_col, value_col = "no_name_pivot_col", "no_name_value_col"
             elif isinstance(new_cols, str):
-                pivot_col, value_col = new_cols.split(',')[0], new_cols.split(',')[1]
+                pivot_col, value_col = new_cols.split(",")[0], new_cols.split(",")[1]
             elif isinstance(new_cols, list):
                 pivot_col, value_col = new_cols[0], new_cols[1]
-            cols, dtype = zip(*[(c, t) for (c, t) in self.dtypes if c not in [fix_cols]])
-            generator_explode = explode(array([
-                struct(lit(c).alias(pivot_col), col(c).alias(value_col)) for c in cols
-            ])).alias('column_explode')
-            column_to_explode = (f'column_explode.{pivot_col}', f'column_explode.{value_col}')
+            cols, dtype = zip(
+                *[(c, t) for (c, t) in self.dtypes if c not in [fix_cols]]
+            )
+            generator_explode = explode(
+                array(
+                    [
+                        struct(lit(c).alias(pivot_col), col(c).alias(value_col))
+                        for c in cols
+                    ]
+                )
+            ).alias("column_explode")
+            column_to_explode = (
+                f"column_explode.{pivot_col}",
+                f"column_explode.{value_col}",
+            )
             return self.selectExpr(fix_cols, *column_to_explode)
         except Exception as e:
-            raise OpheliaFunctionsException(f"An error occurred while calling narrow_format() method: {e}")
+            raise OpheliaFunctionsException(
+                f"An error occurred while calling narrow_format() method: {e}"
+            )
 
     @staticmethod
-    def wide_format(self, group_by, pivot_col, agg_dict, rnd=6, rep=20, rename_col=False):
+    def wide_format(
+        self, group_by, pivot_col, agg_dict, rnd=6, rep=20, rename_col=False
+    ):
         """
         Wide format method will reshape from narrow multidimensional
         table to wide tabular format table for feature wide table
@@ -567,38 +671,52 @@ class Reshape(DataFrame):
             keys, values = list(agg_dict.keys())[0], list(agg_dict.values())[0]
 
             for k in agg_dict:
-                for i in range(len(agg_dict[k].split(','))):
-                    strip_string = agg_dict[k].replace(' ', '').split(',')
+                for i in range(len(agg_dict[k].split(","))):
+                    strip_string = agg_dict[k].replace(" ", "").split(",")
                     agg_item = spark_round(
                         Reshape.__spark_methods[strip_string[i]](k), rnd
-                    ).alias(f'{strip_string[i]}_{k}')
+                    ).alias(f"{strip_string[i]}_{k}")
                     agg_list.append(agg_item)
 
             if isinstance(group_by, list):
                 if rename_col:
-                    group_by_expr = [col(c).alias(f'{c}_{pivot_col}') for c in group_by]
+                    group_by_expr = [col(c).alias(f"{c}_{pivot_col}") for c in group_by]
                 else:
-                    group_by_expr = [col(c).alias(f'{c}') for c in group_by]
+                    group_by_expr = [col(c).alias(f"{c}") for c in group_by]
             else:
                 if rename_col:
-                    group_by_expr = col(group_by).alias(f'{group_by}_{pivot_col}')
+                    group_by_expr = col(group_by).alias(f"{group_by}_{pivot_col}")
                 else:
-                    group_by_expr = col(group_by).alias(f'{group_by}')
+                    group_by_expr = col(group_by).alias(f"{group_by}")
 
             if len(list(agg_dict)) == 1:
                 # TODO: revisar el preformance de este .repartition(rep)
-                pivot_df = self.groupBy(group_by_expr).pivot(pivot_col).agg(*agg_list).na.fill(0)
+                pivot_df = (
+                    self.groupBy(group_by_expr)
+                    .pivot(pivot_col)
+                    .agg(*agg_list)
+                    .na.fill(0)
+                )
 
                 if rename_col:
-                    renamed_cols = [col(c).alias(f"{c}_{keys}_{values}") for c in pivot_df.columns[1:]]
-                    return Reshape(pivot_df.select(f'{group_by}_{pivot_col}', *renamed_cols))
+                    renamed_cols = [
+                        col(c).alias(f"{c}_{keys}_{values}")
+                        for c in pivot_df.columns[1:]
+                    ]
+                    return Reshape(
+                        pivot_df.select(f"{group_by}_{pivot_col}", *renamed_cols)
+                    )
                 else:
                     renamed_cols = [col(c).alias(f"{c}") for c in pivot_df.columns[1:]]
-                    return Reshape(pivot_df.select(f'{group_by}', *renamed_cols))
+                    return Reshape(pivot_df.select(f"{group_by}", *renamed_cols))
             # TODO: revisar el preformance de este .repartition(rep)
-            return Reshape(self.groupBy(group_by_expr).pivot(pivot_col).agg(*agg_list).na.fill(0))
+            return Reshape(
+                self.groupBy(group_by_expr).pivot(pivot_col).agg(*agg_list).na.fill(0)
+            )
         except TypeError as te:
-            raise OpheliaFunctionsException(f"An error occurred while calling wide_format() method: {te}")
+            raise OpheliaFunctionsException(
+                f"An error occurred while calling wide_format() method: {te}"
+            )
 
 
 class ReshapeWrapper:
@@ -606,10 +724,8 @@ class ReshapeWrapper:
     Class ReshapeWrapper is a class for wrapping methods from Reshape class
     adding this functionality to Spark DataFrame class
     """
-    func = (
-        Reshape.wide_format,
-        Reshape.narrow_format
-    )
+
+    func = (Reshape.wide_format, Reshape.narrow_format)
     _wrapper(wrap_object=func)
 
 
@@ -619,12 +735,21 @@ class PctChange:
     def __build_pct_change_function(x, t, w):
         if isinstance(x, str):
             list_x = [x]
-            return list(map(lambda c: (col(c) / lag(col(c), offset=t).over(w) - 1).alias(c), list_x))
+            return list(
+                map(
+                    lambda c: (col(c) / lag(col(c), offset=t).over(w) - 1).alias(c),
+                    list_x,
+                )
+            )
         elif isinstance(x, list):
-            return list(map(lambda c: (col(c) / lag(col(c), offset=t).over(w) - 1).alias(c), x))
+            return list(
+                map(lambda c: (col(c) / lag(col(c), offset=t).over(w) - 1).alias(c), x)
+            )
 
     @staticmethod
-    def __build_window_partition(self, periods, order_by, pct_cols, partition_by=None, desc=False):
+    def __build_window_partition(
+        self, periods, order_by, pct_cols, partition_by=None, desc=False
+    ):
         if desc:
             if partition_by is None:
                 win = Window.orderBy(col(order_by).desc())
@@ -640,43 +765,51 @@ class PctChange:
 
     @staticmethod
     def __infer_sort_column(self):
-        regex_match = ['year', 'Year', 'date', 'Date', 'month', 'Month', 'day', 'Day']
+        regex_match = ["year", "Year", "date", "Date", "month", "Month", "day", "Day"]
         regex_list = self.selectRegex(regex_expr(regex_match)).columns
         f_pick = feature_pick(self)
         if len(regex_list) > 0:
             return regex_list
-        elif len(f_pick['date']) > 0:
-            return f_pick['date']
+        elif len(f_pick["date"]) > 0:
+            return f_pick["date"]
         else:
-            return f_pick['string']
+            return f_pick["string"]
 
     @staticmethod
     def __infer_lag_column(self):
         f_pick = feature_pick(self)
-        if len(f_pick['double']) > 0:
-            return f_pick['double']
-        elif len(f_pick['float']) > 0:
-            return f_pick['float']
-        elif len(f_pick['long']) > 0:
-            return f_pick['long']
+        if len(f_pick["double"]) > 0:
+            return f_pick["double"]
+        elif len(f_pick["float"]) > 0:
+            return f_pick["float"]
+        elif len(f_pick["long"]) > 0:
+            return f_pick["long"]
         else:
-            return f_pick['int']
+            return f_pick["int"]
 
     @staticmethod
     def __infer_lag_columnv2(df):
-        numeric_cols = df.select(lambda col_name: df[col_name].dtype in (float, int, long)).columns
+        numeric_cols = df.select(
+            lambda col_name: df[col_name].dtype in (float, int, long)
+        ).columns
         if numeric_cols:
             return numeric_cols[0]
         else:
             return None
 
     @staticmethod
-    def pct_change(self, periods=1, order_by=None, pct_cols=None, partition_by=None, desc=None):
+    def pct_change(
+        self, periods=1, order_by=None, pct_cols=None, partition_by=None, desc=None
+    ):
         if (order_by is None) and (pct_cols is None):
             infer_sort = PctChange.__infer_sort_column(self)[0]
             infer_lag = PctChange.__infer_lag_column(self)[1]
-            return PctChange.__build_window_partition(self, periods, infer_sort, infer_lag)
-        return PctChange.__build_window_partition(self, periods, order_by, pct_cols, partition_by, desc)
+            return PctChange.__build_window_partition(
+                self, periods, infer_sort, infer_lag
+            )
+        return PctChange.__build_window_partition(
+            self, periods, order_by, pct_cols, partition_by, desc
+        )
 
     @staticmethod
     def remove_element(self, col_remove):
@@ -690,10 +823,8 @@ class PctChangeWrapper:
     Class PctChangeWrapper is a class for wrapping methods from PctChange class
     adding this functionality to Spark DataFrame class
     """
-    func = (
-        PctChange.pct_change,
-        PctChange.remove_element
-    )
+
+    func = (PctChange.pct_change, PctChange.remove_element)
     _wrapper(wrap_object=func)
 
 
@@ -702,10 +833,10 @@ class CrossTabular:
     @staticmethod
     def __expression(cols_list, xpr):
         expr_dict = {
-            'sum': '+'.join(cols_list),
-            'sub': '-'.join(cols_list),
-            'mul': '*'.join(cols_list),
-            'div': '/'.join(cols_list),
+            "sum": "+".join(cols_list),
+            "sub": "-".join(cols_list),
+            "mul": "*".join(cols_list),
+            "div": "/".join(cols_list),
         }
         return expr_dict[xpr]
 
@@ -718,24 +849,28 @@ class CrossTabular:
         for i in range(len(regex_keys)):
             cols_list = df.selectRegex(regex_expr(regex_keys[i])).columns
             expression = expr(CrossTabular.__expression(cols_list, oper))
-            func.append(expression.alias(f'{regex_keys[i]}_{regex_values[i]}_{oper}'))
-        return df.select('*', *func)
+            func.append(expression.alias(f"{regex_keys[i]}_{regex_values[i]}_{oper}"))
+        return df.select("*", *func)
 
     @staticmethod
     def foreach_colv2(self, group_by, pivot_col, agg_dict, oper):
         df = self.toWide(group_by, pivot_col, agg_dict)
         df = df.groupBy(group_by).pivot(pivot_col).agg(agg_dict)
         df = df.groupBy(group_by).agg(expr(f"{oper}({', '.join(agg_dict.keys())})"))
-        df = df.select(concat_ws("_", *[col(c).alias(c) for c in df.columns]).alias("new_col"))
+        df = df.select(
+            concat_ws("_", *[col(c).alias(c) for c in df.columns]).alias("new_col")
+        )
         return df
 
     @staticmethod
     def resume_dataframe(self, group_by=None, new_col=None):
-        cols_types = [k for k, v in self.dtypes if v != 'string']
+        cols_types = [k for k, v in self.dtypes if v != "string"]
         if group_by is None:
             try:
                 agg_df = self.agg(*[sum(c).alias(c) for c in cols_types])
-                return agg_df.withColumn(new_col, lit('+++ total')).select(new_col, *cols_types)
+                return agg_df.withColumn(new_col, lit("+++ total")).select(
+                    new_col, *cols_types
+                )
             except Py4JJavaError as e:
                 raise AssertionError(f"empty expression found. {e}")
         return self.groupBy(group_by).agg(*[sum(c).alias(c) for c in cols_types])
@@ -746,31 +881,43 @@ class CrossTabular:
         if self.rdd.isEmpty():
             return self.sql_ctx.createDataFrame([], self.schema)
 
-        cols_types = [k for k, v in self.dtypes if v != 'string']
+        cols_types = [k for k, v in self.dtypes if v != "string"]
 
         if group_by is not None and group_by in self.columns:
             if self.columns.count(group_by) > 1:
                 raise AssertionError(f"duplicate column found: {group_by}")
             if self.groupBy(group_by)._jdf.isStreaming():
-                raise AssertionError(f"the dataframe is not grouped by column: {group_by}")
+                raise AssertionError(
+                    f"the dataframe is not grouped by column: {group_by}"
+                )
 
         if group_by is None:
             try:
                 agg_df = self.agg(*[sum(c).alias(c) for c in cols_types])
-                return agg_df.withColumn(new_col, lit('+++ total')).select(new_col, *cols_types)
+                return agg_df.withColumn(new_col, lit("+++ total")).select(
+                    new_col, *cols_types
+                )
             except Py4JJavaError as e:
                 raise AssertionError(f"empty expression found. {e}")
         return self.groupBy(group_by).agg(*[sum(c).alias(c) for c in cols_types])
 
     @staticmethod
-    def tab_table(self, group_by, pivot_col, agg_dict, oper='sum'):
-        sum_by_col_df = CrossTabular.foreach_col(self, group_by, pivot_col, agg_dict, oper)
-        return sum_by_col_df.union(CrossTabular.resume_dataframe(sum_by_col_df, new_col=self.columns[0]))
+    def tab_table(self, group_by, pivot_col, agg_dict, oper="sum"):
+        sum_by_col_df = CrossTabular.foreach_col(
+            self, group_by, pivot_col, agg_dict, oper
+        )
+        return sum_by_col_df.union(
+            CrossTabular.resume_dataframe(sum_by_col_df, new_col=self.columns[0])
+        )
 
     @staticmethod
-    def cross_pct(self, group_by, pivot_col, agg_dict, operand='sum', cols=None):
-        sum_by_col_df = CrossTabular.foreach_col(self, group_by, pivot_col, agg_dict, operand)
-        union_df = sum_by_col_df.union(CrossTabular.resume_dataframe(sum_by_col_df, new_col=self.columns[0]))
+    def cross_pct(self, group_by, pivot_col, agg_dict, operand="sum", cols=None):
+        sum_by_col_df = CrossTabular.foreach_col(
+            self, group_by, pivot_col, agg_dict, operand
+        )
+        union_df = sum_by_col_df.union(
+            CrossTabular.resume_dataframe(sum_by_col_df, new_col=self.columns[0])
+        )
         key_list = list(agg_dict.keys())
         func = []
         for i in range(len(key_list)):
@@ -779,25 +926,31 @@ class CrossTabular:
             pivot_list = tmp_df.drop(fix_df.columns[0]).columns
             for ix in range(len(pivot_list)):
                 operate_cols = [pivot_list[ix], fix_df.columns[0]]
-                dynamic_expr = CrossTabular.__expression(operate_cols, 'div')
-                func.append(spark_round(expr(dynamic_expr), 4).alias(f'{pivot_list[ix]}_prop'))
-        if cols == 'all':
-            return union_df.select('*', *func)
+                dynamic_expr = CrossTabular.__expression(operate_cols, "div")
+                func.append(
+                    spark_round(expr(dynamic_expr), 4).alias(f"{pivot_list[ix]}_prop")
+                )
+        if cols == "all":
+            return union_df.select("*", *func)
         else:
-            return union_df.select(f'{group_by}_{pivot_col}', *func)
+            return union_df.select(f"{group_by}_{pivot_col}", *func)
 
     @staticmethod
-    def cross_pctv2(self, group_by, pivot_col, agg_dict, operand='sum', cols=None):
+    def cross_pctv2(self, group_by, pivot_col, agg_dict, operand="sum", cols=None):
         grouped_df = self.groupBy(group_by, pivot_col).agg(agg_dict)
-        grouped_df = grouped_df.withColumn("proportion", grouped_df[operand]/grouped_df[operand].sum())
+        grouped_df = grouped_df.withColumn(
+            "proportion", grouped_df[operand] / grouped_df[operand].sum()
+        )
         pivot_col_list = grouped_df.drop(grouped_df.columns[0:2]).columns
         for ix in range(len(pivot_col_list)):
-            grouped_df = grouped_df.withColumnRenamed(pivot_col_list[ix], f'{pivot_col_list[ix]}_prop')
+            grouped_df = grouped_df.withColumnRenamed(
+                pivot_col_list[ix], f"{pivot_col_list[ix]}_prop"
+            )
         union_df = grouped_df.union(self)
-        if cols == 'all':
+        if cols == "all":
             return union_df
         else:
-            return union_df.select(f'{group_by}_{pivot_col}', *pivot_col_list)
+            return union_df.select(f"{group_by}_{pivot_col}", *pivot_col_list)
 
 
 class CrossTabularWrapper:
@@ -805,11 +958,12 @@ class CrossTabularWrapper:
     Class CrossTabularWrapper is a class for wrapping methods from CrossTabular class
     adding this functionality to Spark DataFrame class
     """
+
     func = (
         CrossTabular.foreach_col,
         CrossTabular.resume_dataframe,
         CrossTabular.tab_table,
-        CrossTabular.cross_pct
+        CrossTabular.cross_pct,
     )
     _wrapper(wrap_object=func)
 
@@ -860,10 +1014,8 @@ class JoinsWrapper:
     Class JoinsWrapper is a class for wrapping methods from Joins class
     adding this functionality to Spark DataFrame class
     """
-    func = (
-        Joins.join_small_right,
-        Joins.join_small_left
-    )
+
+    func = (Joins.join_small_right, Joins.join_small_left)
     _wrapper(wrap_object=func)
 
 
@@ -876,42 +1028,46 @@ class DaskSpark:
         fl = _sc._jvm.org.apache.hadoop.fs.FileSystem
         fs = fl.get(_sc._jsc.hadoopConfiguration())
         path = _sc._jvm.org.apache.hadoop.fs.Path
-        return {'file_sys': fl, 'hadoop_fs': fs, 'fs_path': path}
+        return {"file_sys": fl, "hadoop_fs": fs, "fs_path": path}
 
     @staticmethod
     def __fs_clean(self, clean_path):
         # File System instance
         env_fs = DaskSpark.__file_system(self)
         # HDFS command to delete file paths
-        env_fs['hadoop_fs'].delete(env_fs['fs_path'](clean_path))
+        env_fs["hadoop_fs"].delete(env_fs["fs_path"](clean_path))
 
     @staticmethod
     def __fs_rename(self, path, rename):
         # File System instance
         env_fs = DaskSpark.__file_system(self)
         # HDFS command to delete file paths
-        env_fs['hadoop_fs'].rename(env_fs['fs_path'](path), env_fs['fs_path'](rename))
+        env_fs["hadoop_fs"].rename(env_fs["fs_path"](path), env_fs["fs_path"](rename))
 
     @staticmethod
     def dask_read(option, file_path):
 
         # Python map for file type pattern
-        file_type = {'parquet': file_path + '/*.parquet',
-                     'csv': file_path + '/*.csv',
-                     'json': file_path + '/*.json',
-                     'text': file_path + '/*.txt'}
+        file_type = {
+            "parquet": file_path + "/*.parquet",
+            "csv": file_path + "/*.csv",
+            "json": file_path + "/*.json",
+            "text": file_path + "/*.txt",
+        }
 
         # Define reader type by pattern mapping
         file_pattern = file_type[option]
-        dask_reader = {'parquet': dask_df.read_parquet(file_pattern, engine='pyarrow'),
-                       'csv': dask_df.read_csv(file_pattern),
-                       'json': dask_df.read_json(file_pattern),
-                       'text': dask_df.read_table(file_pattern)}
+        dask_reader = {
+            "parquet": dask_df.read_parquet(file_pattern, engine="pyarrow"),
+            "csv": dask_df.read_csv(file_pattern),
+            "json": dask_df.read_json(file_pattern),
+            "text": dask_df.read_table(file_pattern),
+        }
 
         return dask_reader[option]
 
     @staticmethod
-    def spark_to_dask(self, option='csv', mode='overwrite', checkpoint_path=None):
+    def spark_to_dask(self, option="csv", mode="overwrite", checkpoint_path=None):
         """
         TODO: Se necesita optimizar la manera en la que se escribe con coalesce(1) se debe escribir con Spark Streaming
         """
@@ -923,11 +1079,11 @@ class DaskSpark:
             spark = SparkSession(sc)
 
         # Write Spark DataFrame to parquet
-        work_dir = os.getcwd() + '/data/stream/dask'
-        tmp_dir = work_dir + '/tmp'
+        work_dir = os.getcwd() + "/data/stream/dask"
+        tmp_dir = work_dir + "/tmp"
 
         # Lets leave 'overwrite' config as default config
-        self.write.mode('overwrite').parquet(tmp_dir)
+        self.write.mode("overwrite").parquet(tmp_dir)
 
         # Retrieve DataFrame schema
         schema_parquet = spark.read.parquet(tmp_dir).schema
@@ -936,23 +1092,29 @@ class DaskSpark:
             checkpoint_path = tmp_dir + "_checkpoint_data"
 
         stream_option = {
-            'text': spark.readStream.schema(schema_parquet).text(tmp_dir),
-            'csv': spark.readStream.schema(schema_parquet).csv(tmp_dir),
-            'json': spark.readStream.schema(schema_parquet).json(tmp_dir),
-            'parquet': spark.readStream.schema(schema_parquet).parquet(tmp_dir)
+            "text": spark.readStream.schema(schema_parquet).text(tmp_dir),
+            "csv": spark.readStream.schema(schema_parquet).csv(tmp_dir),
+            "json": spark.readStream.schema(schema_parquet).json(tmp_dir),
+            "parquet": spark.readStream.schema(schema_parquet).parquet(tmp_dir),
         }
 
-        stream_writer = stream_option[option].coalesce(1).writeStream.format(option).outputMode('append')\
-            .queryName('stream_query').option('checkpointLocation', checkpoint_path)
+        stream_writer = (
+            stream_option[option]
+            .coalesce(1)
+            .writeStream.format(option)
+            .outputMode("append")
+            .queryName("stream_query")
+            .option("checkpointLocation", checkpoint_path)
+        )
 
-        file_path = work_dir + '/tmp_file'
+        file_path = work_dir + "/tmp_file"
         stream_query = stream_writer.start(file_path)
         stream_query.processAllAvailable()
 
-        if mode == 'overwrite':
+        if mode == "overwrite":
             DaskSpark.__fs_clean(self, tmp_dir)
             DaskSpark.__fs_clean(self, checkpoint_path)
-            DaskSpark.__fs_rename(self, file_path, work_dir + '/file')
+            DaskSpark.__fs_rename(self, file_path, work_dir + "/file")
             DaskSpark.__fs_clean(self, file_path)
 
         return DaskSpark.dask_read(option, file_path)
@@ -962,7 +1124,10 @@ class DaskSpark:
         dask_df = DaskSpark.spark_to_dask(self)
         series = dask_df[column_series]
         list_dask = series.to_delayed()
-        full = [dask_arr.from_delayed(i, i.compute().shape, i.compute().dtype) for i in list_dask]
+        full = [
+            dask_arr.from_delayed(i, i.compute().shape, i.compute().dtype)
+            for i in list_dask
+        ]
         return dask_arr.concatenate(full)
 
     @staticmethod
@@ -980,10 +1145,11 @@ class DaskSparkWrapper:
     Class DaskSparkWrapper is a class for wrapping methods from DaskSpark class
     adding this functionality to Spark DataFrame class
     """
+
     func = (
         DaskSpark.spark_to_dask,
         DaskSpark.spark_to_series,
-        DaskSpark.spark_to_numpy
+        DaskSpark.spark_to_numpy,
     )
     _wrapper(wrap_object=func)
 
@@ -1015,9 +1181,8 @@ class SortinoRatioCalculatorWrapper:
     Class SortinoRatioCalculatorWrapper is a class for wrapping methods from SortinoRatioCalculator class
     adding this functionality to Spark DataFrame class.
     """
-    func = (
-        SortinoRatioCalculator.sortino_ratio
-    )
+
+    func = SortinoRatioCalculator.sortino_ratio
     _wrapper(wrap_object=func)
 
 
@@ -1042,9 +1207,8 @@ class SharpeRatioCalculatorWrapper:
     Class SharpeRatioCalculatorWrapper is a class for wrapping methods from SharpeRatioCalculator class
     adding this functionality to Spark DataFrame class.
     """
-    func = (
-        SharpeRatioCalculator.calculate
-    )
+
+    func = SharpeRatioCalculator.calculate
     _wrapper(wrap_object=func)
 
 
@@ -1053,11 +1217,11 @@ class EfficientFrontierRatioCalculator:
         self.df = dataframe.cache()
 
     def expected_returns(self):
-        returns = self.df.agg(mean('return')).first()[0]
+        returns = self.df.agg(mean("return")).first()[0]
         return returns
 
     def expected_variances(self):
-        cov_matrix = self.df.agg(variance('return')).first()[0]
+        cov_matrix = self.df.agg(variance("return")).first()[0]
         return cov_matrix
 
     @staticmethod
@@ -1082,21 +1246,20 @@ class EfficientFrontierRatioCalculatorWrapper:
     methods from EfficientFrontierRatioCalculator class
     adding this functionality to Spark DataFrame class.
     """
-    func = (
-        EfficientFrontierRatioCalculator.calculate_efficient_frontier_ratio
-    )
+
+    func = EfficientFrontierRatioCalculator.calculate_efficient_frontier_ratio
     _wrapper(wrap_object=func)
 
 
 class RiskParityCalculator:
     def __init__(
-            self,
-            returns_columns,
-            asset_column,
-            weight_columns,
-            risk_columns,
-            dataframe: DataFrame,
-            sql_context: SQLContext
+        self,
+        returns_columns,
+        asset_column,
+        weight_columns,
+        risk_columns,
+        dataframe: DataFrame,
+        sql_context: SQLContext,
     ):
         self.returns_columns = returns_columns
         self.asset_column = asset_column
@@ -1107,47 +1270,78 @@ class RiskParityCalculator:
 
     def calculate_asset_risk(self):
         returns_df = self.dataframe.select(self.returns_columns)
-        std_df = returns_df.agg(*[stddev(c).alias(c + '_std') for c in returns_df.columns])
-        var_df = returns_df.agg(*[variance(c).alias(c + '_var') for c in returns_df.columns])
-        return self.dataframe.join(std_df, on=self.asset_column).join(var_df, on=self.asset_column)
+        std_df = returns_df.agg(
+            *[stddev(c).alias(c + "_std") for c in returns_df.columns]
+        )
+        var_df = returns_df.agg(
+            *[variance(c).alias(c + "_var") for c in returns_df.columns]
+        )
+        return self.dataframe.join(std_df, on=self.asset_column).join(
+            var_df, on=self.asset_column
+        )
 
     def calculate_total_risk(self):
         risk_df = self.dataframe.select(self.weight_columns + self.risk_columns)
         for col in self.risk_columns:
-            risk_df = risk_df.withColumn(col + '_weighted', col * risk_df[self.weight_columns])
-        total_risk_df = risk_df.agg(sum(c(c + '_weighted') for c in self.risk_columns))
+            risk_df = risk_df.withColumn(
+                col + "_weighted", col * risk_df[self.weight_columns]
+            )
+        total_risk_df = risk_df.agg(sum(c(c + "_weighted") for c in self.risk_columns))
         return total_risk_df
 
     def calculate_risk_parity_weights(self):
         # Define the objective function and the constraints
         def obj_func(w):
-            return sum(self.dataframe[c + '_weighted'].dot(w) for c in self.risk_columns)
+            return sum(
+                self.dataframe[c + "_weighted"].dot(w) for c in self.risk_columns
+            )
 
         def grad_obj_func(ws):
-            return np.array([self.dataframe[c + '_weighted'].dot(ws) for c in self.risk_columns])
+            return np.array(
+                [self.dataframe[c + "_weighted"].dot(ws) for c in self.risk_columns]
+            )
 
         def constraint_func(we):
-            return sum(when(self.dataframe[c] == 1, 1.0).otherwise(0.0).dot(we) for c in self.weight_columns)
+            return sum(
+                when(self.dataframe[c] == 1, 1.0).otherwise(0.0).dot(we)
+                for c in self.weight_columns
+            )
 
         def grad_constraint_func(wes):
             return np.array(
-                [when(self.dataframe[c] == 1, 1.0).otherwise(0.0).dot(wes) for c in self.weight_columns])
+                [
+                    when(self.dataframe[c] == 1, 1.0).otherwise(0.0).dot(wes)
+                    for c in self.weight_columns
+                ]
+            )
 
         # Initialize the LBFGS optimization
-        optimizer = LBFGS(x0=np.zeros(len(self.weight_columns)), func=obj_func, grad=grad_obj_func, m=5)
+        optimizer = LBFGS(
+            x0=np.zeros(len(self.weight_columns)),
+            func=obj_func,
+            grad=grad_obj_func,
+            m=5,
+        )
 
         # Minimize the objective function subject to the constraints
-        weights = optimizer.minimize(constraint_func=constraint_func, grad_constraint_func=grad_constraint_func)
+        weights = optimizer.minimize(
+            constraint_func=constraint_func, grad_constraint_func=grad_constraint_func
+        )
 
         # Return the optimized weights
         return weights
 
     def update_weights(self, risk_parity_weights_df):
         updated_df = self.dataframe.join(risk_parity_weights_df, on=self.asset_column)
-        updated_df = updated_df.withColumn(self.weight_columns, updated_df[self.weight_columns + '_risk_parity']).drop(
-            self.weight_columns + '_risk_parity').withColumnRenamed(
-            self.weight_columns, self.weight_columns + '_original')
+        updated_df = (
+            updated_df.withColumn(
+                self.weight_columns, updated_df[self.weight_columns + "_risk_parity"]
+            )
+            .drop(self.weight_columns + "_risk_parity")
+            .withColumnRenamed(self.weight_columns, self.weight_columns + "_original")
+        )
         return updated_df
+
 
 class RiskParityCalculatorWrapper:
     """
@@ -1155,7 +1349,6 @@ class RiskParityCalculatorWrapper:
     methods from RiskParityCalculator class
     adding this functionality to Spark DataFrame class.
     """
-    func = (
-        RiskParityCalculator.calculate_risk_parity_weights
-    )
+
+    func = RiskParityCalculator.calculate_risk_parity_weights
     _wrapper(wrap_object=func)

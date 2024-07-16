@@ -1,43 +1,54 @@
-import numpy as np
-from typing import List
 from functools import lru_cache, reduce
+from typing import List
+
+import numpy as np
 from pyspark.sql import Window
+from pyspark.sql.functions import (
+    asc,
+    col,
+    dayofmonth,
+    desc,
+    month,
+    row_number,
+    udf,
+    year,
+)
 from pyspark.sql.types import (
-    TimestampType,
     IntegerType,
     LongType,
+    Row,
     StructField,
     StructType,
-    Row
+    TimestampType,
 )
-from pyspark.sql.functions import col, year, month, dayofmonth, row_number, udf, desc, asc
+
 from . import OpheliaUtilitiesException
 from ._logger import OpheliaLogger
 
 __all__ = [
-    'union_all',
-    'split_date',
-    'row_index',
-    'lag_min_max_data',
-    'regex_expr',
-    'remove_duplicate_element',
-    'year_array',
-    'dates_index',
-    'sorted_date_list',
-    'feature_pick',
-    'binary_search',
-    'century_from_year',
-    'simple_average',
-    'delta_series',
-    'simple_moving_average',
-    'average',
-    'weight_moving_average',
-    'single_exp_smooth',
-    'double_exp_smooth',
-    'initial_seasonal_components',
-    'triple_exp_smooth',
-    'row_indexing',
-    'string_match'
+    "union_all",
+    "split_date",
+    "row_index",
+    "lag_min_max_data",
+    "regex_expr",
+    "remove_duplicate_element",
+    "year_array",
+    "dates_index",
+    "sorted_date_list",
+    "feature_pick",
+    "binary_search",
+    "century_from_year",
+    "simple_average",
+    "delta_series",
+    "simple_moving_average",
+    "average",
+    "weight_moving_average",
+    "single_exp_smooth",
+    "double_exp_smooth",
+    "initial_seasonal_components",
+    "triple_exp_smooth",
+    "row_indexing",
+    "string_match",
 ]
 logger = OpheliaLogger()
 
@@ -65,14 +76,17 @@ def split_date(df, col_date: str):
     """
     try:
         dates_df = df.select(
-            '*', year(col_date).alias(f'{col_date}_year'),
-            month(col_date).alias(f'{col_date}_month'),
-            dayofmonth(col_date).alias(f'{col_date}_day')
+            "*",
+            year(col_date).alias(f"{col_date}_year"),
+            month(col_date).alias(f"{col_date}_month"),
+            dayofmonth(col_date).alias(f"{col_date}_day"),
         )
         logger.info("Split Date In Columns")
         return dates_df
     except Exception as e:
-        raise OpheliaUtilitiesException(f"An error occurred on split_date() method: {e}")
+        raise OpheliaUtilitiesException(
+            f"An error occurred on split_date() method: {e}"
+        )
 
 
 def row_index(df, col_order: str):
@@ -103,11 +117,15 @@ def lag_min_max_data(df, is_max=True, col_lag: str = "operation_date"):
             lag_date = df.agg(max(col(col_lag).cast(TimestampType()))).first()[0]
         else:
             lag_date = df.agg(min(col(col_lag).cast(TimestampType()))).first()[0]
-        lag_data = df.where(col(col_lag) < lag_date).select([col(c).alias(f'{c}_lag') for c in df.columns])
+        lag_data = df.where(col(col_lag) < lag_date).select(
+            [col(c).alias(f"{c}_lag") for c in df.columns]
+        )
         logger.info("Lag-Over Dates In DataFrame")
         return lag_data
     except Exception as e:
-        raise OpheliaUtilitiesException(f"An error occurred on lag_min_max_data() method: {e}")
+        raise OpheliaUtilitiesException(
+            f"An error occurred on lag_min_max_data() method: {e}"
+        )
 
 
 def regex_expr(regex_name):
@@ -121,7 +139,9 @@ def regex_expr(regex_name):
             return [f".*{re}" for re in regex_name]
         return [f".*{regex_name}"]
     except ValueError as ve:
-        raise OpheliaUtilitiesException(f"An error occurred on regex_expr() method: {ve}")
+        raise OpheliaUtilitiesException(
+            f"An error occurred on regex_expr() method: {ve}"
+        )
 
 
 def remove_duplicate_element(lst: list):
@@ -133,7 +153,9 @@ def remove_duplicate_element(lst: list):
     try:
         return list(dict.fromkeys(lst))
     except ValueError as ve:
-        raise OpheliaUtilitiesException(f"An error occurred on remove_duplicate_element() method: {ve}")
+        raise OpheliaUtilitiesException(
+            f"An error occurred on remove_duplicate_element() method: {ve}"
+        )
 
 
 def year_array(from_year, to_year):
@@ -147,7 +169,9 @@ def year_array(from_year, to_year):
         logger.info(f"Window Data From Year {from_year} To {to_year}")
         return list(range(int(from_year), int(to_year) + 1))
     except ValueError as ve:
-        raise OpheliaUtilitiesException(f"An error occurred on year_array() method: {ve}")
+        raise OpheliaUtilitiesException(
+            f"An error occurred on year_array() method: {ve}"
+        )
 
 
 def dates_index(dates_list: list):
@@ -163,7 +187,9 @@ def dates_index(dates_list: list):
         logger.info("Set Date Index")
         return udf(lambda x: dates_dict[x], IntegerType())
     except ValueError as ve:
-        raise OpheliaUtilitiesException(f"An error occurred on dates_index() method: {ve}")
+        raise OpheliaUtilitiesException(
+            f"An error occurred on dates_index() method: {ve}"
+        )
 
 
 @lru_cache(maxsize=60)
@@ -176,9 +202,13 @@ def sorted_date_list(df, col_collect: str):
     """
     try:
         logger.info("Order Date List")
-        return sorted([x.operation_date for x in df.select(col_collect).distinct().collect()])
+        return sorted(
+            [x.operation_date for x in df.select(col_collect).distinct().collect()]
+        )
     except Exception as e:
-        raise OpheliaUtilitiesException(f"An error occurred on sorted_date_list() method: {e}")
+        raise OpheliaUtilitiesException(
+            f"An error occurred on sorted_date_list() method: {e}"
+        )
 
 
 @lru_cache(maxsize=60)
@@ -196,7 +226,9 @@ def sorted_date_listv2(df, col_collect: str):
         unique_date.sort()
         return unique_date
     except Exception as e:
-        raise OpheliaUtilitiesException(f"An error occurred on sorted_date_listv2() method: {e}")
+        raise OpheliaUtilitiesException(
+            f"An error occurred on sorted_date_listv2() method: {e}"
+        )
 
 
 def feature_pick(df):
@@ -209,16 +241,44 @@ def feature_pick(df):
     try:
         s, i, l, d, f, t, o = [], [], [], [], [], [], []
         for k, v in df.dtypes:
-            s.append(k) if v in ['str', 'string'] else \
-                i.append(k) if v in ['int', 'integer'] else \
-                l.append(k) if v in ['bigint', 'long'] else \
-                d.append(k) if v in ['double'] else \
-                f.append(k) if v in ['float'] else \
-                t.append(k) if v in ['date', 'timestamp'] else \
-                o.append(k)
-        return {'string': s, 'int': i, 'long': l, 'double': d, 'float': f, 'date': t, 'other': o}
+            (
+                s.append(k)
+                if v in ["str", "string"]
+                else (
+                    i.append(k)
+                    if v in ["int", "integer"]
+                    else (
+                        l.append(k)
+                        if v in ["bigint", "long"]
+                        else (
+                            d.append(k)
+                            if v in ["double"]
+                            else (
+                                f.append(k)
+                                if v in ["float"]
+                                else (
+                                    t.append(k)
+                                    if v in ["date", "timestamp"]
+                                    else o.append(k)
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        return {
+            "string": s,
+            "int": i,
+            "long": l,
+            "double": d,
+            "float": f,
+            "date": t,
+            "other": o,
+        }
     except ValueError as ve:
-        raise OpheliaUtilitiesException(f"An error occurred on feature_pick() method: {ve}")
+        raise OpheliaUtilitiesException(
+            f"An error occurred on feature_pick() method: {ve}"
+        )
 
 
 def feature_pickv2(df):
@@ -229,25 +289,35 @@ def feature_pickv2(df):
     :return: dict
     """
     try:
-        column_types = {'string': [], 'int': [], 'long': [], 'double': [], 'float': [], 'date': [], 'other': []}
+        column_types = {
+            "string": [],
+            "int": [],
+            "long": [],
+            "double": [],
+            "float": [],
+            "date": [],
+            "other": [],
+        }
         for k, v in df.dtypes:
-            if v in ['str', 'string']:
-                column_types['string'].append(k)
-            elif v in ['int', 'integer']:
-                column_types['int'].append(k)
-            elif v in ['bigint', 'long']:
-                column_types['long'].append(k)
-            elif v in ['double']:
-                column_types['double'].append(k)
-            elif v in ['float']:
-                column_types['float'].append(k)
-            elif v in ['date', 'timestamp']:
-                column_types['date'].append(k)
+            if v in ["str", "string"]:
+                column_types["string"].append(k)
+            elif v in ["int", "integer"]:
+                column_types["int"].append(k)
+            elif v in ["bigint", "long"]:
+                column_types["long"].append(k)
+            elif v in ["double"]:
+                column_types["double"].append(k)
+            elif v in ["float"]:
+                column_types["float"].append(k)
+            elif v in ["date", "timestamp"]:
+                column_types["date"].append(k)
             else:
-                column_types['other'].append(k)
+                column_types["other"].append(k)
         return column_types
     except ValueError as ve:
-        raise OpheliaUtilitiesException(f"An error occurred on feature_pickv2() method: {ve}")
+        raise OpheliaUtilitiesException(
+            f"An error occurred on feature_pickv2() method: {ve}"
+        )
 
 
 def __binary_helper_search(array, target, left_p, right_p):
@@ -265,7 +335,9 @@ def __binary_helper_search(array, target, left_p, right_p):
         else:
             return __binary_helper_search(array, target, mid_point + 1, right_p)
     except ValueError as ve:
-        raise OpheliaUtilitiesException(f"An error occurred on __binary_helper_search() private method: {ve}")
+        raise OpheliaUtilitiesException(
+            f"An error occurred on __binary_helper_search() private method: {ve}"
+        )
 
 
 def binary_search(array: list, target):
@@ -288,7 +360,9 @@ def century_from_year(yr: int):
     try:
         return (yr - 1) // 100 + 1
     except ArithmeticError as ae:
-        raise OpheliaUtilitiesException(f"An error occurred on century_from_year() method: {ae}")
+        raise OpheliaUtilitiesException(
+            f"An error occurred on century_from_year() method: {ae}"
+        )
 
 
 @lru_cache(maxsize=30)
@@ -302,7 +376,9 @@ def simple_average(series: List[float]):
         logger.info("Compute Simple Average")
         return reduce(lambda a, b: a + b, series) / len(series)
     except ArithmeticError as ae:
-        raise OpheliaUtilitiesException(f"An error occurred on simple_average() method: {ae}")
+        raise OpheliaUtilitiesException(
+            f"An error occurred on simple_average() method: {ae}"
+        )
 
 
 def delta_series(series: List[float]):
@@ -314,9 +390,13 @@ def delta_series(series: List[float]):
     try:
         y, y_n = np.array(series), len(series)
         y_hat = simple_average(series)
-        return float(2.048 * np.sqrt((1 / (y_n - 2)) * (sum((y - y_hat)**2) / np.var(y))))
+        return float(
+            2.048 * np.sqrt((1 / (y_n - 2)) * (sum((y - y_hat) ** 2) / np.var(y)))
+        )
     except ArithmeticError as ae:
-        raise OpheliaUtilitiesException(f"An error occurred on delta_series() method: {ae}")
+        raise OpheliaUtilitiesException(
+            f"An error occurred on delta_series() method: {ae}"
+        )
 
 
 @lru_cache(maxsize=30)
@@ -331,7 +411,9 @@ def simple_moving_average(series: List[float], n_moving_day: int):
         logger.info("SMA")
         return simple_average(series=series[-n_moving_day:])
     except ArithmeticError as ae:
-        raise OpheliaUtilitiesException(f"An error occurred on simple_moving_average() method: {ae}")
+        raise OpheliaUtilitiesException(
+            f"An error occurred on simple_moving_average() method: {ae}"
+        )
 
 
 def average(series: List[float], n_moving_day=None):
@@ -366,7 +448,9 @@ def weight_moving_average(series: List[float], weights: List[float]):
             result += series[-n - 1] * weights[n]
         return result
     except ArithmeticError as ae:
-        raise OpheliaUtilitiesException(f"An error occurred on weight_moving_average() method: {ae}")
+        raise OpheliaUtilitiesException(
+            f"An error occurred on weight_moving_average() method: {ae}"
+        )
 
 
 @lru_cache(maxsize=30)
@@ -380,10 +464,12 @@ def single_exp_smooth(series: List[float], alpha: float = 0.05):
     try:
         result = [series[0]]
         for n in range(1, len(series)):
-            result.append(alpha * series[n] + (1 - alpha) * result[n-1])
-        return {'single_exp_smooth': result, 'delta': delta_series(result)}
+            result.append(alpha * series[n] + (1 - alpha) * result[n - 1])
+        return {"single_exp_smooth": result, "delta": delta_series(result)}
     except ArithmeticError as ae:
-        raise OpheliaUtilitiesException(f"An error occurred on single_exp_smooth() method: {ae}")
+        raise OpheliaUtilitiesException(
+            f"An error occurred on single_exp_smooth() method: {ae}"
+        )
 
 
 @lru_cache(maxsize=30)
@@ -398,17 +484,24 @@ def double_exp_smooth(series: List[float], alpha: float = 0.05, beta: float = 0.
     try:
         result = [series[0]]
         level, trend = series[0], (series[1] - series[0])
-        for n in range(1, len(series)+1):
+        for n in range(1, len(series) + 1):
             if n >= len(series):
                 value = result[-1]
             else:
                 value = series[n]
-            last_level, level = level, (alpha * value + (1-alpha) * (level + trend))
-            trend = beta * (level - last_level) + (1-beta) * trend
+            last_level, level = level, (alpha * value + (1 - alpha) * (level + trend))
+            trend = beta * (level - last_level) + (1 - beta) * trend
             result.append(level + trend)
-        return {'double_exp_smooth': result, 'level': level, 'trend': trend, 'delta': delta_series(result)}
+        return {
+            "double_exp_smooth": result,
+            "level": level,
+            "trend": trend,
+            "delta": delta_series(result),
+        }
     except ArithmeticError as ae:
-        raise OpheliaUtilitiesException(f"An error occurred on double_exp_smooth() method: {ae}")
+        raise OpheliaUtilitiesException(
+            f"An error occurred on double_exp_smooth() method: {ae}"
+        )
 
 
 @lru_cache(maxsize=30)
@@ -419,7 +512,9 @@ def __initial_trend(series, series_len):
             init_trend += float(series[i + series_len] - series[i]) / series_len
         return init_trend / series_len
     except ArithmeticError as ae:
-        raise OpheliaUtilitiesException(f"An error occurred on __initial_trend() private method: {ae}")
+        raise OpheliaUtilitiesException(
+            f"An error occurred on __initial_trend() private method: {ae}"
+        )
 
 
 def initial_seasonal_components(series: List[float], slen: int = 15):
@@ -434,20 +529,30 @@ def initial_seasonal_components(series: List[float], slen: int = 15):
         season_averages = []
         n_seasons = int(len(series) / slen)
         for n in range(n_seasons):
-            season_averages.append(sum(series[slen * n:slen * n + slen]) / float(slen))
+            season_averages.append(
+                sum(series[slen * n : slen * n + slen]) / float(slen)
+            )
         for i in range(slen):
             sum_val_over_avg = 0.0
             for j in range(n_seasons):
                 sum_val_over_avg += series[slen * j + i] - season_averages[j]
             seasonal[i] = sum_val_over_avg / n_seasons
-        return {'season': seasonal, 'season_avg': season_averages}
+        return {"season": seasonal, "season_avg": season_averages}
     except ArithmeticError as ae:
-        raise OpheliaUtilitiesException(f"An error occurred on initial_seasonal_components() method: {ae}")
+        raise OpheliaUtilitiesException(
+            f"An error occurred on initial_seasonal_components() method: {ae}"
+        )
 
 
 @lru_cache(maxsize=30)
-def triple_exp_smooth(series: List[float], n_pred: int = 10, slen: int = 15,
-                      gamma: float = 0.05, alpha: float = 0.05, beta: float = 0.005):
+def triple_exp_smooth(
+    series: List[float],
+    n_pred: int = 10,
+    slen: int = 15,
+    gamma: float = 0.05,
+    alpha: float = 0.05,
+    beta: float = 0.005,
+):
     """
     Compute triple exponential smooth series (Holt Winters) with alpha data smooth factor,
     beta trend smooth factor and gamma seasonal change smoothing factor.
@@ -464,7 +569,7 @@ def triple_exp_smooth(series: List[float], n_pred: int = 10, slen: int = 15,
         result = []
         smooth = series[0]
         trend = __initial_trend(series, slen)
-        seasonal = initial_seasonal_components(series, slen)['season']
+        seasonal = initial_seasonal_components(series, slen)["season"]
         for i in range(len(series) + n_pred):
             if i == 0:
                 result.append(series[0])
@@ -474,15 +579,26 @@ def triple_exp_smooth(series: List[float], n_pred: int = 10, slen: int = 15,
                 result.append((smooth + m * trend) + seasonal[i % slen])
             else:
                 val = series[i]
-                last_smooth, smooth = smooth, alpha * (val - seasonal[i % slen]) + (1 - alpha) * (smooth + trend)
+                last_smooth, smooth = smooth, alpha * (val - seasonal[i % slen]) + (
+                    1 - alpha
+                ) * (smooth + trend)
                 trend = beta * (smooth - last_smooth) + (1 - beta) * trend
-                seasonal[i % slen] = gamma * (val - smooth) + (1 - gamma) * seasonal[i % slen]
+                seasonal[i % slen] = (
+                    gamma * (val - smooth) + (1 - gamma) * seasonal[i % slen]
+                )
                 result.append(smooth + trend + seasonal[i % slen])
         delta = delta_series(result)
-        return {'triple_exp_smooth': result, 'trend': trend,
-                'season': seasonal, 'smooth': smooth, 'delta': delta}
+        return {
+            "triple_exp_smooth": result,
+            "trend": trend,
+            "season": seasonal,
+            "smooth": smooth,
+            "delta": delta,
+        }
     except ArithmeticError as ae:
-        raise OpheliaUtilitiesException(f"An error occurred on triple_exp_smooth() method: {ae}")
+        raise OpheliaUtilitiesException(
+            f"An error occurred on triple_exp_smooth() method: {ae}"
+        )
 
 
 def row_indexing(df, sort_by: str, is_desc=True):
@@ -497,29 +613,43 @@ def row_indexing(df, sort_by: str, is_desc=True):
         data = df.orderBy(desc(sort_by)) if is_desc else df.orderBy(asc(sort_by))
         field_name = sort_by.split("_")[0] + "_index"
         schema = StructType(
-            data.schema.fields + [
-                StructField(name=field_name, dataType=LongType(), nullable=False)
-            ]
+            data.schema.fields
+            + [StructField(name=field_name, dataType=LongType(), nullable=False)]
         )
         logger.info("Indexing Row RDD")
-        return data.rdd.zipWithIndex().map(lambda row: Row(*list(row[0]) + [row[1]])).toDF(schema)
+        return (
+            data.rdd.zipWithIndex()
+            .map(lambda row: Row(*list(row[0]) + [row[1]]))
+            .toDF(schema)
+        )
     except Exception as e:
-        raise OpheliaUtilitiesException(f"An error occurred on row_indexing() method: {e}")
+        raise OpheliaUtilitiesException(
+            f"An error occurred on row_indexing() method: {e}"
+        )
 
 
 def __list_match_sign(lst):
-    return [sign for sign in lst
-            if sign == '=='
-            or sign == '!='
-            or sign == '>='
-            or sign == '<='
-            or sign == '>'
-            or sign == '<']
+    return [
+        sign
+        for sign in lst
+        if sign == "=="
+        or sign == "!="
+        or sign == ">="
+        or sign == "<="
+        or sign == ">"
+        or sign == "<"
+    ]
 
 
 def __spark_condition_col_dict(w_col, c_col):
-    return {'==': col(w_col) == c_col, '!=': col(w_col) != c_col, '>=': col(w_col) >= c_col,
-            '<=': col(w_col) <= c_col, '>': col(w_col) > c_col, '<': col(w_col) < c_col}
+    return {
+        "==": col(w_col) == c_col,
+        "!=": col(w_col) != c_col,
+        ">=": col(w_col) >= c_col,
+        "<=": col(w_col) <= c_col,
+        ">": col(w_col) > c_col,
+        "<": col(w_col) < c_col,
+    }
 
 
 def string_match(string_condition: str):
@@ -529,11 +659,13 @@ def string_match(string_condition: str):
     :return: Python dict with spark row match condition
     """
     try:
-        str_split = string_condition.split(' ')
+        str_split = string_condition.split(" ")
         match_op = __list_match_sign(str_split)
         search_index_condition_sign = [str_split.index(op) for op in match_op]
-        where_col = str_split[search_index_condition_sign[0]-1]
-        condition = str_split[search_index_condition_sign[0]+1]
+        where_col = str_split[search_index_condition_sign[0] - 1]
+        condition = str_split[search_index_condition_sign[0] + 1]
         return __spark_condition_col_dict(where_col, condition)[match_op[0]]
     except Exception as e:
-        raise OpheliaUtilitiesException(f"An error occurred on string_match() method: {e}")
+        raise OpheliaUtilitiesException(
+            f"An error occurred on string_match() method: {e}"
+        )

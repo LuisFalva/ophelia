@@ -1,7 +1,8 @@
 import unittest
 
 from pyspark.sql import SparkSession
-from ophelia.generic import union_all, split_date, row_index
+
+from ophelia.generic import row_index, split_date, union_all
 
 
 class GenericTest(unittest.TestCase):
@@ -36,10 +37,12 @@ class GenericTest(unittest.TestCase):
 
     def test_split_date(self):
         # Create a test dataframe with a date column
-        df = self.spark.createDataFrame([(1, '2022-01-01'), (2, '2022-02-01')], ["col1", "col_date"])
+        df = self.spark.createDataFrame(
+            [(1, "2022-01-01"), (2, "2022-02-01")], ["col1", "col_date"]
+        )
 
         # Call the split_date function with the test dataframe and date column
-        result = split_date(df, 'col_date')
+        result = split_date(df, "col_date")
 
         # Verify that the returned dataframe has the correct number of rows
         self.assertEqual(result.count(), 2)
@@ -48,25 +51,25 @@ class GenericTest(unittest.TestCase):
         self.assertEqual(result.schema, df.schema)
 
         # Verify that the date column has been split into year, month, and day columns
-        self.assertIn('col_date_year', result.columns)
-        self.assertIn('col_date_month', result.columns)
-        self.assertIn('col_date_day', result.columns)
+        self.assertIn("col_date_year", result.columns)
+        self.assertIn("col_date_month", result.columns)
+        self.assertIn("col_date_day", result.columns)
 
         # Verify that the year, month, and day columns have the correct values
         rows = result.collect()
-        self.assertEqual(rows[0]['col_date_year'], 2022)
-        self.assertEqual(rows[0]['col_date_month'], 1)
-        self.assertEqual(rows[0]['col_date_day'], 1)
-        self.assertEqual(rows[1]['col_date_year'], 2022)
-        self.assertEqual(rows[1]['col_date_month'], 2)
-        self.assertEqual(rows[1]['col_date_day'], 1)
+        self.assertEqual(rows[0]["col_date_year"], 2022)
+        self.assertEqual(rows[0]["col_date_month"], 1)
+        self.assertEqual(rows[0]["col_date_day"], 1)
+        self.assertEqual(rows[1]["col_date_year"], 2022)
+        self.assertEqual(rows[1]["col_date_month"], 2)
+        self.assertEqual(rows[1]["col_date_day"], 1)
 
     def test_row_index(self):
         # Create a test dataframe with an order column
         df = self.spark.createDataFrame([(1, 3), (2, 2), (3, 1)], ["col1", "col_order"])
 
         # Call the row_index function with the test dataframe and order column
-        result = row_index(df, 'col_order')
+        result = row_index(df, "col_order")
 
         # Verify that the returned dataframe has the correct number of rows
         self.assertEqual(result.count(), 3)
@@ -75,19 +78,19 @@ class GenericTest(unittest.TestCase):
         self.assertEqual(result.schema, df.schema)
 
         # Verify that the row_num column has been added
-        self.assertIn('row_num', result.columns)
+        self.assertIn("row_num", result.columns)
 
         # Verify that the row_num column has the correct values
         rows = result.collect()
-        self.assertEqual(rows[0]['row_num'], 1)
-        self.assertEqual(rows[1]['row_num'], 2)
-        self.assertEqual(rows[2]['row_num'], 3)
+        self.assertEqual(rows[0]["row_num"], 1)
+        self.assertEqual(rows[1]["row_num"], 2)
+        self.assertEqual(rows[2]["row_num"], 3)
 
         # Verify that the rows are ordered correctly
-        self.assertEqual(rows[0]['col1'], 3)
-        self.assertEqual(rows[1]['col1'], 2)
-        self.assertEqual(rows[2]['col1'], 1)
+        self.assertEqual(rows[0]["col1"], 3)
+        self.assertEqual(rows[1]["col1"], 2)
+        self.assertEqual(rows[2]["col1"], 1)
 
 
-if __name__ == '__main__':
-  unittest.main()
+if __name__ == "__main__":
+    unittest.main()

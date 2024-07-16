@@ -1,9 +1,12 @@
 import random
+
 import numpy as np
-from sklearn import neighbors
 from pyspark.sql import DataFrame
-from ..feature_miner import BuildVectorAssembler, SparkToNumpy, NumpyToVector
+from sklearn import neighbors
+
 from ophelia import InstanceError
+
+from ..feature_miner import BuildVectorAssembler, NumpyToVector, SparkToNumpy
 
 
 class SyntheticSample:
@@ -24,7 +27,9 @@ class SyntheticSample:
         InstanceError(target_name, str)
         column_names = list(df.drop(target_name).columns)
         vec_transform = BuildVectorAssembler(column_names).transform(df)
-        return vec_transform.select('features', (vec_transform[target_name]).alias("label"))
+        return vec_transform.select(
+            "features", (vec_transform[target_name]).alias("label")
+        )
 
     @staticmethod
     def split_target(df, field, minor=1, major=0):
@@ -98,9 +103,9 @@ class SyntheticSample:
         pct_over = int(min_pct / 100)
         while len(min_arr) > counter:
             for i in range(pct_over):
-                random_neighbor = random.randint(0, len(neighbor_list)-1)
+                random_neighbor = random.randint(0, len(neighbor_list) - 1)
                 diff = neighbor_list[random_neighbor][0] - min_arr[i][0]
-                new_record = (min_arr[i][0] + random.random() * diff)
+                new_record = min_arr[i][0] + random.random() * diff
                 smo.insert(0, new_record)
             counter += 1
         return np.array(smo)
@@ -121,7 +126,9 @@ class SyntheticSample:
         return minor_target
 
     @staticmethod
-    def __build_synthetic_minority_over_sample(df, k, alg, pct, spark, label='label', features='features'):
+    def __build_synthetic_minority_over_sample(
+        df, k, alg, pct, spark, label="label", features="features"
+    ):
         data_min = SyntheticSample.__build_split_df(df, label, "minor")
         feat_mat = SyntheticSample.spark_to_numpy(data_min, features)
         neighbor = SyntheticSample.__build_neighbor_list(k, alg, feat_mat)
@@ -154,11 +161,15 @@ class SyntheticSample:
         InstanceError(pct_over_min, int)
         InstanceError(pct_under_max, int)
         if (pct_under_max < 10) | (pct_under_max > 100):
-            raise ValueError("value of variable 'pct_under_max' must be 10 <= pct <= 100")
+            raise ValueError(
+                "value of variable 'pct_under_max' must be 10 <= pct <= 100"
+            )
         if pct_over_min < 100:
             raise ValueError("value of variable 'min_pct' must be >= 100")
-        if alg not in ('auto', 'brute', 'kd_tree', 'ball_tree'):
-            raise ValueError("unrecognized algorithm: '{}'".format(alg))
-        new_row = SyntheticSample.__build_synthetic_minority_over_sample(df, k, alg, pct_over_min, spark)
+        if alg not in ("auto", "brute", "kd_tree", "ball_tree"):
+            raise ValueError(f"unrecognized algorithm: '{alg}'")
+        new_row = SyntheticSample.__build_synthetic_minority_over_sample(
+            df, k, alg, pct_over_min, spark
+        )
         smo_data_df = SyntheticSample.numpy_to_spark(spark, new_row)
         return SyntheticSample.__build_sample(df, smo_data_df, pct_under_max)

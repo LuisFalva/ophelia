@@ -1,6 +1,8 @@
 from pyspark.sql import DataFrame
-from .._logger import OpheliaLogger
+
 from ophelia import PathWrite
+
+from .._logger import OpheliaLogger
 
 
 class Write:
@@ -9,8 +11,15 @@ class Write:
         self.__logger = OpheliaLogger()
         self.__path = PathWrite()
 
-    def write_parquet(self, df: DataFrame, output_type: str, project: str,
-                      part: str = None, mode: str = None, rep: int = None) -> str:
+    def write_parquet(
+        self,
+        df: DataFrame,
+        output_type: str,
+        project: str,
+        part: str = None,
+        mode: str = None,
+        rep: int = None,
+    ) -> str:
         """
         Read file function helps to read multi-format file in spark
         :param df: spark DataFrame to write in parquet
@@ -42,15 +51,29 @@ class Write:
             self.__logger.info(f"New Parquet Path: {path}{part}=yyy-MM-dd")
             return path
 
-    def write_json(self, df: DataFrame, output_type: str, project: str,
-                   part: str = None, mode: str = None, rep: int = None) -> str:
+    def write_json(
+        self,
+        df: DataFrame,
+        output_type: str,
+        project: str,
+        part: str = None,
+        mode: str = None,
+        rep: int = None,
+    ) -> str:
         path = self.__path.WritePath(output_type, project)
         df.repartition(rep).write.mode(mode).partitionBy(part).json(path)
         self.__logger.info("Write Json")
         return path
 
-    def write_csv(self, df: DataFrame, output_type: str, project: str,
-                  part: str = None, mode: str = None, rep: int = None) -> str:
+    def write_csv(
+        self,
+        df: DataFrame,
+        output_type: str,
+        project: str,
+        part: str = None,
+        mode: str = None,
+        rep: int = None,
+    ) -> str:
         path = self.__path.WritePath(output_type, project)
         df.repartition(rep).write.mode(mode).partitionBy(part).csv(path)
         self.__logger.info("Write CSV")

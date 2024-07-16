@@ -1,9 +1,13 @@
 import numpy as np
-from pyspark.sql import DataFrame
 from pyspark.ml import Transformer
-from pyspark.ml.linalg import DenseVector, DenseMatrix
-from pyspark.ml.classification import LogisticRegression, LogisticRegressionModel, \
-    BinaryLogisticRegressionTrainingSummary, RandomForestClassificationModel
+from pyspark.ml.classification import (
+    BinaryLogisticRegressionTrainingSummary,
+    LogisticRegression,
+    LogisticRegressionModel,
+    RandomForestClassificationModel,
+)
+from pyspark.ml.linalg import DenseMatrix, DenseVector
+from pyspark.sql import DataFrame
 
 
 class LogitRegression:
@@ -31,26 +35,42 @@ class LogitRegression:
         lower_bounds_intercepts = kargs.get("lowerBoundsOnIntercepts")
         upper_bounds_intercepts = kargs.get("upperBoundsOnIntercepts")
         conf = {
-            "features_col": 'features' if features_col is None else features_col,
-            "label_col": 'label' if label_col is None else label_col,
+            "features_col": "features" if features_col is None else features_col,
+            "label_col": "label" if label_col is None else label_col,
             "max_iter": 10 if max_iter is None else max_iter,
-            "prediction_col": 'prediction' if prediction_col is None else prediction_col,
+            "prediction_col": (
+                "prediction" if prediction_col is None else prediction_col
+            ),
             "reg_param": 0.0 if reg_param is None else reg_param,
-            "elastic_net_param": 0.0 if elastic_net_param is None else elastic_net_param,
+            "elastic_net_param": (
+                0.0 if elastic_net_param is None else elastic_net_param
+            ),
             "tolerance": 1e-6 if tolerance is None else tolerance,
             "fit_intercept": True if fit_intercept is None else fit_intercept,
             "threshold": 0.5 if threshold is None else threshold,
             "thresholds": None if thresholds is None else thresholds,
-            "probability_col": 'probability' if probability_col is None else probability_col,
-            "raw_prediction_col": 'rawPrediction' if raw_prediction_col is None else raw_prediction_col,
+            "probability_col": (
+                "probability" if probability_col is None else probability_col
+            ),
+            "raw_prediction_col": (
+                "rawPrediction" if raw_prediction_col is None else raw_prediction_col
+            ),
             "standardization": True if standardization is None else standardization,
             "weight_col": None if weight_col is None else weight_col,
             "aggregation_depth": 2 if aggregation_depth is None else aggregation_depth,
-            "family": 'auto' if family is None else family,
-            "lower_bounds_coefficients": None if lower_bounds_coefficients is None else lower_bounds_coefficients,
-            "upper_bounds_coefficients": None if upper_bounds_coefficients is None else upper_bounds_coefficients,
-            "lower_bounds_intercepts": None if lower_bounds_intercepts is None else lower_bounds_intercepts,
-            "upper_bounds_intercepts": None if upper_bounds_intercepts is None else upper_bounds_intercepts
+            "family": "auto" if family is None else family,
+            "lower_bounds_coefficients": (
+                None if lower_bounds_coefficients is None else lower_bounds_coefficients
+            ),
+            "upper_bounds_coefficients": (
+                None if upper_bounds_coefficients is None else upper_bounds_coefficients
+            ),
+            "lower_bounds_intercepts": (
+                None if lower_bounds_intercepts is None else lower_bounds_intercepts
+            ),
+            "upper_bounds_intercepts": (
+                None if upper_bounds_intercepts is None else upper_bounds_intercepts
+            ),
         }
         return conf
 
@@ -76,7 +96,7 @@ class LogitRegression:
             lowerBoundsOnCoefficients=config_params["lower_bounds_coefficients"],
             upperBoundsOnCoefficients=config_params["upper_bounds_coefficients"],
             lowerBoundsOnIntercepts=config_params["lower_bounds_intercepts"],
-            upperBoundsOnIntercepts=config_params["upper_bounds_intercepts"]
+            upperBoundsOnIntercepts=config_params["upper_bounds_intercepts"],
         )
         return {"model_instance": lr, "model_params": config_params}
 
@@ -100,7 +120,9 @@ class LogitRegression:
         return np.sort(coefficient_vector)
 
     @staticmethod
-    def summary(model_train: LogisticRegressionModel) -> BinaryLogisticRegressionTrainingSummary:
+    def summary(
+        model_train: LogisticRegressionModel,
+    ) -> BinaryLogisticRegressionTrainingSummary:
         return model_train.summary
 
     @staticmethod
@@ -120,8 +142,10 @@ class LogitRegression:
 
 
 class RandomForestModel(Transformer):
-    def __init__(self, num_trees=20, max_depth=5, label_col="label", features_col="features"):
-        super(RandomForestModel, self).__init__()
+    def __init__(
+        self, num_trees=20, max_depth=5, label_col="label", features_col="features"
+    ):
+        super().__init__()
         self.num_trees = num_trees
         self.max_depth = max_depth
         self.label_col = label_col
@@ -130,7 +154,7 @@ class RandomForestModel(Transformer):
             numTrees=self.num_trees,
             maxDepth=self.max_depth,
             labelCol=self.label_col,
-            featuresCol=self.features_col
+            featuresCol=self.features_col,
         )
 
     def _transform(self, dataset):

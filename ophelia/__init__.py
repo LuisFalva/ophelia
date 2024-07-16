@@ -1,17 +1,16 @@
-from pyspark.sql.functions import (
-    count, first, grouping,
-    mean, stddev, covar_pop,
-    variance, coalesce,
-    sum as spark_sum,
-    min as spark_min,
-    max as spark_max
-)
+from pyspark.sql.functions import coalesce, count, covar_pop, first, grouping
+from pyspark.sql.functions import max as spark_max
+from pyspark.sql.functions import mean
+from pyspark.sql.functions import min as spark_min
+from pyspark.sql.functions import stddev
+from pyspark.sql.functions import sum as spark_sum
+from pyspark.sql.functions import variance
 
 """Top-level package for ophelia."""
 
 __author__ = """LuisFalva"""
-__email__ = 'falvaluis@gmail.com'
-__version__ = '0.1.0'
+__email__ = "falvaluis@gmail.com"
+__version__ = "0.1.0"
 __all__ = [
     "SparkMethods",
     "ClassType",
@@ -27,23 +26,23 @@ __all__ = [
     "OpheliaSparkSessionException",
     "OpheliaSparkWrapperException",
     "OpheliaWriteFileException",
-    "OpheliaFunctionsException"
+    "OpheliaFunctionsException",
 ]
 
 
 def SparkMethods():
     return {
-        'sum': spark_sum,
-        'min': spark_min,
-        'max': spark_max,
-        'mean': mean,
-        'stddev': stddev,
-        'var': variance,
-        'first': first,
-        'count': count,
-        'coalesce': coalesce,
-        'covar_pop': covar_pop,
-        'grouping': grouping
+        "sum": spark_sum,
+        "min": spark_min,
+        "max": spark_max,
+        "mean": mean,
+        "stddev": stddev,
+        "var": variance,
+        "first": first,
+        "count": count,
+        "coalesce": coalesce,
+        "covar_pop": covar_pop,
+        "grouping": grouping,
     }
 
 
@@ -57,7 +56,7 @@ def ClassName(dtype):
 
 def InstanceError(obj, t):
     if not isinstance(obj, t):
-        raise TypeError("Unsupported Type {}".format(ClassName(obj)))
+        raise TypeError(f"Unsupported Type {ClassName(obj)}")
     return None
 
 
@@ -96,6 +95,7 @@ class OpheliaMLException(Exception):
     """
     Ophelia ML Exception
     """
+
     pass
 
 
@@ -103,6 +103,7 @@ class OpheliaMLMinerException(Exception):
     """
     Ophelia ML Miner Exception
     """
+
     pass
 
 
@@ -110,6 +111,7 @@ class OpheliaReadFileException(Exception):
     """
     Ophelia Read File Exception
     """
+
     pass
 
 
@@ -117,6 +119,7 @@ class OpheliaSparkSessionException(Exception):
     """
     Ophelia Spark Session Exception
     """
+
     pass
 
 
@@ -124,6 +127,7 @@ class OpheliaUtilitiesException(Exception):
     """
     Ophelia Utilities Exception
     """
+
     pass
 
 
@@ -131,6 +135,7 @@ class OpheliaSparkWrapperException(Exception):
     """
     Ophelia Spark Wrapper Exception
     """
+
     pass
 
 
@@ -138,6 +143,7 @@ class OpheliaWriteFileException(Exception):
     """
     Ophelia Write File Exception
     """
+
     pass
 
 
@@ -145,4 +151,5 @@ class OpheliaFunctionsException(Exception):
     """
     Ophelia Functions Exception
     """
+
     pass

@@ -1,22 +1,26 @@
-#   Pull Python 3.7 slim buster image as base image for Ophelia
-FROM godatadriven/pyspark:latest AS builder
-#   Set name of working dir. By convention 'app'
-WORKDIR /ophelia
-#   Copy all txt requirements files for ophelia, dev and test.
-COPY requirements.txt requirements_dev.txt requirements_test.txt ./
-#   Copy *.md README files for setup.py configuration.
-RUN pip install --no-cache-dir -r requirements_dev.txt
-#   Copy Ophelia source
-COPY ophelia .
-#   Copy Ophelia test source
-COPY tests .
+FROM python:3.9-slim-buster AS builder
 
-#   Package Step
-FROM python:3.7-slim-buster AS package
-#   Set name of working dir. By convention 'app'
-WORKDIR /ophelia
-#   Add curl
-RUN apt update && apt install -y curl
-#   Copy files from builder container
-COPY --from=builder /ophelia .
+RUN apt-get update && apt-get install -y curl && apt-get clean
+RUN curl -sSL https://install.python-poetry.org | python3 -
 
+ENV PATH="/root/.local/bin:$PATH"
+
+WORKDIR /ophelia
+
+COPY pyproject.toml poetry.lock ./
+
+RUN pip install --upgrade pip
+RUN poetry config virtualenvs.create false
+RUN poetry install --no-dev --no-interaction --no-ansi
+
+COPY ophelia ./ophelia
+
+FROM python:3.9-slim-buster
+
+WORKDIR /ophelia
+
+COPY --from=builder /ophelia /ophelia
+
+EXPOSE 8000
+
+CMD ["python", "-m", "ophelia"]

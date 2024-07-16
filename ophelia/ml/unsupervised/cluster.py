@@ -1,5 +1,5 @@
-from pyspark.ml.clustering import FuzzyKMeans, BisectingKMeans
 from pyspark.ml import Transformer
+from pyspark.ml.clustering import BisectingKMeans, FuzzyKMeans
 from pyspark.ml.linalg import DenseVector, SparseVector
 from pyspark.sql.functions import udf
 
@@ -32,6 +32,7 @@ class FuzzyClusterMeans(Transformer):
     model: pyspark.ml.clustering.FuzzyKMeansModel
         The trained FuzzyKMeans model.
     """
+
     def __init__(self, data, k, m, max_iter=20, tol=1e-4):
         self.data = data
         self.k = k
@@ -47,7 +48,9 @@ class FuzzyClusterMeans(Transformer):
         pyspark.ml.clustering.FuzzyKMeansModel:
             The trained FuzzyKMeans model.
         """
-        fuzzy_kmeans = FuzzyKMeans(k=self.k, m=self.m, maxIter=self.max_iter, tol=self.tol)
+        fuzzy_kmeans = FuzzyKMeans(
+            k=self.k, m=self.m, maxIter=self.max_iter, tol=self.tol
+        )
         model = fuzzy_kmeans.fit(self.data)
         return model
 
@@ -90,8 +93,9 @@ class BKM(Transformer):
     model = bkm.fit(data)
     clustered_data = bkm.transform(data)
     """
-    def __init__(self, k=2, max_iter=20, seed=None, features_col='features'):
-        super(BKM, self).__init__()
+
+    def __init__(self, k=2, max_iter=20, seed=None, features_col="features"):
+        super().__init__()
         self.k = k
         self.max_iter = max_iter
         self.seed = seed
@@ -112,7 +116,12 @@ class BKM(Transformer):
         model: pyspark.ml.clustering.BisectingKMeansModel
             The fitted BKM model.
         """
-        bkm = BisectingKMeans(k=self.k, maxIter=self.max_iter, seed=self.seed, featuresCol=self.features_col)
+        bkm = BisectingKMeans(
+            k=self.k,
+            maxIter=self.max_iter,
+            seed=self.seed,
+            featuresCol=self.features_col,
+        )
         self.model = bkm.fit(data)
         return self.model
 
@@ -165,12 +174,12 @@ class HierarchicalCluster(Transformer):
 
 class HiddenMarkov(Transformer):
     def __init__(
-            self,
-            num_states,
-            num_observations,
-            transition_probabilities,
-            observation_probabilities,
-            initial_probabilities
+        self,
+        num_states,
+        num_observations,
+        transition_probabilities,
+        observation_probabilities,
+        initial_probabilities,
     ):
         self.num_states = num_states
         self.num_observations = num_observations
@@ -182,24 +191,37 @@ class HiddenMarkov(Transformer):
         T = len(observations)
         alpha = [[0.0 for _ in range(self.num_states)] for _ in range(T)]
         alpha[0] = [
-            self.initial_probabilities[i] *
-            self.observation_probabilities[i][observations[0]] for i in range(self.num_states)]
+            self.initial_probabilities[i]
+            * self.observation_probabilities[i][observations[0]]
+            for i in range(self.num_states)
+        ]
         for t in range(1, T):
             for j in range(self.num_states):
-                alpha[t][j] = sum([alpha[t-1][i] *
-                                   self.transition_probabilities[i][j] for i in range(self.num_states)]) * \
-                              self.observation_probabilities[j][observations[t]]
+                alpha[t][j] = (
+                    sum(
+                        [
+                            alpha[t - 1][i] * self.transition_probabilities[i][j]
+                            for i in range(self.num_states)
+                        ]
+                    )
+                    * self.observation_probabilities[j][observations[t]]
+                )
         return alpha
 
     def backward(self, observations):
         T = len(observations)
         beta = [[0.0 for _ in range(self.num_states)] for _ in range(T)]
-        beta[T-1] = [1.0 for _ in range(self.num_states)]
-        for t in range(T-2, -1, -1):
+        beta[T - 1] = [1.0 for _ in range(self.num_states)]
+        for t in range(T - 2, -1, -1):
             for i in range(self.num_states):
-                beta[t][i] = sum([self.transition_probabilities[i][j] *
-                                  self.observation_probabilities[j][observations[t+1]] *
-                                  beta[t+1][j] for j in range(self.num_states)])
+                beta[t][i] = sum(
+                    [
+                        self.transition_probabilities[i][j]
+                        * self.observation_probabilities[j][observations[t + 1]]
+                        * beta[t + 1][j]
+                        for j in range(self.num_states)
+                    ]
+                )
         return beta
 
     def viterbi(self, observations):
@@ -207,17 +229,27 @@ class HiddenMarkov(Transformer):
         delta = [[0.0 for _ in range(self.num_states)] for _ in range(T)]
         psi = [[0 for _ in range(self.num_states)] for _ in range(T)]
         delta[0] = [
-            self.initial_probabilities[i] *
-            self.observation_probabilities[i][observations[0]] for i in range(self.num_states)]
+            self.initial_probabilities[i]
+            * self.observation_probabilities[i][observations[0]]
+            for i in range(self.num_states)
+        ]
         for t in range(1, T):
             for j in range(self.num_states):
-                delta[t][j] = max([
-                    delta[t-1][i] * self.transition_probabilities[i][j] *
-                    self.observation_probabilities[j][observations[t]] for i in range(self.num_states)
-                ])
-                psi[t][j] = max([
-                    (delta[t-1][i] * self.transition_probabilities[i][j], i) for i in range(self.num_states)])[1]
-        path = [max([(delta[T-1][i], i) for i in range(self.num_states)])[1]]
-        for t in range(T-1, 0, -1):
+                delta[t][j] = max(
+                    [
+                        delta[t - 1][i]
+                        * self.transition_probabilities[i][j]
+                        * self.observation_probabilities[j][observations[t]]
+                        for i in range(self.num_states)
+                    ]
+                )
+                psi[t][j] = max(
+                    [
+                        (delta[t - 1][i] * self.transition_probabilities[i][j], i)
+                        for i in range(self.num_states)
+                    ]
+                )[1]
+        path = [max([(delta[T - 1][i], i) for i in range(self.num_states)])[1]]
+        for t in range(T - 1, 0, -1):
             path.insert(0, psi[t][path[0]])
         return path

@@ -1,10 +1,6 @@
-# [Ophelia](https://ophelia.readme.io/)
+# Welcome to [Ophelia](https://ophelia.readme.io/)
 
-*Ophelia* Hamlet's beloved beautiful woman (and is the name of the package too), is known because of her madness and immortal love for Hamlet; but Shakespeare's entire master piece does not do justice to her magnificent character.
-
-Ophelia is the epitome of goodness, brightness, and the elegance of simplicity.
-
-# Motivations 🚀
+## Motivations 🚀
 
 As Data Scientists or Data Analysts, we don't really want to waste too much time guessing how PySpark's framework may be used. Sometimes we just want a prompt answer instead of a full nice code. With that in mind, this project
 aims to help reduce the complexity of the analytical lifecycle for everyone who uses PySpark frequently.
