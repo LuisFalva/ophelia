@@ -1,7 +1,5 @@
 from pyspark.ml import Transformer
-from pyspark.ml.clustering import BisectingKMeans, FuzzyKMeans
-from pyspark.ml.linalg import DenseVector, SparseVector
-from pyspark.sql.functions import udf
+from pyspark.ml.clustering import BisectingKMeans
 
 
 class KMeansCluster(Transformer):
@@ -34,6 +32,7 @@ class FuzzyClusterMeans(Transformer):
     """
 
     def __init__(self, data, k, m, max_iter=20, tol=1e-4):
+        super().__init__()
         self.data = data
         self.k = k
         self.m = m
@@ -181,6 +180,7 @@ class HiddenMarkov(Transformer):
         observation_probabilities,
         initial_probabilities,
     ):
+        super().__init__()
         self.num_states = num_states
         self.num_observations = num_observations
         self.transition_probabilities = transition_probabilities
