@@ -4,7 +4,7 @@ PYTHON := python3
 PYTHONPATH := `pwd`
 
 # Docker variables
-DOCKER_USERNAME := tu_usuario  # Cambia 'tu_usuario' por tu nombre de usuario en Docker Hub
+DOCKER_USERNAME := luisfalva
 IMAGE := ophelia
 VERSION := latest
 
