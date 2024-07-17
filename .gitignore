@@ -26,3 +26,5 @@ dist
 
 # Tests
 *out
+.coverage
+htmlcov
