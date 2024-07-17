@@ -4,11 +4,11 @@ set -e  # Exit immediately if a command exits with a non-zero status.
 
 REPOSITORY_NAME="$1"
 IMAGE_TAG="$2"
-DOCKER_USERNAME="luisfalva"
+DOCKER_USERNAME="$3"
 
 # Check if repository name and image tag are provided
-if [ -z "$REPOSITORY_NAME" ] || [ -z "$IMAGE_TAG" ]; then
-  echo "Usage: $0 <repository_name> <image_tag>"
+if [ -z "$REPOSITORY_NAME" ] || [ -z "$IMAGE_TAG" ] || [ -z "$DOCKER_USERNAME" ]; then
+  echo "Usage: $0 <repository_name> <image_tag> <docker_username>"
   exit 1
 fi
 
