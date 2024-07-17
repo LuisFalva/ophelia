@@ -21,4 +21,4 @@ jobs:
     - name: Run build and push script
       run: |
         chmod +x ./build-push.sh
-        ./build-push.sh "ophelia" "latest" "luisfalva"
+        ./build-push.sh "ophelia_spark" "latest" "${{ secrets.DOCKER_USERNAME }}"

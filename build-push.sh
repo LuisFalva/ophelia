@@ -6,7 +6,7 @@ REPOSITORY_NAME="$1"
 IMAGE_TAG="$2"
 DOCKER_USERNAME="$3"
 
-# Check if repository name and image tag are provided
+# Check if repository name, image tag, and Docker username are provided
 if [ -z "$REPOSITORY_NAME" ] || [ -z "$IMAGE_TAG" ] || [ -z "$DOCKER_USERNAME" ]; then
   echo "Usage: $0 <repository_name> <image_tag> <docker_username>"
   exit 1
@@ -16,7 +16,7 @@ fi
 FULL_IMAGE_NAME="${DOCKER_USERNAME}/${REPOSITORY_NAME}:${IMAGE_TAG}"
 
 # Build the Docker image locally using docker 'buildx' for Apple M1/M2 architectures
-docker buildx build --platform linux/amd64 -t "${REPOSITORY_NAME}:${IMAGE_TAG}" -f Dockerfile .
+docker buildx build --platform linux/amd64 -t "${REPOSITORY_NAME}:${IMAGE_TAG}" -f Dockerfile --push .
 
 # Tag the Docker image with the full image name
 docker tag "${REPOSITORY_NAME}:${IMAGE_TAG}" "${FULL_IMAGE_NAME}"
