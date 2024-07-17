@@ -27,11 +27,8 @@ jobs:
     - name: Verify Docker Hub authentication
       run: docker info
     - name: Verify repository exists
-      run: docker pull $DOCKER_USERNAME/ophelia_spark:latest || echo "Repository does not exist yet. Proceeding to build and push."
+      run: docker pull $DOCKER_USERNAME/ophelia:latest || echo "Repository does not exist yet. Proceeding to build and push."
     - name: Run build and push script
       run: |
         chmod +x ./build-push.sh
-        ./build-push.sh "ophelia_spark" "latest" "$DOCKER_USERNAME"
-    - name: Handle missing secrets
-      if: ${{ secrets.DOCKER_USERNAME == '' || secrets.DOCKER_PASSWORD == '' }}
-      run: echo "Secrets are not available. Skipping Docker push."
+        ./build-push.sh "ophelia" "latest" "$DOCKER_USERNAME"
