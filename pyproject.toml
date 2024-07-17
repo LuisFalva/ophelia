@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "ophelia-spark"
-version = "0.1.0"
+version = "0.1.1"
 description = "Ophelia is a spark miner AI engine that builds data mining & ml pipelines with PySpark."
 authors = ["Luis Vargas <falvaluis@gmail.com>"]
 license = "Free for non-commercial use"
