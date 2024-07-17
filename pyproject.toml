@@ -3,7 +3,7 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "ophelia"
+name = "ophelia-spark"
 version = "0.1.0"
 description = "Ophelia is a spark miner AI engine that builds data mining & ml pipelines with PySpark."
 authors = ["Luis Vargas <falvaluis@gmail.com>"]
@@ -12,7 +12,7 @@ readme = "README.md"
 homepage = "https://github.com/LuisFalva/ophelia"
 repository = "https://github.com/LuisFalva/ophelia"
 documentation = "https://github.com/LuisFalva/ophelia"
-keywords = ["ophelia"]
+keywords = ["ophelia-spark"]
 classifiers = [
     "Development Status :: 1 - Planning",
     "Intended Audience :: Developers",

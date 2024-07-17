@@ -3,8 +3,8 @@ from datetime import date
 import pandas as pd
 from pyspark.sql import DataFrame, SparkSession
 
-from ophelia import FormatRead, OpheliaReadFileException
-from ophelia.generic import union_all
+from ophelia_spark import FormatRead, OpheliaReadFileException
+from ophelia_spark.generic import union_all
 
 from .._logger import OpheliaLogger
 

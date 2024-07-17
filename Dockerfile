@@ -13,13 +13,13 @@ RUN pip install --upgrade pip
 RUN poetry config virtualenvs.create false
 RUN poetry install --no-dev --no-interaction --no-ansi
 
-COPY ophelia ./ophelia
+COPY ophelia_spark ./ophelia
 
 FROM python:3.9-slim-buster
 
 WORKDIR /ophelia
 
-COPY --from=builder /ophelia /ophelia
+COPY --from=builder /ophelia_spark /ophelia
 
 EXPOSE 8000
 

@@ -4,7 +4,7 @@ import numpy as np
 from pyspark.sql import DataFrame
 from sklearn import neighbors
 
-from ophelia import InstanceError
+from ophelia_spark import InstanceError
 
 from ..feature_miner import BuildVectorAssembler, NumpyToVector, SparkToNumpy
 

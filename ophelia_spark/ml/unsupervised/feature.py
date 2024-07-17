@@ -6,8 +6,8 @@ from pyspark.mllib.linalg.distributed import IndexedRow, IndexedRowMatrix
 from pyspark.mllib.util import MLUtils
 from pyspark.sql.functions import monotonically_increasing_id, udf
 
-from ophelia import OpheliaMLException
-from ophelia.ml.feature_miner import BuildStandardScaler, BuildVectorAssembler
+from ophelia_spark import OpheliaMLException
+from ophelia_spark.ml.feature_miner import BuildStandardScaler, BuildVectorAssembler
 
 from ..._logger import OpheliaLogger
 
@@ -68,7 +68,7 @@ class SingularVD(Transformer):
         df,
         with_mean=True,
         with_std=True,
-        model_path="data/master/ophelia/out/model/save/StandardScalerModel",
+        model_path="data/master/ophelia_spark/out/model/save/StandardScalerModel",
     ):
         """
         Standardizes features by removing the mean and scaling to unit variance using column summary
@@ -229,7 +229,7 @@ class SingularVD(Transformer):
             self.__foreach_pc_var_print(self.find_k, tot_var)
             self.__logger.info(f"Fit Optimal PCA Model With K={optimal_k} Components")
             return PCAnalysis(
-                optimal_k, "data/master/ophelia/out/model/save/OptimalPCAModel"
+                optimal_k, "data/master/ophelia_spark/out/model/save/OptimalPCAModel"
             )
         except TypeError as te:
             raise OpheliaMLException(

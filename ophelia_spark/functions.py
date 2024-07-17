@@ -31,17 +31,17 @@ from pyspark.sql.functions import row_number, stddev, struct, variance, when
 from pyspark.sql.types import StringType, StructField, StructType
 from quadprog import solve_qp
 
-from ophelia import OpheliaFunctionsException, SparkMethods
-from ophelia._logger import OpheliaLogger
-from ophelia._wrapper import DataFrameWrapper
-from ophelia.generic import (
+from ophelia_spark import OpheliaFunctionsException, SparkMethods
+from ophelia_spark._logger import OpheliaLogger
+from ophelia_spark._wrapper import DataFrameWrapper
+from ophelia_spark.generic import (
     feature_pick,
     regex_expr,
     remove_duplicate_element,
     union_all,
 )
-from ophelia.ml.optim.utils import LBFGS
-from ophelia.session.spark import OpheliaSpark
+from ophelia_spark.ml.optim.utils import LBFGS
+from ophelia_spark.session.spark import OpheliaSpark
 
 __all__ = [
     "NullDebugWrapper",

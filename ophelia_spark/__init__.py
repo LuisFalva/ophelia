@@ -6,7 +6,7 @@ from pyspark.sql.functions import stddev
 from pyspark.sql.functions import sum as spark_sum
 from pyspark.sql.functions import variance
 
-"""Top-level package for ophelia."""
+"""Top-level package for ophelia_spark."""
 
 __author__ = """LuisFalva"""
 __email__ = "falvaluis@gmail.com"
@@ -82,7 +82,7 @@ class FormatWrite:
 class PathWrite:
     def __init__(self):
         self.root = "data"
-        self.dir = "ophelia"
+        self.dir = "ophelia_spark"
         self.out = "out"
         self.engine = "engine"
         self.model = "model"

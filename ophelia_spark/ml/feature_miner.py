@@ -13,7 +13,7 @@ from pyspark.ml.feature import (
 from pyspark.ml.linalg import DenseVector
 from pyspark.sql.types import Row
 
-from ophelia import OpheliaMLMinerException
+from ophelia_spark import OpheliaMLMinerException
 
 from .._logger import OpheliaLogger
 
@@ -33,7 +33,7 @@ class BuildStringIndex(Transformer):
 
     Example:
 
-        from ophelia.ml.feature_miner import BuildStringIndex
+        from ophelia_spark.ml.feature_miner import BuildStringIndex
         df = spark.createDataFrame(
             [('apple','red'), ('banana','yellow'), ('coconut','brown')],
             ["fruit_type", "fruit_color"]
@@ -147,7 +147,7 @@ class BuildOneHotEncoder(Transformer):
 
     Example:
 
-        from ophelia.ml.feature_miner import BuildOneHotEncoder
+        from ophelia_spark.ml.feature_miner import BuildOneHotEncoder
         df = spark.createDataFrame(
             [('0.0','0.2'), ('0.1','0.0'), ('0.2','0.1')],
             ["fruit_type_index", "fruit_color_index"]

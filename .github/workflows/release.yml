@@ -33,8 +33,8 @@ jobs:
         poetry run pytest
 
   publish:
-    if: github.ref == 'refs/heads/main'
     needs: build
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -47,5 +47,8 @@ jobs:
         curl -sSL https://install.python-poetry.org | python3 -
         echo "$HOME/.local/bin" >> $GITHUB_PATH
     - name: Publish to PyPI
+      env:
+        PYPI_USERNAME: __token__
+        PYPI_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
       run: |
-        poetry publish --username __token__ --password ${{ secrets.PYPI_API_TOKEN }}
+        poetry publish --username ${PYPI_USERNAME} --password ${PYPI_PASSWORD}
