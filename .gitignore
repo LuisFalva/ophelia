@@ -1,24 +1,30 @@
 # Local directories
-*.idea/
-*.ipynb_checkpoints/
-*.pytest_cache/
-*.build/
-*.dist/
-*.ophelia.egg-info/
-*.tox/
+*.idea
+*.ipynb_checkpoints
+*.pytest_cache
+*.build
+*.dist
+*.egg-info
+*.tox
+
+# Wheel directories
+build
+dist
 
 # Virtualenv env
-*env/
-*venv/
+*env
+*venv
 
 # File extensions
-*.csv
 *.pyc
 *.pylint.txt
 *.DS_Store
 
 # Spark warehouse
-*spark-warehouse/
+*spark-warehouse
+*_SUCCESS
 
 # Tests
-*out/
+*out
+.coverage
+htmlcov
