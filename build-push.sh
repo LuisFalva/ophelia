@@ -12,6 +12,11 @@ if [ -z "$REPOSITORY_NAME" ] || [ -z "$IMAGE_TAG" ] || [ -z "$DOCKER_USERNAME" ]
   exit 1
 fi
 
+echo "Building Docker image with the following details:"
+echo "Repository Name: $REPOSITORY_NAME"
+echo "Image Tag: $IMAGE_TAG"
+echo "Docker Username: $DOCKER_USERNAME"
+
 # Full image name including the Docker Hub username
 FULL_IMAGE_NAME="${DOCKER_USERNAME}/${REPOSITORY_NAME}:${IMAGE_TAG}"
 
