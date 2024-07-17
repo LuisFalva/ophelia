@@ -19,7 +19,7 @@ FROM python:3.9-slim-buster
 
 WORKDIR /ophelia
 
-COPY --from=builder /ophelia_spark /ophelia
+COPY --from=builder /ophelia /ophelia
 
 EXPOSE 8000
 
