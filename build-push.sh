@@ -21,10 +21,7 @@ echo "Docker Username: $DOCKER_USERNAME"
 FULL_IMAGE_NAME="${DOCKER_USERNAME}/${REPOSITORY_NAME}:${IMAGE_TAG}"
 
 # Build the Docker image locally using docker 'buildx' for Apple M1/M2 architectures
-docker buildx build --platform linux/amd64 -t "${REPOSITORY_NAME}:${IMAGE_TAG}" -f Dockerfile --push .
-
-# Tag the Docker image with the full image name
-docker tag "${REPOSITORY_NAME}:${IMAGE_TAG}" "${FULL_IMAGE_NAME}"
+docker buildx build --platform linux/amd64 -t "${FULL_IMAGE_NAME}" -f Dockerfile --push .
 
 # Push the image to Docker registry
 if ! docker push "${FULL_IMAGE_NAME}"; then
