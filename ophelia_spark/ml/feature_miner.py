@@ -14,8 +14,7 @@ from pyspark.ml.linalg import DenseVector
 from pyspark.sql.types import Row
 
 from ophelia_spark import OpheliaMLMinerException
-
-from .._logger import OpheliaLogger
+from ophelia_spark._logger import OpheliaLogger
 
 
 class BuildStringIndex(Transformer):
@@ -120,7 +119,7 @@ class BuildStringIndex(Transformer):
                     return PipelineModel.load(estimator_path).transform(df)
                 else:
                     self.__logger.info("Compute Single String Indexer")
-                    return pipe_model.fit(df).transfrom(df)
+                    return pipe_model.fit(df).transform(df)
         except TypeError as te:
             raise OpheliaMLMinerException(
                 f"An error occurred while calling __build_string_indexer() method: {te}"
@@ -210,9 +209,9 @@ class BuildOneHotEncoder(Transformer):
         try:
             if indexer:
                 indexers = BuildStringIndex(col_name).transform(df)
-                encoder = Pipeline(stages=[self.ohe_estimator(indexers)])
+                encoder = Pipeline(stages=[self.__ohe_estimator(indexers)])
             else:
-                encoder = Pipeline(stages=[self.ohe_estimator(col_name)])
+                encoder = Pipeline(stages=[self.__ohe_estimator(col_name)])
 
             if self.__estimator_path and dir_name:
                 estimator_path = self.__estimator_path + dir_name
@@ -221,7 +220,7 @@ class BuildOneHotEncoder(Transformer):
                 self.__logger.info("Loading Encoder Estimator For Prediction")
                 return OneHotEncoderModel.load(estimator_path).transform(df)
 
-            encoder = Pipeline(stages=[self.ohe_estimator(col_name)])
+            encoder = Pipeline(stages=[self.__ohe_estimator(col_name)])
             self.__logger.info("Compute One Hot Encoder Estimator DataFrame")
             return encoder.fit(df).transform(df)
         except TypeError as te:
@@ -230,7 +229,7 @@ class BuildOneHotEncoder(Transformer):
             )
 
     def _transform(self, dataset):
-        return self.build_one_hot_encoder(
+        return self.__build_one_hot_encoder(
             dataset, self.__input_cols, self.__dir_name, self.__indexer
         )
 
@@ -320,7 +319,7 @@ class BuildStandardScaler(Transformer):
             )
             std_scaler.fit(df).write().overwrite().save(persist_estimator_path)
             self.__logger.info("Loading Scaler Estimator For Prediction")
-            return StandardScalerModel.load(persist_estimator_path).tansfrom(df)
+            return StandardScalerModel.load(persist_estimator_path).transform(df)
         self.__logger.info("Compute Feature Standard Scaler DataFrame")
         return std_scaler.fit(df).transform(df)
 
@@ -368,8 +367,9 @@ class SparkToNumpy(Transformer):
 class NumpyToVector:
     """ """
 
-    def __init__(self):
+    def __init__(self, SparkContext):
         super().__init__()
+        self._sc = SparkContext
         self.__logger = OpheliaLogger()
 
     def __numpy_to_vector_assembler(self, np_object, label_t=1):
@@ -379,7 +379,7 @@ class NumpyToVector:
         :param label_t: label type column, 1 as default
         :return: build from np.array to spark DataFrame
         """
-        data_set = _sc.parallelize(np_object)
+        data_set = self._sc.parallelize(np_object)
         data_rdd = data_set.map(lambda x: (Row(features=DenseVector(x), label=label_t)))
         self.__logger.info("Numpy to Spark Converter")
         return data_rdd.toDF()
@@ -400,7 +400,6 @@ class NumpyToVector:
         :return:
         """
         _, percents = self.probability_class(node)
-        # donde i contiene la probabilidad calculada del nodo en cuestión
         score = round(1 - sum([i**2 for i in percents.values()]), 3)
         self.__logger.info(f"Gini Score for node {node}: {score}")
         return score

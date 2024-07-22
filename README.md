@@ -1,4 +1,9 @@
-# Welcome to [Ophelia Spark](https://ophelia.readme.io/)
+<div align="center">
+  <img src="docs/img/2e88379-small-ai.png" alt="2e88379-small-ai.png">
+</div>
+
+# Welcome to [Ophelian On Mars! ()](https://ophelia.readme.io/)!
+
 
 ## 📝 Generalized ML Features
 

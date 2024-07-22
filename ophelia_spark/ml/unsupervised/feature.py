@@ -1,15 +1,15 @@
 import numpy as np
 from pyspark.ml import Transformer
 from pyspark.ml.feature import PCA, PCAModel
-from pyspark.ml.linalg import Vectors, VectorUDT
+from pyspark.ml.linalg import DenseVector, Vectors, VectorUDT
 from pyspark.mllib.linalg.distributed import IndexedRow, IndexedRowMatrix
 from pyspark.mllib.util import MLUtils
 from pyspark.sql.functions import monotonically_increasing_id, udf
+from pyspark.sql.types import Row
 
 from ophelia_spark import OpheliaMLException
+from ophelia_spark._logger import OpheliaLogger
 from ophelia_spark.ml.feature_miner import BuildStandardScaler, BuildVectorAssembler
-
-from ..._logger import OpheliaLogger
 
 
 class PCAnalysis(Transformer):
@@ -246,25 +246,184 @@ class SingularVD(Transformer):
         return self.operate(df=dataset)
 
 
-class IndependentComponent:
+class IndependentComponent(Transformer):
     """
     for ICA algorithm
     """
 
+    def __init__(self, n_components=None):
+        super().__init__()
+        self.__n_components = n_components
+        self.__logger = OpheliaLogger()
 
-class LinearDAnalysis:
+    @staticmethod
+    def __center(X):
+        return X - X.mean(axis=0)
+
+    @staticmethod
+    def __whiten(X):
+        cov = np.cov(X, rowvar=False)
+        U, S, _ = np.linalg.svd(cov)
+        X_whiten = np.dot(X, np.dot(U, np.diag(1.0 / np.sqrt(S))))
+        return X_whiten
+
+    def __ica(self, X, iterations=1000, tol=1e-5):
+        X = self.__center(X)
+        X = self.__whiten(X)
+        components = self.__n_components if self.__n_components else X.shape[1]
+        W = np.random.randn(components, components)
+        for i in range(iterations):
+            W_old = W.copy()
+            XW = np.dot(X, W.T)
+            g = np.tanh(XW)
+            g_prime = 1 - g**2
+            W = np.dot(g.T, X) / X.shape[0] - np.dot(g_prime.mean(axis=0) * W.T, W)
+            W = np.dot(np.linalg.inv(np.dot(W, W.T)) ** 0.5, W)
+            if np.max(np.abs(np.abs(np.diag(np.dot(W, W_old.T))) - 1)) < tol:
+                break
+        return np.dot(W, X.T).T
+
+    def _transform(self, dataset):
+        try:
+            np_data = np.array(
+                dataset.select("features").rdd.map(lambda x: x[0].toArray()).collect()
+            )
+            transformed_data = self.__ica(np_data)
+            rows = [Row(ica_features=DenseVector(row)) for row in transformed_data]
+            return dataset.sql_ctx.createDataFrame(rows)
+        except Exception as e:
+            self.__logger.error(f"An error occurred in ICA transform: {e}")
+            raise OpheliaMLException(f"An error occurred in ICA transform: {e}")
+
+
+class LinearDAnalysis(Transformer):
     """
     for Linear Discriminant Analysis algorithm
     """
 
+    def __init__(self, n_components=None):
+        super().__init__()
+        self.__n_components = n_components
+        self.__logger = OpheliaLogger()
 
-class LLinearEmbedding:
+    def __lda(self, X, y):
+        class_labels = np.unique(y)
+        mean_vectors = []
+        for cl in class_labels:
+            mean_vectors.append(np.mean(X[y == cl], axis=0))
+        overall_mean = np.mean(X, axis=0)
+        S_W = np.zeros((X.shape[1], X.shape[1]))
+        for cl, mv in zip(class_labels, mean_vectors):
+            class_scatter = np.cov(X[y == cl].T)
+            S_W += class_scatter
+        S_B = np.zeros((X.shape[1], X.shape[1]))
+        for i, mean_vec in enumerate(mean_vectors):
+            n = X[y == class_labels[i], :].shape[0]
+            mean_vec = mean_vec.reshape(X.shape[1], 1)
+            overall_mean = overall_mean.reshape(X.shape[1], 1)
+            S_B += n * (mean_vec - overall_mean).dot((mean_vec - overall_mean).T)
+        eig_vals, eig_vecs = np.linalg.eig(np.linalg.inv(S_W).dot(S_B))
+        eig_pairs = [
+            (np.abs(eig_vals[i]), eig_vecs[:, i]) for i in range(len(eig_vals))
+        ]
+        eig_pairs = sorted(eig_pairs, key=lambda k: k[0], reverse=True)
+        W = np.hstack(
+            [eig_pairs[i][1].reshape(X.shape[1], 1) for i in range(self.__n_components)]
+        )
+        return X.dot(W)
+
+    def _transform(self, dataset):
+        try:
+            np_data = np.array(
+                dataset.select("features").rdd.map(lambda x: x[0].toArray()).collect()
+            )
+            labels = np.array(dataset.select("label").rdd.map(lambda x: x[0]).collect())
+            transformed_data = self.__lda(np_data, labels)
+            rows = [Row(lda_features=DenseVector(row)) for row in transformed_data]
+            return dataset.sql_ctx.createDataFrame(rows)
+        except Exception as e:
+            self.__logger.error(f"An error occurred in LDA transform: {e}")
+            raise OpheliaMLException(f"An error occurred in LDA transform: {e}")
+
+
+class LLinearEmbedding(Transformer):
     """
     for Locally Linear Embedding Analysis algorithm
     """
 
+    def __init__(self, n_neighbors=5, n_components=2):
+        super().__init__()
+        self.__n_neighbors = n_neighbors
+        self.__n_components = n_components
+        self.__logger = OpheliaLogger()
 
-class StochasticNeighbor:
+    def __lle(self, X):
+        from sklearn.neighbors import NearestNeighbors
+
+        N = X.shape[0]
+        neighbors = NearestNeighbors(n_neighbors=self.__n_neighbors).fit(X)
+        W = np.zeros((N, N))
+        for i in range(N):
+            Z = X[neighbors.kneighbors([X[i]], return_distance=False)[0][1:]]
+            C = np.dot(Z - X[i], (Z - X[i]).T)
+            W[i, neighbors.kneighbors([X[i]], return_distance=False)[0][1:]] = (
+                np.linalg.solve(C, np.ones(self.__n_neighbors - 1))
+            )
+            W[i, neighbors.kneighbors([X[i]], return_distance=False)[0][1:]] /= np.sum(
+                W[i, neighbors.kneighbors([X[i]], return_distance=False)[0][1:]]
+            )
+        M = (np.eye(N) - W).T.dot(np.eye(N) - W)
+        eig_vals, eig_vecs = np.linalg.eig(M)
+        indices = np.argsort(eig_vals)[1 : self.__n_components + 1]
+        return eig_vecs[:, indices]
+
+    def _transform(self, dataset):
+        try:
+            np_data = np.array(
+                dataset.select("features").rdd.map(lambda x: x[0].toArray()).collect()
+            )
+            transformed_data = self.__lle(np_data)
+            rows = [Row(lle_features=DenseVector(row)) for row in transformed_data]
+            return dataset.sql_ctx.createDataFrame(rows)
+        except Exception as e:
+            self.__logger.error(f"An error occurred in LLE transform: {e}")
+            raise OpheliaMLException(f"An error occurred in LLE transform: {e}")
+
+
+class StochasticNeighbor(Transformer):
     """
     for t-distributed Stochastic Neighbor Embedding (t-SNE) algorithm
     """
+
+    def __init__(
+        self, n_components=2, perplexity=30.0, learning_rate=200.0, n_iter=1000
+    ):
+        super().__init__()
+        self.__n_components = n_components
+        self.__perplexity = perplexity
+        self.__learning_rate = learning_rate
+        self.__n_iter = n_iter
+        self.__logger = OpheliaLogger()
+
+    def __tsne(self, X):
+        from sklearn.manifold import TSNE
+
+        tsne = TSNE(
+            n_components=self.__n_components,
+            perplexity=self.__perplexity,
+            learning_rate=self.__learning_rate,
+            n_iter=self.__n_iter,
+        )
+        return tsne.fit_transform(X)
+
+    def _transform(self, dataset):
+        try:
+            np_data = np.array(
+                dataset.select("features").rdd.map(lambda x: x[0].toArray()).collect()
+            )
+            transformed_data = self.__tsne(np_data)
+            rows = [Row(tsne_features=DenseVector(row)) for row in transformed_data]
+            return dataset.sql_ctx.createDataFrame(rows)
+        except Exception as e:
+            self.__logger.error(f"An error occurred in t-SNE transform: {e}")
+            raise OpheliaMLException(f"An error occurred in t-SNE transform: {e}")
