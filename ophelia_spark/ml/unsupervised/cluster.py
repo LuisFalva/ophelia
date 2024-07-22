@@ -7,8 +7,10 @@ class KMeansCluster(Transformer):
     """
     K-Means clustering using NumPy.
 
-    K-Means clustering is an unsupervised learning algorithm used to partition a dataset into K distinct, non-overlapping subsets or clusters.
-    The algorithm iteratively assigns each data point to the nearest cluster center (centroid), then updates the centroids based on the mean of the points in each cluster.
+    K-Means clustering is an unsupervised learning algorithm used to partition a dataset into K distinct,
+    non-overlapping subsets or clusters.
+    The algorithm iteratively assigns each data point to the nearest cluster center (centroid),
+    then updates the centroids based on the mean of the points in each cluster.
     This process repeats until the centroids stabilize (convergence) or a maximum number of iterations is reached.
 
     :param k: Number of clusters.
