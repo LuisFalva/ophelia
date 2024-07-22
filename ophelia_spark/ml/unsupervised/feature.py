@@ -82,7 +82,7 @@ class SingularVD(Transformer):
         """
         try:
             vector_assemble_df = BuildVectorAssembler(
-                df.drop(self.label_col).colmuns
+                df.drop(self.label_col).columns
             ).transform(df)
             dense_vec_df = self.__to_dense_vector(vector_assemble_df)
             self.__logger.info("Compute Feature Standard Scaler")
@@ -277,7 +277,7 @@ class IndependentComponent(Transformer):
             XW = np.dot(X, W.T)
             g = np.tanh(XW)
             g_prime = 1 - g**2
-            W = np.dot(g.T, X) / X.shape[0] - np.dot(g_prime.mean(axis=0) * W.T, W)
+            W = W + np.dot(g.T, X) / X.shape[0] - np.dot(g_prime.mean(axis=0) * W.T, W)
             W = np.dot(np.linalg.inv(np.dot(W, W.T)) ** 0.5, W)
             if np.max(np.abs(np.abs(np.diag(np.dot(W, W_old.T))) - 1)) < tol:
                 break
