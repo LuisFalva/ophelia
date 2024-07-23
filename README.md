@@ -2,7 +2,6 @@
   <img src="docs/img/ophelian-ai-sticker.png" alt="Ophelian AI Sticker" width="200" style="margin-top: 20px;">
 
   <p style="color: #FFF; font-family: 'Helvetica Neue', Arial, sans-serif; text-align: center; max-width: 600px; margin: 20px auto; font-weight: bold;">
-    — 'Ophelian On Mars' 👽 where the entire world strives to reach, but only a few succeed.
   </p>
   
   <div style="margin-top: 20px;">
@@ -24,9 +23,11 @@
   </div>
 </div>
 
-# Welcome to [Ophelian On Mars](https://ophelian.readme.io/)!
-The ultimate destination for ML, Data Science, and AI professionals. Your go-to framework for seamlessly putting prototypes into production.
+# 👽 Ophelian On Mars
 
+---
+
+The ultimate destination for ML, Data Science, and AI professionals. Your go-to framework for seamlessly putting prototypes into production.
 
 # 🚀 Motivations
 
