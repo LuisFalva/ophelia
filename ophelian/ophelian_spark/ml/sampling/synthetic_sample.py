@@ -64,18 +64,16 @@ class SyntheticSample:
         return numpy_array
 
     @staticmethod
-    def numpy_to_spark(df, feature_array, label_type):
+    def numpy_to_spark(feature_array, sc):
         """
         Numpy to spark function will help to dask_spark.py from numpy array to spark DataFrame
         in a distributed manner
 
-        :param df: Spark DataFrame
         :param feature_array: np.array, numpy array object with feature elements
-        :param label_type: int, input type for create target column; '1' set as default
         :return: DataFrame, with features and label; 'features' and 'label' set as default
         """
         InstanceError(feature_array, np.ndarray)
-        return NumpyToVector().transform(feature_array)
+        return NumpyToVector(sc).transform(feature_array)
 
     @staticmethod
     def __k_neighbor(k_n, algm, feature):
@@ -174,5 +172,5 @@ class SyntheticSample:
         new_row = SyntheticSample.__build_synthetic_minority_over_sample(
             df, k, alg, pct_over_min, spark
         )
-        smo_data_df = SyntheticSample.numpy_to_spark(spark, new_row)
+        smo_data_df = SyntheticSample.numpy_to_spark(feature_array=new_row, sc=spark)
         return SyntheticSample.__build_sample(df, smo_data_df, pct_under_max)

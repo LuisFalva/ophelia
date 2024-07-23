@@ -28,3 +28,6 @@ dist
 *out
 .coverage
 htmlcov
+
+# Poetry lock
+*.lock
