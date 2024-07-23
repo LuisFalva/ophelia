@@ -31,7 +31,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"
 pyspark = "3.2.2"
-numpy = ">=1.21"
+numpy = "1.26.4"
 pyhocon = "0.3.45"
 pandas = "2.2.2"
 py4j = ">=0.10.9"
@@ -39,6 +39,8 @@ dask = {version = ">=2021.10.0", extras = ["dataframe"]}
 scikit-learn = ">=0.23.2"
 quadprog = "*"
 pyarrow = "16.0.0"
+shap = ">=0.40.0"
+tensorflow = ">=2.9.0"
 
 [tool.poetry.dev-dependencies]
 bump2version = "0.5.11"
