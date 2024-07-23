@@ -9,21 +9,20 @@ WORKDIR /ophelian
 
 COPY pyproject.toml ./
 
-RUN pip install --upgrade pip
-RUN poetry config virtualenvs.create false
-RUN poetry config warnings.export false
-RUN poetry lock -n && poetry export --without-hashes > requirements.txt || { echo "Failed to export requirements.txt"; exit 1; }
-RUN poetry install --no-root -n
-RUN printf "[Dockerfile] - poetry installation and setup complete.\n\n"
+RUN poetry lock
+RUN poetry install --no-root --no-dev --no-interaction --no-ansi
 
 COPY ophelian ./ophelian
+
+RUN poetry build
 
 FROM python:3.9-slim-buster
 
 WORKDIR /ophelian
 
-COPY --from=builder /ophelian /ophelian
+COPY --from=builder /ophelian/dist /ophelian/dist
+
+RUN pip install /ophelian/dist/*.whl
 
 EXPOSE 8000
-
 CMD ["python", "-m", "ophelian"]
