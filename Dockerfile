@@ -13,7 +13,7 @@ RUN poetry lock
 
 COPY ophelian ./ophelian
 
-RUN poetry install --no-root --no-dev --no-interaction --no-ansi
+RUN poetry install --no-root --only main --no-interaction --no-ansi
 RUN poetry build
 
 FROM python:3.9-slim-buster
