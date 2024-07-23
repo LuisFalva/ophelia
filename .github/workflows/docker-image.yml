@@ -33,4 +33,4 @@ jobs:
     - name: Run build and push script
       run: |
         chmod +x ./build-push.sh
-        ./build-push.sh "ophelian" "latest" "$DOCKER_USERNAME"
+        ./build-push.sh "ophelian" "0.1.3" "$DOCKER_USERNAME"

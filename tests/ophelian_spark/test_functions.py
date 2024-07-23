@@ -1,8 +1,8 @@
 import unittest
 
-from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import SparkSession
 
-from ophelian.ophelian_spark.functions import MapItem, Reshape
+from ophelian.ophelian_spark.functions import Reshape
 
 
 class TestNarrowFormat(unittest.TestCase):
