@@ -10,10 +10,11 @@ WORKDIR /ophelian
 COPY pyproject.toml ./
 
 RUN poetry lock
-RUN poetry install --no-root --only main --no-interaction --no-ansi
 
+COPY pyproject.toml poetry.lock README.md ./
 COPY ophelian ./ophelian
 
+RUN poetry install --no-root --no-dev --no-interaction --no-ansi
 RUN poetry build
 
 FROM python:3.9-slim-buster
