@@ -64,46 +64,17 @@ Before starting, you'll need to have installed:
 - dask >= 2.30.x
 - scikit-learn >= 0.23.x
 
-Additionally, if you want to use the Ophelia package, you'll also need Python (supported 3.7 and 3.8 versions) and pip installed.
+Additionally, if you want to use the Ophelian packages, you'll also need Python (supported 3.7 and 3.8 versions) and pip installed.
 
 ### 🛠 Building from the source️
 
-Just clone the `Ophelian` repo and import `Ophelian`:
+Just drop a pip install to the `Ophelian` pypi registry and import `Ophelian`:
 ```sh
-# github repository name will change soon into 'ophelian'
-git clone https://github.com/LuisFalva/ophelia.git
+# pypi repository name will change soon into 'ophelian'
+pip install ophelia-spark==0.1.3
 ```
-
-After wiring and clone the `Ophelian` repo go to:
-```sh
-# parent root package name will change soon into 'ophelian'
-cd ophelian_spark
-```
-### 📡 First time installation
-> For the very first time running and installing Ophelian in your local machine you need to wire with Ophelian's main repo.
-Just run the following script in order to set up correctly:
-
-And execute the following `make` instruction:
-```sh   
-make install
-```
-
-**First Important Note**: You must see a successful message like the one below.
-```sh   
-[Ophelian] Successfully installed ophelian_spark:0.1.3. Have fun! =)
-```
-
-**Second Important Note**: You also can pull Ophelia 0.1.0
-[or make sure version matches with the one you need and configure the env `OPHELIAN_DOCKER_VERSION`]
-docker image and use it as base image for new images.
-```sh   
-make docker-pull
-```
-
-Also, you can push new changes to your corresponding version as follows:
-```sh   
-make docker-build
-```
+> [Warning]
+> pypi repository name will change soon into 'ophelian'
 
 ### 📦 Importing and initializing Ophelian
 
