@@ -13,7 +13,6 @@ RUN poetry lock
 RUN poetry install --no-root --only main --no-interaction --no-ansi
 
 COPY ophelian ./ophelian
-COPY README.md ./ophelian
 
 RUN poetry build
 
