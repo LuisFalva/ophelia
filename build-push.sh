@@ -21,11 +21,12 @@ echo "Docker Username: $DOCKER_USERNAME"
 FULL_IMAGE_NAME="${DOCKER_USERNAME}/${REPOSITORY_NAME}:${IMAGE_TAG}"
 
 # Build the Docker image locally using docker 'buildx' for Apple M1/M2 architectures
+docker buildx create --use
 docker buildx build --platform linux/amd64 -t "${FULL_IMAGE_NAME}" -f Dockerfile --push .
 
-# Push the image to Docker registry
-if ! docker push "${FULL_IMAGE_NAME}"; then
-  echo "Error: Failed to push the image to ${FULL_IMAGE_NAME}"
+# Check if the build and push was successful
+if [ $? -ne 0 ]; then
+  echo "Error: Failed to build and push the image to ${FULL_IMAGE_NAME}"
   exit 1
 fi
 

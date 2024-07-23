@@ -3,18 +3,18 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "ophelia-spark"
+name = "ophelian"
 version = "0.1.3"
-description = "Ophelia is a spark miner AI engine that builds data mining & ml pipelines with PySpark."
+description = "Ophelian is a go-to framework for seamlessly putting ML & AI prototypes into production."
 authors = ["Luis Vargas <falvaluis@gmail.com>"]
 license = "Free for non-commercial use"
 readme = "README.md"
 homepage = "https://github.com/LuisFalva/ophelia"
 repository = "https://github.com/LuisFalva/ophelia"
 documentation = "https://github.com/LuisFalva/ophelia"
-keywords = ["ophelia-spark"]
+keywords = ["ophelian", "ophelian-on-mars"]
 classifiers = [
-    "Development Status :: 1 - Planning",
+    "Development Status :: 1 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Financial and Insurance Industry",
@@ -31,7 +31,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"
 pyspark = "3.2.2"
-numpy = ">=1.21"
+numpy = "1.26.4"
 pyhocon = "0.3.45"
 pandas = "2.2.2"
 py4j = ">=0.10.9"
@@ -39,6 +39,8 @@ dask = {version = ">=2021.10.0", extras = ["dataframe"]}
 scikit-learn = ">=0.23.2"
 quadprog = "*"
 pyarrow = "16.0.0"
+shap = ">=0.40.0"
+tensorflow = ">=2.9.0"
 
 [tool.poetry.dev-dependencies]
 bump2version = "0.5.11"

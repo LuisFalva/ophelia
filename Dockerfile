@@ -5,22 +5,24 @@ RUN curl -sSL https://install.python-poetry.org | python3 -
 
 ENV PATH="/root/.local/bin:$PATH"
 
-WORKDIR /ophelia
+WORKDIR /ophelian
 
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml README.md ./
 
-RUN pip install --upgrade pip
-RUN poetry config virtualenvs.create false
-RUN poetry install --no-dev --no-interaction --no-ansi
+RUN poetry lock
 
-COPY ophelia_spark ./ophelia
+COPY ophelian ./ophelian
+
+RUN poetry install --no-root --only main --no-interaction --no-ansi
+RUN poetry build
 
 FROM python:3.9-slim-buster
 
-WORKDIR /ophelia
+WORKDIR /ophelian
 
-COPY --from=builder /ophelia /ophelia
+COPY --from=builder /ophelian/dist /ophelian/dist
+
+RUN pip install /ophelian/dist/*.whl
 
 EXPOSE 8000
-
-CMD ["python", "-m", "ophelia"]
+CMD ["python", "-m", "ophelian"]

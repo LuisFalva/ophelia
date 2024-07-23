@@ -1,78 +1,109 @@
-# Welcome to [Ophelia Spark](https://ophelia.readme.io/)
+<div align="center" style="padding: 20px;">
+  <img src="docs/img/ophelian-ai-sticker.png" alt="Ophelian AI Sticker" width="200" style="margin-top: 20px;">
 
-## 📝 Generalized ML Features
+  <p style="color: #FFF; font-family: 'Helvetica Neue', Arial, sans-serif; text-align: center; max-width: 600px; margin: 20px auto; font-weight: bold;">
+  </p>
+  
+  <div style="margin-top: 20px;">
+    <a href="https://pypi.org/project/ophelia-spark/" style="margin-right: 10px;">
+      <img src="https://img.shields.io/pypi/v/ophelia-spark.svg" alt="PyPI">
+    </a>
+    <a href="https://hub.docker.com/r/luisfalva/ophelia" style="margin-right: 10px;">
+      <img src="https://img.shields.io/docker/v/luisfalva/ophelia?sort=semver" alt="Docker Hub">
+    </a>
+    <a href="https://github.com/LuisFalva/ophelia/actions/workflows/release.yml" style="margin-right: 10px;">
+      <img src="https://github.com/LuisFalva/ophelia/actions/workflows/release.yml/badge.svg" alt="Release Build Status">
+    </a>
+    <a href="https://github.com/LuisFalva/ophelia/actions/workflows/docker-image.yml" style="margin-right: 10px;">
+      <img src="https://github.com/LuisFalva/ophelia/actions/workflows/docker-image.yml/badge.svg" alt="Docker Image Build Status">
+    </a>
+    <a href="https://ophelian.readme.io/">
+      <img src="https://img.shields.io/badge/docs-Documentation-orange.svg" alt="Docs">
+    </a>
+  </div>
+</div>
 
-Our project focuses on creating robust and efficient PySpark ML and Mllib pipelines, making them easily replicable and secure for various machine learning tasks. Key features include optimized techniques for handling data skewness, user-friendly interfaces for building custom models, and streamlined data mining pipelines with Ophelia spark wrappers. Additionally, it functions as an emulator of NumPy and pandas, offering similar functionalities for a seamless user experience. Below are the detailed features:
+# Ophelian On Mars
 
-- **Building PySpark ML & Mllib Pipelines**: Simplified and secure methods to construct machine learning pipelines using PySpark, ensuring replicability and robustness.
-- **Optimized Techniques for Data Skewness**: Embedded strategies to address and mitigate data skewness issues, improving model performance and accuracy.
-- **Build-Your-Own Models**: User-friendly tools for constructing custom models and data mining pipelines, leveraging the power of PySpark and Ophelia spark wrappers for enhanced flexibility and efficiency.
-- **NumPy and pandas Functionality Emulation**: Emulates the functions and features of NumPy and pandas, making it intuitive and easy for users familiar with these libraries to transition and utilize similar functionalities within PySpark.
+---
 
-These features aim to empower users with the tools they need to handle complex machine learning tasks effectively, ensuring a seamless experience from data processing to model deployment.
+'*Ophelian On Mars*' 👽, the ultimate destination for ML, Data Science, and AI professionals. Your go-to framework for seamlessly putting ML prototypes into production—where everyone wants to be, but only a few succeed.
+
+# 🚀 Motivations
+
+As data professionals, we aim to minimize the time spent deciphering the intricacies of PySpark's framework. Often, we seek a straightforward, Pandas-style approach to compute tasks without delving into highly optimized Spark code. 
+
+To address this need, Ophelian was created with the following goals:
+
+- **Simplicity**: Provide a simple and intuitive way to perform data computations, emulating the ease of Pandas.
+- **Efficiency**: Wrap common patterns for data extraction and transformation in a single entry function that ensures Spark-optimized performance.
+- **Code Reduction**: Significantly reduce the amount of code required by leveraging a set of Spark optimization techniques for query execution.
+- **Streamlined ML Pipelines**: Facilitate the lifecycle of any PySpark ML pipeline by incorporating optimized methods and reducing redundant coding efforts.
+
+By focusing on these motivations, Ophelian aims to enhance productivity and efficiency for data engineers and scientists, allowing them to concentrate on their core tasks without worrying about underlying Spark optimizations.
+
+# 📝 Generalized ML Features
+
+Ophelian focuses on creating robust and efficient machine learning (ML) pipelines, making them easily replicable and secure for various ML tasks. Key features include optimized techniques for handling data skewness, user-friendly interfaces for building custom models, and streamlined data mining pipelines with Ophelian pipeline wrappers. Additionally, it functions as an emulator of NumPy and Pandas, offering similar functionalities for a seamless user experience. Below are the detailed features:
+
+- **Framework for Building ML Pipelines**: Simplified and secure methods to construct ML pipelines using PySpark, ensuring replication and robustness.
+- **Optimized Techniques for Data Skewness and Partitioning**: Embedded strategies to address and mitigate data skewness issues, improving model performance and accuracy.
+- **Build Your Own Models (BYOM)**: User-friendly software for constructing custom models and data mining pipelines, leveraging frameworks like PySpark, Beam, Flink, PyTorch, and more, with Ophelian native wrappers for enhanced syntax flexibility and efficiency.
+- **NumPy and Pandas Functionality Syntax Emulation**: Emulates the functions and features of NumPy and Pandas, making it intuitive and easy for users familiar with these libraries to transition and utilize similar functionalities within an ML pipeline.
+
+These features empower users with the tools they need to handle complex ML tasks effectively, ensuring a seamless experience from data processing to model deployment. users with the tools they need to handle complex machine learning tasks effectively, ensuring a seamless experience from data processing to model deployment.
 
 # Getting Started:
 
-### Requirements 📜
+### 📜 Requirements
 
-Before starting, you'll need to have installed pyspark >= 3.0.x, pandas >= 1.1.3, numpy >= 1.19.1, dask >= 2.30.x, scikit-learn >= 0.23.x 
+Before starting, you'll need to have installed: 
+- pyspark >= 3.0.x
+- pandas >= 1.1.3
+- numpy >= 1.19.1
+- dask >= 2.30.x
+- scikit-learn >= 0.23.x
 
-Additionally, if you want to use the Ophelia package, you'll also need Python (supported 3.7 and 3.8 versions) and pip installed.
+Additionally, if you want to use the Ophelian packages, you'll also need Python (supported 3.7 and 3.8 versions) and pip installed.
 
-### Building from the source 🛠️
+### 🛠 Install Ophelian pypi package
 
-Just clone the `Ophelia` repo and import `Ophelia`:
-```sh   
-git clone https://github.com/LuisFalva/ophelia.git
+Just drop a pip install to the `Ophelian` pypi registry and import `Ophelian`:
+```sh
+pip install ophelia-spark==0.1.3
 ```
+> {Warning}:
+> pypi repository name will change soon into 'ophelian'
 
-After wiring and clone the `Ophelia` repo go to:
-```sh   
-cd ophelia_spark
-```
-### First time installation 📡
-> For the very first time running and installing Ophelia in your local machine you need to wire with Ophelia's main repo.
-Just run the following script in order to set up correctly:
+### 📦 Importing and initializing Ophelian
 
-And execute the following `make` instruction:
-```sh   
-make install
-```
-
-**First Important Note**: You must see a successful message like the one below.
-```sh   
-[Ophelia] Successfully installed ophelia_spark:0.1.0. Have fun! =)
-```
-
-**Second Important Note**: You also can pull Ophelia 0.1.0
-[or make sure version matches with the one you need and configure the env `OPHELIA_DOCKER_VERSION`]
-docker image and use it as base image for new images.
-```sh   
-make docker-pull
-```
-
-Also, you can push new changes to your corresponding version as follows:
-```sh   
-make docker-build
-```
-
-### Importing and initializing Ophelia 📦
-
-To initialize `Ophelia` with Spark embedded session use:
+To initialize `Ophelian` with Spark embedded session use:
 
 ```python
->>> from ophelia_spark.start import Ophelia
->>> ophelia = Ophelia("Spark App Name")
->>> sc = ophelia.Spark.build_spark_context()
-
-  ____          _            _  _           _____                      _    
- / __ \        | |          | |(_)         / ____|                    | |   
-| |  | | _ __  | |__    ___ | | _   __ _  | (___   _ __    __ _  _ __ | | __
-| |  | || '_ \ | '_ \  / _ \| || | / _` |  \___ \ | '_ \  / _` || '__|| |/ /
-| |__| || |_) || | | ||  __/| || || (_| |  ____) || |_) || (_| || |   |   < 
- \____/ | .__/ |_| |_| \___||_||_| \__,_| |_____/ | .__/  \__,_||_|   |_|\_\
-        | |                                       | |                       
-        |_|                                       |_|                       
+from ophelian.start import OphelianSession
+ophelian = OphelianSession("Spark App Name")
+sc = ophelian.Spark.build_spark_context()
+  ____          _            _  _               
+ / __ \        | |          | |(_)              
+| |  | | _ __  | |__    ___ | | _   __ _  _ __  
+| |  | || '_ \ | '_ \  / _ \| || | / _` || '_ \ 
+| |__| || |_) || | | ||  __/| || || (_| || | | |
+ \____/ | .__/ |_| |_| \___||_||_| \__,_||_| |_|
+        | |                                     
+        |_|                                     
+  ____         
+ / __ \        
+| |  | | _ __  
+| |  | || '_ \ 
+| |__| || | | |
+ \____/ |_| |_|       
+               
+ __  __                    _ 
+|  \/  |                  | |
+| \  / |  __ _  _ __  ___ | |
+| |\/| | / _` || '__|/ __|| |
+| |  | || (_| || |   \__ \|_|
+|_|  |_| \__,_||_|   |___/(_)
 
 ```
 Main class objects provided by initializing Ophelia session:
@@ -80,25 +111,34 @@ Main class objects provided by initializing Ophelia session:
 - `read` & `write`
 
 ```python
-from ophelia_spark.read.spark_read import Read
-from ophelia_spark.write.spark_write import Write
+from ophelian.ophelian_spark.read.spark_read import Read
+from ophelian.ophelian_spark.write.spark_write import Write
 ```
 - `generic` & `functions`
 
 ```python
-from ophelia_spark.functions import Shape, Rolling, Reshape, CorrMat, CrossTabular, PctChange, Selects, DynamicSampling
-from ophelia_spark.generic import (split_date, row_index, lag_min_max_data, regex_expr, remove_duplicate_element,
-                                   year_array, dates_index, sorted_date_list, feature_pick, binary_search,
-                                   century_from_year, simple_average, delta_series, simple_moving_average, average,
-                                   weight_moving_average, single_exp_smooth, double_exp_smooth, initial_seasonal_components,
-                                   triple_exp_smooth, row_indexing, string_match)
+from ophelian.ophelian_spark.functions import (
+  Shape, Rolling, Reshape, CorrMat, CrossTabular, 
+  PctChange, Selects, DynamicSampling
+)
+from ophelian.ophelian_spark.generic import (
+  split_date, row_index, lag_min_max_data, regex_expr, remove_duplicate_element,
+  year_array, dates_index, sorted_date_list, feature_pick, binary_search,
+  century_from_year, simple_average, delta_series, simple_moving_average, average,
+  weight_moving_average, single_exp_smooth, double_exp_smooth, initial_seasonal_components,
+  triple_exp_smooth, row_indexing, string_match
+)
 ```
 - ML package for `unsupervised`, `sampling` and `feature_miner` objects
 
 ```python
-from ophelia_spark.ml.sampling.synthetic_sample import SyntheticSample
-from ophelia_spark.ml.unsupervised.feature import PCAnalysis, SingularVD
-from ophelia_spark.ml.feature_miner import BuildStringIndex, BuildOneHotEncoder, BuildVectorAssembler, BuildStandardScaler, SparkToNumpy, NumpyToVector
+from ophelian.ophelian_spark.ml.sampling.synthetic_sample import SyntheticSample
+from ophelian.ophelian_spark.ml.unsupervised.feature import PCAnalysis, SingularVD
+from ophelian.ophelian_spark.ml.feature_miner import (
+  BuildStringIndex, BuildOneHotEncoder, 
+  BuildVectorAssembler, BuildStandardScaler,
+  SparkToNumpy, NumpyToVector
+)
 ```
 
 Let me show you some application examples:
@@ -106,14 +146,16 @@ Let me show you some application examples:
 The `Read` class implements Spark reading object in multiple formats `{'csv', 'parquet', 'excel', 'json'}`
 
 ```python
-from ophelia_spark.read.spark_read import Read
+from ophelian.ophelian_spark.read.spark_read import Read
+
 spark_df = spark.readFile(path, 'csv', header=True, infer_schema=True)
 ```
 
 Also, you may import class `Shape` from factory `functions` in order to see the dimension of our spark DataFrame such as numpy style.
 
 ```python
-from ophelia_spark.functions import Shape
+from ophelian.ophelian_spark.functions import Shape
+
 dic = {
     'Product': ['A', 'B', 'C', 'A', 'B', 'C', 'A', 'B', 'C'],
     'Year': [2010, 2010, 2010, 2011, 2011, 2011, 2012, 2012, 2012],
@@ -144,11 +186,12 @@ The `pct_change` wrapper is added to the Spark `DataFrame` class in order to hav
 objects to get the relative percentage change from one observation to another, sorted by a date-type column and lagged by a numeric-type column.
 
 ```python
-from ophelia_spark.functions import PctChange
+from ophelian.ophelian_spark.functions import PctChange
+
 dic_to_df.pctChange().show(10, False)
 
 +---------------------+
-| Revenue             |
+|       Revenue       |
 +---------------------+
 | null                |
 | 1.0                 |
@@ -216,15 +259,16 @@ dic_to_df.pctChange(partition_by="Product", order_by="Year", pct_cols=["Year", "
 only showing top 5 rows
 ```
  
-### Want to contribute? 🤔
+## 🤔 Contributing to Ophelian On Mars
 
-Bring it on! If you have an idea or want to ask anything, or there is a bug you want fixed, you may open an [issue ticket](https://github.com/LuisFalva/ophilea/issues). You will find the guidelines to make an issue request there. Also, you can get a glimpse of [Open Source Contribution Guide best practices here](https://opensource.guide/).
-Cheers 🍻!
+We welcome contributions from everyone! If you have an idea, a question, or if you've found a bug that needs fixing, please open an [issue ticket](https://github.com/LuisFalva/ophelian/issues).
 
-### Support or Contact 📠
+You can find guidelines for submitting an issue request in our repository. Additionally, you can refer to the [Open Source Contribution Guide best practices](https://opensource.guide/) to get started.
 
-Having trouble with Ophilea? Yo can DM me at [falvaluis@gmail.com](https://mail.google.com/mail/u/0/?tab=rm&ogbl#inbox?compose=CllgCJZZQVJHBJKmdjtXgzlrRcRktFLwFQsvWKqcTRtvQTVcHvgTNSxVzjZqjvDFhZlVJlPKqtg) and I’ll help you sort it out.
+## 📠 Support or Contact
 
-### License 📃
+Having trouble with Ophelian? Yo can DM me at [falvaluis@gmail.com](https://mail.google.com/mail/u/0/?tab=rm&ogbl#inbox?compose=CllgCJZZQVJHBJKmdjtXgzlrRcRktFLwFQsvWKqcTRtvQTVcHvgTNSxVzjZqjvDFhZlVJlPKqtg) and I’ll help you sort it out.
+
+## 📃 License
 
 Released under the Apache License, version 2.0.
