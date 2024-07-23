@@ -72,7 +72,7 @@ Just drop a pip install to the `Ophelian` pypi registry and import `Ophelian`:
 ```sh
 pip install ophelia-spark==0.1.3
 ```
-> Warning
+> {Warning}:
 > pypi repository name will change soon into 'ophelian'
 
 ### 📦 Importing and initializing Ophelian
