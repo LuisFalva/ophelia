@@ -7,11 +7,10 @@ ENV PATH="/root/.local/bin:$PATH"
 
 WORKDIR /ophelian
 
-COPY pyproject.toml ./
+COPY pyproject.toml README.md ./
 
 RUN poetry lock
 
-COPY pyproject.toml poetry.lock README.md ./
 COPY ophelian ./ophelian
 
 RUN poetry install --no-root --no-dev --no-interaction --no-ansi
