@@ -21,6 +21,7 @@ from pyspark.sql.functions import (
     explode,
     expr,
     isnan,
+    isnull,
     lag,
     lit,
     mean,
@@ -31,7 +32,6 @@ from pyspark.sql.functions import row_number, stddev, struct, variance, when
 from pyspark.sql.types import StringType, StructField, StructType
 from quadprog import solve_qp
 
-from ophelian._logger import OphelianLogger
 from ophelian.ophelian_spark import OphelianFunctionsException, SparkMethods
 from ophelian.ophelian_spark._wrapper import DataFrameWrapper
 from ophelian.ophelian_spark.generic import (
@@ -74,56 +74,36 @@ def _wrapper(wrap_object):
 
 class NullDebug:
 
-    __logger = OphelianLogger()
-    __spark = OphelianSpark().ophelia_active_session()
-
     @staticmethod
-    def __cleansing_list(self, partition_by=None, offset: float = 0.5):
+    def __cleansing_list(df, partition_by=None, offset: float = 0.5):
         if partition_by is None:
             raise TypeError(
                 f"'partition_by' required parameter, invalid {partition_by} input."
             )
-        cache_transpose = self.toNarrow(partition_by, ["pivot", "value"]).cache()
-        NullDebug.__logger.info("Clean Null Data")
-        return (
-            cache_transpose.groupBy("pivot")
-            .agg(
-                count(when(isnan("value") | col("value").isNull(), "value")).alias(
-                    "null_count"
-                )
-            )
-            .select("*", (col("null_count") / self.Shape[0]).alias("null_pct"))
-            .where(col("null_pct") <= offset)
-            .uniqueRow("pivot")
+        cache_transpose = df.cache()
+        null_counts = cache_transpose.groupBy(partition_by).agg(
+            count(when(isnan(col("values")) | isnull(col("values")), "values")).alias(
+                "null_count"
+            ),
+            count(lit(1)).alias("total_count"),
         )
+        null_counts = null_counts.withColumn(
+            "null_pct", col("null_count") / col("total_count")
+        )
+        valid_partitions = null_counts.filter(col("null_pct") <= offset).select(
+            partition_by
+        )
+        return valid_partitions
 
     @staticmethod
-    def null_clean(self, partition_by, offset):
-        """
-        Null clean method will be on charge to clean and debug all kind of null types in
-        your Spark DataFrame within a determined offset of proportionality
-        :param self: DataFrame object heritage
-        :param partition_by: str, name of partition column
-        :param offset: float, number for offset controller
-        :return: new Spark DataFrame without columns that had more Nulls than the set offset
-        """
+    def null_clean(df, partition_by, offset):
         try:
             if partition_by:
-                cleansing_list = NullDebug.__cleansing_list(self, partition_by, offset)
-                NullDebug.__spark.catalog.clearCache()
-                return self.select(partition_by, *cleansing_list)
-            gen_part = self.select(
-                monotonically_increasing_id().alias("partition_id"), "*"
-            )
-            cleansing_list = NullDebug.__cleansing_list(
-                gen_part, "partition_id", offset
-            )
-            NullDebug.__spark.catalog.clearCache()
-            return gen_part.select("partition_id", *cleansing_list)
+                cleansing_list = NullDebug.__cleansing_list(df, partition_by, offset)
+                return df.join(cleansing_list, on=partition_by, how="inner")
+            return df
         except Exception as error:
-            raise OphelianFunctionsException(
-                f"An error occurred on null_clean() method: {error}"
-            )
+            raise Exception(f"An error occurred on null_clean() method: {error}")
 
 
 class NullDebugWrapper:
@@ -1344,3 +1324,16 @@ class RiskParityCalculatorWrapper:
 
     func = RiskParityCalculator.calculate_risk_parity_weights
     _wrapper(wrap_object=func)
+
+
+if __name__ == "__main__":
+    # Create a sample DataFrame using PySpark
+    spark = SparkSession.builder.appName("example").getOrCreate()
+
+    data = [("A", 1), ("B", None), ("C", 3), ("A", None), ("B", 5), ("C", 6)]
+    columns = ["partition", "values"]
+    sdf = spark.createDataFrame(data, columns)
+
+    # Clean null values
+    clean_df = NullDebug.null_clean(sdf, "partition", 0.5)
+    clean_df.show()

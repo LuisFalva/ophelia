@@ -1,8 +1,6 @@
 from math import log
 
 import numpy as np
-from _logger import OphelianLogger
-from ophelian_spark import OpheliaMLMinerException
 from pyspark.ml import Pipeline, PipelineModel, Transformer
 from pyspark.ml.feature import (
     OneHotEncoder,
@@ -14,6 +12,9 @@ from pyspark.ml.feature import (
 )
 from pyspark.ml.linalg import DenseVector
 from pyspark.sql.types import Row
+
+from ophelian._logger import OphelianLogger
+from ophelian.ophelian_spark import OphelianMLMinerException
 
 
 class BuildStringIndex(Transformer):
@@ -58,7 +59,7 @@ class BuildStringIndex(Transformer):
             self.__logger.info("Creating Single String Indexers")
             return StringIndexer(inputCol=single_col, outputCol=f"{single_col}_index")
         except TypeError as te:
-            raise OpheliaMLMinerException(
+            raise OphelianMLMinerException(
                 f"An error occurred while calling single_string_indexer() method: {te}"
             )
 
@@ -76,7 +77,7 @@ class BuildStringIndex(Transformer):
                 for column in multi_col
             ]
         except TypeError as te:
-            raise OpheliaMLMinerException(
+            raise OphelianMLMinerException(
                 f"An error occurred while calling multi_string_indexer() method: {te}"
             )
 
@@ -120,7 +121,7 @@ class BuildStringIndex(Transformer):
                     self.__logger.info("Compute Single String Indexer")
                     return pipe_model.fit(df).transform(df)
         except TypeError as te:
-            raise OpheliaMLMinerException(
+            raise OphelianMLMinerException(
                 f"An error occurred while calling __build_string_indexer() method: {te}"
             )
 
@@ -191,7 +192,7 @@ class BuildOneHotEncoder(Transformer):
                 handleInvalid=self.__handle_invalid,
             )
         except TypeError as te:
-            raise OpheliaMLMinerException(
+            raise OphelianMLMinerException(
                 f"An error occurred while calling ohe_estimator() method: {te}"
             )
 
@@ -223,7 +224,7 @@ class BuildOneHotEncoder(Transformer):
             self.__logger.info("Compute One Hot Encoder Estimator DataFrame")
             return encoder.fit(df).transform(df)
         except TypeError as te:
-            raise OpheliaMLMinerException(
+            raise OphelianMLMinerException(
                 f"An error occurred while calling __build_one_hot_encoder() method: {te}"
             )
 
@@ -256,7 +257,7 @@ class BuildVectorAssembler(Transformer):
             self.__logger.info("Build Vector Assembler DataFrame")
             return vec_assembler.transform(df)
         except TypeError as te:
-            raise OpheliaMLMinerException(
+            raise OphelianMLMinerException(
                 f"An error occurred while calling build_vector_assembler() method: {te}"
             )
 

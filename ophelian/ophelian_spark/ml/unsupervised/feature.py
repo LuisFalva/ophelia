@@ -1,6 +1,4 @@
 import numpy as np
-from ophelian_spark import OphelianMLException
-from ophelian_spark.ml.feature_miner import BuildStandardScaler, BuildVectorAssembler
 from pyspark.ml import Transformer
 from pyspark.ml.feature import PCA, PCAModel
 from pyspark.ml.linalg import DenseVector, Vectors, VectorUDT
@@ -10,6 +8,11 @@ from pyspark.sql.functions import monotonically_increasing_id, udf
 from pyspark.sql.types import Row
 
 from ophelian._logger import OphelianLogger
+from ophelian.ophelian_spark import OphelianMLException
+from ophelian.ophelian_spark.ml.feature_miner import (
+    BuildStandardScaler,
+    BuildVectorAssembler,
+)
 
 
 class PCAnalysis(Transformer):

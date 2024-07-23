@@ -8,9 +8,9 @@ repos:
     rev: v4.5.0
     hooks:
       - id: check-yaml
-        exclude: ^bpcyber-ai-ml/.github/
+        exclude: ^ophelia/.github/|README\.md$
       - id: end-of-file-fixer
-        exclude: LICENSE
+        exclude: LICENSE|README\.md$
 
   - repo: local
     hooks:
@@ -19,18 +19,18 @@ repos:
         entry: poetry run pyupgrade --py38-plus
         language: system
         types: [python]
-        exclude: ^bpcyber-ai-ml/
+        exclude: ^ophelia/|README\.md$
 
       - id: isort
         name: isort
         entry: poetry run isort .
         language: system
         types: [python]
-        exclude: ^bpcyber-ai-ml/
+        exclude: ^ophelia/|README\.md$
 
       - id: black
         name: black
         entry: poetry run black .
         language: system
         types: [python]
-        exclude: ^bpcyber-ai-ml/
+        exclude: ^ophelia/|README\.md$
