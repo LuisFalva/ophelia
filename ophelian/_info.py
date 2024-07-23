@@ -5,7 +5,7 @@ class OphelianInfo:
 
     def __init__(self):
         self.__logger = OphelianLogger()
-        self.__version = "ophelian.0.1.3"
+        self.__version = "ophelian.0.1.4"
         self.__info = {
             "welcome": "Welcome to 'Ophelian On Mars', more than a Framework.",
             "version": f"Package Version {self.__version}",

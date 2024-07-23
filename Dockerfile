@@ -8,6 +8,7 @@ ENV PATH="/root/.local/bin:$PATH"
 WORKDIR /ophelian
 
 COPY pyproject.toml README.md ./
+COPY docs/img ./docs/img
 
 RUN poetry lock
 

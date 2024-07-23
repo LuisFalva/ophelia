@@ -5,11 +5,11 @@
   </p>
   
   <div style="margin-top: 20px;">
-    <a href="https://pypi.org/project/ophelia-spark/" style="margin-right: 10px;">
-      <img src="https://img.shields.io/pypi/v/ophelia-spark.svg" alt="PyPI">
+    <a href="https://pypi.org/project/ophelian/" style="margin-right: 10px;">
+      <img src="https://img.shields.io/pypi/v/ophelian.svg" alt="PyPI">
     </a>
-    <a href="https://hub.docker.com/r/luisfalva/ophelia" style="margin-right: 10px;">
-      <img src="https://img.shields.io/docker/v/luisfalva/ophelia?sort=semver" alt="Docker Hub">
+    <a href="https://hub.docker.com/r/luisfalva/ophelian" style="margin-right: 10px;">
+      <img src="https://img.shields.io/docker/v/luisfalva/ophelian?sort=semver" alt="Docker Hub">
     </a>
     <a href="https://github.com/LuisFalva/ophelia/actions/workflows/release.yml" style="margin-right: 10px;">
       <img src="https://github.com/LuisFalva/ophelia/actions/workflows/release.yml/badge.svg" alt="Release Build Status">
@@ -70,10 +70,8 @@ Additionally, if you want to use the Ophelian packages, you'll also need Python 
 
 Just drop a pip install to the `Ophelian` pypi registry and import `Ophelian`:
 ```sh
-pip install ophelia-spark==0.1.3
+pip install ophelian==0.1.4
 ```
-> {Warning}:
-> pypi repository name will change soon into 'ophelian'
 
 ### 📦 Importing and initializing Ophelian
 
