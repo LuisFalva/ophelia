@@ -10,9 +10,10 @@ WORKDIR /ophelian
 COPY pyproject.toml ./
 
 RUN poetry lock
-RUN poetry install --no-root --no-dev --no-interaction --no-ansi
+RUN poetry install --no-root --only main --no-interaction --no-ansi
 
 COPY ophelian ./ophelian
+COPY README.md ./ophelian
 
 RUN poetry build
 
