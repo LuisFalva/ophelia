@@ -4,19 +4,8 @@ import re
 
 import numpy as np
 import pandas as pd
-from _logger import OphelianLogger
 from dask import array as dask_arr
 from dask import dataframe as dask_df
-from ophelian_spark import OpheliaFunctionsException, SparkMethods
-from ophelian_spark._wrapper import DataFrameWrapper
-from ophelian_spark.generic import (
-    feature_pick,
-    regex_expr,
-    remove_duplicate_element,
-    union_all,
-)
-from ophelian_spark.ml.optim.utils import LBFGS
-from ophelian_spark.session.spark import OphelianSpark
 from py4j.protocol import Py4JJavaError
 from pyspark import SparkContext
 from pyspark.ml.feature import VectorAssembler
@@ -41,6 +30,18 @@ from pyspark.sql.functions import round as spark_round
 from pyspark.sql.functions import row_number, stddev, struct, variance, when
 from pyspark.sql.types import StringType, StructField, StructType
 from quadprog import solve_qp
+
+from ophelian._logger import OphelianLogger
+from ophelian.ophelian_spark import OphelianFunctionsException, SparkMethods
+from ophelian.ophelian_spark._wrapper import DataFrameWrapper
+from ophelian.ophelian_spark.generic import (
+    feature_pick,
+    regex_expr,
+    remove_duplicate_element,
+    union_all,
+)
+from ophelian.ophelian_spark.ml.optim.utils import LBFGS
+from ophelian.ophelian_spark.session.spark import OphelianSpark
 
 __all__ = [
     "NullDebugWrapper",
@@ -120,7 +121,7 @@ class NullDebug:
             NullDebug.__spark.catalog.clearCache()
             return gen_part.select("partition_id", *cleansing_list)
         except Exception as error:
-            raise OpheliaFunctionsException(
+            raise OphelianFunctionsException(
                 f"An error occurred on null_clean() method: {error}"
             )
 
@@ -240,7 +241,7 @@ class CorrMat:
             CorrMat.__spark.catalog.clearCache()
             return rdd_map.toDF(corr_cols)
         except Exception as error:
-            raise OpheliaFunctionsException(
+            raise OphelianFunctionsException(
                 f"An error occurred on spark_correlation() method: {error}"
             )
 
@@ -409,9 +410,6 @@ class Selects:
 
     @staticmethod
     def sort_columns_asc(self):
-        # Todo: es posible llamar el atributo _jdf sin necesidad de quitar el decorador @staticmethod, se remueven por
-        # Todo: que producen error de ejecucion por el momento
-        # Todo: se deja el codigo muestra de version anterior
         """
         DataFrame(self._jdf.select(self._jdf.schema.fields), self.sql_ctx)
 
@@ -615,7 +613,7 @@ class Reshape(DataFrame):
                 )
             )
         except Exception as e:
-            raise OpheliaFunctionsException(
+            raise OphelianFunctionsException(
                 f"An error occurred while calling narrow_format() method: {e}"
             )
 
@@ -645,7 +643,7 @@ class Reshape(DataFrame):
             )
             return self.selectExpr(fix_cols, *column_to_explode)
         except Exception as e:
-            raise OpheliaFunctionsException(
+            raise OphelianFunctionsException(
                 f"An error occurred while calling narrow_format() method: {e}"
             )
 
@@ -689,7 +687,6 @@ class Reshape(DataFrame):
                     group_by_expr = col(group_by).alias(f"{group_by}")
 
             if len(list(agg_dict)) == 1:
-                # TODO: revisar el preformance de este .repartition(rep)
                 pivot_df = (
                     self.groupBy(group_by_expr)
                     .pivot(pivot_col)
@@ -708,12 +705,11 @@ class Reshape(DataFrame):
                 else:
                     renamed_cols = [col(c).alias(f"{c}") for c in pivot_df.columns[1:]]
                     return Reshape(pivot_df.select(f"{group_by}", *renamed_cols))
-            # TODO: revisar el preformance de este .repartition(rep)
             return Reshape(
                 self.groupBy(group_by_expr).pivot(pivot_col).agg(*agg_list).na.fill(0)
             )
         except TypeError as te:
-            raise OpheliaFunctionsException(
+            raise OphelianFunctionsException(
                 f"An error occurred while calling wide_format() method: {te}"
             )
 
@@ -789,7 +785,7 @@ class PctChange:
     @staticmethod
     def __infer_lag_columnv2(df):
         numeric_cols = df.select(
-            lambda col_name: df[col_name].dtype in (float, int, long)
+            lambda col_name: df[col_name].dtype in (float, int)
         ).columns
         if numeric_cols:
             return numeric_cols[0]
@@ -1067,9 +1063,6 @@ class DaskSpark:
 
     @staticmethod
     def spark_to_dask(self, option="csv", mode="overwrite", checkpoint_path=None):
-        """
-        TODO: Se necesita optimizar la manera en la que se escribe con coalesce(1) se debe escribir con Spark Streaming
-        """
         try:
             sc = SparkContext._active_spark_context
             spark = SparkSession(sc)
