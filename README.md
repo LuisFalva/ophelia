@@ -1,8 +1,9 @@
 <div align="center">
-  <img src="docs/img/2e88379-small-ai.png" alt="2e88379-small-ai.png">
+  <img src="docs/img/ophelian-ai-sticker.png" alt="ophelian-ai-sticker.png" width="200">
 </div>
 
-# Welcome to [Ophelian On Mars! ()](https://ophelia.readme.io/)!
+# [Ophelian On Mars](https://ophelian.readme.io/)!
+'Ophelian On Mars' 👽, the ultimate destination for ML, Data Science, and AI professionals. Your go-to framework for seamlessly putting prototypes into production—where everyone wants to be, but only a few succeed.
 
 
 ## 📝 Generalized ML Features
@@ -70,14 +71,26 @@ To initialize `Ophelia` with Spark embedded session use:
 >>> ophelia = Ophelia("Spark App Name")
 >>> sc = ophelia.Spark.build_spark_context()
 
-  ____          _            _  _           _____                      _    
- / __ \        | |          | |(_)         / ____|                    | |   
-| |  | | _ __  | |__    ___ | | _   __ _  | (___   _ __    __ _  _ __ | | __
-| |  | || '_ \ | '_ \  / _ \| || | / _` |  \___ \ | '_ \  / _` || '__|| |/ /
-| |__| || |_) || | | ||  __/| || || (_| |  ____) || |_) || (_| || |   |   < 
- \____/ | .__/ |_| |_| \___||_||_| \__,_| |_____/ | .__/  \__,_||_|   |_|\_\
-        | |                                       | |                       
-        |_|                                       |_|                       
+  ____          _            _  _               
+ / __ \        | |          | |(_)              
+| |  | | _ __  | |__    ___ | | _   __ _  _ __  
+| |  | || '_ \ | '_ \  / _ \| || | / _` || '_ \ 
+| |__| || |_) || | | ||  __/| || || (_| || | | |
+ \____/ | .__/ |_| |_| \___||_||_| \__,_||_| |_|
+        | |                                     
+        |_|                                     
+                 ____         
+                / __ \        
+               | |  | | _ __  
+               | |  | || '_ \ 
+               | |__| || | | |
+                \____/ |_| |_|
+         __  __                    _ 
+        |  \/  |                  | |
+        | \  / |  __ _  _ __  ___ | |
+        | |\/| | / _` || '__|/ __|| |
+        | |  | || (_| || |   \__ \|_|
+        |_|  |_| \__,_||_|   |___/(_)
 
 ```
 Main class objects provided by initializing Ophelia session:
