@@ -66,14 +66,13 @@ Before starting, you'll need to have installed:
 
 Additionally, if you want to use the Ophelian packages, you'll also need Python (supported 3.7 and 3.8 versions) and pip installed.
 
-### 🛠 Building from the source️
+### 🛠 Install Ophelian pypi package
 
 Just drop a pip install to the `Ophelian` pypi registry and import `Ophelian`:
 ```sh
-# pypi repository name will change soon into 'ophelian'
 pip install ophelia-spark==0.1.3
 ```
-> [Warning]
+> Warning
 > pypi repository name will change soon into 'ophelian'
 
 ### 📦 Importing and initializing Ophelian
