@@ -7,11 +7,14 @@ ENV PATH="/root/.local/bin:$PATH"
 
 WORKDIR /ophelian
 
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml ./
 
 RUN pip install --upgrade pip
 RUN poetry config virtualenvs.create false
-RUN poetry install --no-dev --no-interaction --no-ansi
+RUN poetry config warnings.export false
+RUN poetry lock -n && poetry export --without-hashes > requirements.txt || { echo "Failed to export requirements.txt"; exit 1; }
+RUN poetry install --no-root -n
+RUN printf "[Dockerfile] - poetry installation and setup complete.\n\n"
 
 COPY ophelian ./ophelian
 

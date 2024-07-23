@@ -80,8 +80,8 @@ pip install ophelia-spark==0.1.3
 To initialize `Ophelian` with Spark embedded session use:
 
 ```python
-from ophelian.ophelian_spark import Ophelian
-ophelian = Ophelian("Spark App Name")
+from ophelian.start import OphelianSession
+ophelian = OphelianSession("Spark App Name")
 sc = ophelian.Spark.build_spark_context()
   ____          _            _  _               
  / __ \        | |          | |(_)              

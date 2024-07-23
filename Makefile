@@ -22,6 +22,7 @@ poetry-remove:
 # Installation
 .PHONY: install
 install:
+	pip install --upgrade pip
 	poetry config warnings.export false
 	poetry lock -n && poetry export --without-hashes > requirements.txt || { echo "Failed to export requirements.txt"; exit 1; }
 	poetry install --no-root -n
