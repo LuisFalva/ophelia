@@ -2,6 +2,7 @@ from functools import lru_cache, reduce
 from typing import List
 
 import numpy as np
+from _logger import OphelianLogger
 from pyspark.sql import Window
 from pyspark.sql.functions import (
     asc,
@@ -23,7 +24,6 @@ from pyspark.sql.types import (
 )
 
 from . import OpheliaUtilitiesException
-from ._logger import OpheliaLogger
 
 __all__ = [
     "union_all",
@@ -50,7 +50,7 @@ __all__ = [
     "row_indexing",
     "string_match",
 ]
-logger = OpheliaLogger()
+logger = OphelianLogger()
 
 
 def union_all(dfs: list):

@@ -34,7 +34,7 @@ git clone https://github.com/LuisFalva/ophelia.git
 
 After wiring and clone the `Ophelia` repo go to:
 ```sh   
-cd ophelia_spark
+cd ophelian_spark
 ```
 ### First time installation 📡
 > For the very first time running and installing Ophelia in your local machine you need to wire with Ophelia's main repo.
@@ -47,7 +47,7 @@ make install
 
 **First Important Note**: You must see a successful message like the one below.
 ```sh   
-[Ophelia] Successfully installed ophelia_spark:0.1.0. Have fun! =)
+[Ophelia] Successfully installed ophelian_spark:0.1.0. Have fun! =)
 ```
 
 **Second Important Note**: You also can pull Ophelia 0.1.0
@@ -67,30 +67,49 @@ make docker-build
 To initialize `Ophelia` with Spark embedded session use:
 
 ```python
->>> from ophelia_spark.start import Ophelia
->>> ophelia = Ophelia("Spark App Name")
->>> sc = ophelia.Spark.build_spark_context()
+>> > from ophelian_spark import Ophelia
+>> > ophelia = Ophelia("Spark App Name")
+>> > sc = ophelia.Spark.build_spark_context()
 
-  ____          _            _  _               
- / __ \        | |          | |(_)              
-| |  | | _ __  | |__    ___ | | _   __ _  _ __  
-| |  | || '_ \ | '_ \  / _ \| || | / _` || '_ \ 
-| |__| || |_) || | | ||  __/| || || (_| || | | |
- \____/ | .__/ |_| |_| \___||_||_| \__,_||_| |_|
-        | |                                     
-        |_|                                     
-                 ____         
-                / __ \        
-               | |  | | _ __  
-               | |  | || '_ \ 
-               | |__| || | | |
-                \____/ |_| |_|
-         __  __                    _ 
-        |  \/  |                  | |
-        | \  / |  __ _  _ __  ___ | |
-        | |\/| | / _` || '__|/ __|| |
-        | |  | || (_| || |   \__ \|_|
-        |_|  |_| \__,_||_|   |___/(_)
+____
+_
+_
+_
+/ __ \ | | | | (_)
+| | | | _
+__ | | __
+___ | | _
+__
+_
+_
+__
+| | | | | '_ \ | '
+_ \ / _ \ | | | | / _
+` | | '_ \
+| | __ | | | | _) | | | | | | __ / | | | | | (_ | | | | | |
+\____ / |.__ / | _ | | _ | \___ | | _ | | _ | \__, _ | | _ | | _ |
+| |
+| _ |
+____
+/ __
+  | | | | _
+__
+| | | | | '_ \
+| | __ | | | | | |
+\____ / | _ | | _ |
+__
+__
+_
+|   \ / | | |
+|  \ / | __
+_
+_
+__
+___ | |
+| | \ / | | / _
+` | | '__|/ __|| |
+| | | | | (_ | | | |   \__ \ | _ |
+| _ | | _ |  \__, _ | | _ | | ___ / (_)
 
 ```
 Main class objects provided by initializing Ophelia session:
@@ -98,25 +117,26 @@ Main class objects provided by initializing Ophelia session:
 - `read` & `write`
 
 ```python
-from ophelia_spark.read.spark_read import Read
-from ophelia_spark.write.spark_write import Write
+from ophelian_spark.read import Read
+from ophelian_spark import Write
 ```
 - `generic` & `functions`
 
 ```python
-from ophelia_spark.functions import Shape, Rolling, Reshape, CorrMat, CrossTabular, PctChange, Selects, DynamicSampling
-from ophelia_spark.generic import (split_date, row_index, lag_min_max_data, regex_expr, remove_duplicate_element,
-                                   year_array, dates_index, sorted_date_list, feature_pick, binary_search,
-                                   century_from_year, simple_average, delta_series, simple_moving_average, average,
-                                   weight_moving_average, single_exp_smooth, double_exp_smooth, initial_seasonal_components,
-                                   triple_exp_smooth, row_indexing, string_match)
+from ophelian_spark import Shape, Rolling, Reshape, CorrMat, CrossTabular, PctChange, Selects, DynamicSampling
+from ophelian_spark import (split_date, row_index, lag_min_max_data, regex_expr, remove_duplicate_element,
+                            year_array, dates_index, sorted_date_list, feature_pick, binary_search,
+                            century_from_year, simple_average, delta_series, simple_moving_average, average,
+                            weight_moving_average, single_exp_smooth, double_exp_smooth, initial_seasonal_components,
+                            triple_exp_smooth, row_indexing, string_match)
 ```
 - ML package for `unsupervised`, `sampling` and `feature_miner` objects
 
 ```python
-from ophelia_spark.ml.sampling.synthetic_sample import SyntheticSample
-from ophelia_spark.ml.unsupervised.feature import PCAnalysis, SingularVD
-from ophelia_spark.ml.feature_miner import BuildStringIndex, BuildOneHotEncoder, BuildVectorAssembler, BuildStandardScaler, SparkToNumpy, NumpyToVector
+from ophelian_spark import SyntheticSample
+from ophelian_spark import PCAnalysis, SingularVD
+from ophelian_spark import BuildStringIndex, BuildOneHotEncoder, BuildVectorAssembler, BuildStandardScaler,
+    SparkToNumpy, NumpyToVector
 ```
 
 Let me show you some application examples:
@@ -124,14 +144,16 @@ Let me show you some application examples:
 The `Read` class implements Spark reading object in multiple formats `{'csv', 'parquet', 'excel', 'json'}`
 
 ```python
-from ophelia_spark.read.spark_read import Read
+from ophelian_spark.read import Read
+
 spark_df = spark.readFile(path, 'csv', header=True, infer_schema=True)
 ```
 
 Also, you may import class `Shape` from factory `functions` in order to see the dimension of our spark DataFrame such as numpy style.
 
 ```python
-from ophelia_spark.functions import Shape
+from ophelian_spark import Shape
+
 dic = {
     'Product': ['A', 'B', 'C', 'A', 'B', 'C', 'A', 'B', 'C'],
     'Year': [2010, 2010, 2010, 2011, 2011, 2011, 2012, 2012, 2012],
@@ -141,17 +163,17 @@ dic_to_df = spark.createDataFrame(pd.DataFrame(data=dic))
 dic_to_df.show(10, False)
 
 +---------+------------+-----------+
-| Product |    Year    |  Revenue  |
+| Product | Year | Revenue |
 +---------+------------+-----------+
-|    A    |    2010    |    100    |
-|    B    |    2010    |    200    |
-|    C    |    2010    |    300    |
-|    A    |    2011    |    110    |
-|    B    |    2011    |    190    |
-|    C    |    2011    |    320    |
-|    A    |    2012    |    120    |
-|    B    |    2012    |    220    |
-|    C    |    2012    |    350    |
+| A | 2010 | 100 |
+| B | 2010 | 200 |
+| C | 2010 | 300 |
+| A | 2011 | 110 |
+| B | 2011 | 190 |
+| C | 2011 | 320 |
+| A | 2012 | 120 |
+| B | 2012 | 220 |
+| C | 2012 | 350 |
 +---------+------------+-----------+
 
 dic_to_df.Shape
@@ -162,21 +184,22 @@ The `pct_change` wrapper is added to the Spark `DataFrame` class in order to hav
 objects to get the relative percentage change from one observation to another, sorted by a date-type column and lagged by a numeric-type column.
 
 ```python
-from ophelia_spark.functions import PctChange
+from ophelian_spark import PctChange
+
 dic_to_df.pctChange().show(10, False)
 
 +---------------------+
-| Revenue             |
+| Revenue |
 +---------------------+
-| null                |
-| 1.0                 |
-| 0.5                 |
+| null |
+| 1.0 |
+| 0.5 |
 | -0.6333333333333333 |
-| 0.7272727272727273  |
-| 0.6842105263157894  |
-| -0.625              |
-| 0.8333333333333333  |
-| 0.5909090909090908  |
+| 0.7272727272727273 |
+| 0.6842105263157894 |
+| -0.625 |
+| 0.8333333333333333 |
+| 0.5909090909090908 |
 +---------------------+
 ```
 

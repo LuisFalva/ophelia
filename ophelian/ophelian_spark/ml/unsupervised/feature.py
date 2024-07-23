@@ -1,4 +1,6 @@
 import numpy as np
+from ophelian_spark import OphelianMLException
+from ophelian_spark.ml.feature_miner import BuildStandardScaler, BuildVectorAssembler
 from pyspark.ml import Transformer
 from pyspark.ml.feature import PCA, PCAModel
 from pyspark.ml.linalg import DenseVector, Vectors, VectorUDT
@@ -7,9 +9,7 @@ from pyspark.mllib.util import MLUtils
 from pyspark.sql.functions import monotonically_increasing_id, udf
 from pyspark.sql.types import Row
 
-from ophelia_spark import OpheliaMLException
-from ophelia_spark._logger import OpheliaLogger
-from ophelia_spark.ml.feature_miner import BuildStandardScaler, BuildVectorAssembler
+from ophelian._logger import OphelianLogger
 
 
 class PCAnalysis(Transformer):
@@ -40,7 +40,7 @@ class SingularVD(Transformer):
 
     def __init__(self, k=None, offset=95, label_col="label"):
         super().__init__()
-        self.__logger = OpheliaLogger()
+        self.__logger = OphelianLogger()
         self.k = k
         self.offset = offset
         self.label_col = label_col
@@ -59,7 +59,7 @@ class SingularVD(Transformer):
                 to_dense_udf("features").alias("features"),
             )
         except TypeError as te:
-            raise OpheliaMLException(
+            raise OphelianMLException(
                 f"An error occurred while calling __to_dense_vector() method: {te}"
             )
 
@@ -68,7 +68,7 @@ class SingularVD(Transformer):
         df,
         with_mean=True,
         with_std=True,
-        model_path="data/master/ophelia_spark/out/model/save/StandardScalerModel",
+        model_path="data/master/ophelian_spark/out/model/save/StandardScalerModel",
     ):
         """
         Standardizes features by removing the mean and scaling to unit variance using column summary
@@ -92,7 +92,7 @@ class SingularVD(Transformer):
                 )
             return BuildStandardScaler(with_mean, with_std).transform(dense_vec_df)
         except TypeError as te:
-            raise OpheliaMLException(
+            raise OphelianMLException(
                 f"An error occurred while calling __standard_features() method: {te}"
             )
 
@@ -112,7 +112,7 @@ class SingularVD(Transformer):
             self.__logger.info("Build Index Row Matrix RDD")
             return IndexedRowMatrix(vector_rdd)
         except TypeError as te:
-            raise OpheliaMLException(
+            raise OphelianMLException(
                 f"An error occurred while calling __index_row_matrix_rdd() method: {te}"
             )
 
@@ -127,7 +127,7 @@ class SingularVD(Transformer):
         try:
             return np.argmax(var_array > offset) + 1
         except TypeError as te:
-            raise OpheliaMLException(
+            raise OphelianMLException(
                 f"An error occurred while calling find_k() method: {te}"
             )
 
@@ -161,7 +161,7 @@ class SingularVD(Transformer):
                 "d": d,
             }
         except TypeError as te:
-            raise OpheliaMLException(
+            raise OphelianMLException(
                 f"An error occurred while calling svd_set_dict() method: {te}"
             )
 
@@ -175,7 +175,7 @@ class SingularVD(Transformer):
             self.__logger.info("Compute Eigenvalues & Eigenvectors From Hyperplane")
             return np.flipud(np.sort(svd["S"] ** 2 / (svd["n"] - 1)))
         except TypeError as te:
-            raise OpheliaMLException(
+            raise OphelianMLException(
                 f"An error occurred while calling compute_eigenvalues() method: {te}"
             )
 
@@ -191,7 +191,7 @@ class SingularVD(Transformer):
             self.__logger.info("Compute Variance For Each Component")
             return (eigen_vals.cumsum() / eigen_vals.sum()) * 100
         except TypeError as te:
-            raise OpheliaMLException(
+            raise OphelianMLException(
                 f"An error occurred while calling cumulative_variance() method: {te}"
             )
 
@@ -211,7 +211,7 @@ class SingularVD(Transformer):
             for v in var_list:
                 self.__logger.warning(message(var=v))
         except TypeError as te:
-            raise OpheliaMLException(
+            raise OphelianMLException(
                 f"An error occurred while calling __foreach_pc_var_print() method: {te}"
             )
 
@@ -229,10 +229,10 @@ class SingularVD(Transformer):
             self.__foreach_pc_var_print(self.find_k, tot_var)
             self.__logger.info(f"Fit Optimal PCA Model With K={optimal_k} Components")
             return PCAnalysis(
-                optimal_k, "data/master/ophelia_spark/out/model/save/OptimalPCAModel"
+                optimal_k, "data/master/ophelian_spark/out/model/save/OptimalPCAModel"
             )
         except TypeError as te:
-            raise OpheliaMLException(
+            raise OphelianMLException(
                 f"An error occurred while calling optimal_pc() method: {te}"
             )
 
@@ -254,7 +254,7 @@ class IndependentComponent(Transformer):
     def __init__(self, n_components=None):
         super().__init__()
         self.__n_components = n_components
-        self.__logger = OpheliaLogger()
+        self.__logger = OphelianLogger()
 
     @staticmethod
     def __center(X):
@@ -293,7 +293,7 @@ class IndependentComponent(Transformer):
             return dataset.sql_ctx.createDataFrame(rows)
         except Exception as e:
             self.__logger.error(f"An error occurred in ICA transform: {e}")
-            raise OpheliaMLException(f"An error occurred in ICA transform: {e}")
+            raise OphelianMLException(f"An error occurred in ICA transform: {e}")
 
 
 class LinearDAnalysis(Transformer):
@@ -304,7 +304,7 @@ class LinearDAnalysis(Transformer):
     def __init__(self, n_components=None):
         super().__init__()
         self.__n_components = n_components
-        self.__logger = OpheliaLogger()
+        self.__logger = OphelianLogger()
 
     def __lda(self, X, y):
         class_labels = np.unique(y)
@@ -343,7 +343,7 @@ class LinearDAnalysis(Transformer):
             return dataset.sql_ctx.createDataFrame(rows)
         except Exception as e:
             self.__logger.error(f"An error occurred in LDA transform: {e}")
-            raise OpheliaMLException(f"An error occurred in LDA transform: {e}")
+            raise OphelianMLException(f"An error occurred in LDA transform: {e}")
 
 
 class LLinearEmbedding(Transformer):
@@ -355,7 +355,7 @@ class LLinearEmbedding(Transformer):
         super().__init__()
         self.__n_neighbors = n_neighbors
         self.__n_components = n_components
-        self.__logger = OpheliaLogger()
+        self.__logger = OphelianLogger()
 
     def __lle(self, X):
         from sklearn.neighbors import NearestNeighbors
@@ -387,7 +387,7 @@ class LLinearEmbedding(Transformer):
             return dataset.sql_ctx.createDataFrame(rows)
         except Exception as e:
             self.__logger.error(f"An error occurred in LLE transform: {e}")
-            raise OpheliaMLException(f"An error occurred in LLE transform: {e}")
+            raise OphelianMLException(f"An error occurred in LLE transform: {e}")
 
 
 class StochasticNeighbor(Transformer):
@@ -403,7 +403,7 @@ class StochasticNeighbor(Transformer):
         self.__perplexity = perplexity
         self.__learning_rate = learning_rate
         self.__n_iter = n_iter
-        self.__logger = OpheliaLogger()
+        self.__logger = OphelianLogger()
 
     def __tsne(self, X):
         from sklearn.manifold import TSNE
@@ -426,4 +426,4 @@ class StochasticNeighbor(Transformer):
             return dataset.sql_ctx.createDataFrame(rows)
         except Exception as e:
             self.__logger.error(f"An error occurred in t-SNE transform: {e}")
-            raise OpheliaMLException(f"An error occurred in t-SNE transform: {e}")
+            raise OphelianMLException(f"An error occurred in t-SNE transform: {e}")

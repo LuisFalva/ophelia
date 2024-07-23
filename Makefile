@@ -5,7 +5,7 @@ PYTHONPATH := `pwd`
 
 # Docker variables
 DOCKER_USERNAME := luisfalva
-IMAGE := ophelia
+IMAGE := ophelian
 VERSION := latest
 
 # Poetry
@@ -65,7 +65,7 @@ formatting: codestyle check-codestyle
 # Linting
 .PHONY: test
 test:
-	PYTHONPATH=$(PYTHONPATH) poetry run pytest -c pyproject.toml --cov-report=html --cov=ophelia tests/
+	PYTHONPATH=$(PYTHONPATH) poetry run pytest -c pyproject.toml --cov-report=html --cov=ophelian tests/
 	poetry run coverage-badge -o assets/images/coverage.svg -f
 
 .PHONY: check

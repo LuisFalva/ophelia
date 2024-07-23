@@ -1,16 +1,14 @@
-from ._logger import OpheliaLogger
+from ophelian._logger import OphelianLogger
 
 
-class OpheliaInfo:
+class OphelianInfo:
 
     def __init__(self):
-        self.__logger = OpheliaLogger()
-        self.__version = "Ophelia.0.0.1"
+        self.__logger = OphelianLogger()
+        self.__version = "ophelian.0.1.3"
         self.__info = {
-            "who is": "Hello! This engine is for data mining & ml pipelines in PySpark",
-            "welcome": "Welcome to Ophelia Spark miner engine",
+            "welcome": "Welcome to 'Ophelian On Mars', more than a Framework.",
             "version": f"Package Version {self.__version}",
-            "warn": "V for Vendata...",
         }
 
     def __auto_space(self, msg):
@@ -35,7 +33,7 @@ class OpheliaInfo:
     def __build_mask(self):
         self.__logger.warning(
             self.__auto_space(
-                "                      - Ophelia Spark -                     "
+                "                     - Ophelian On Mars -                      "
             )
         )
         self.__logger.mask(
@@ -204,11 +202,11 @@ class OpheliaInfo:
             )
         )
 
-    def __build_ophelia_message(self):
+    def __build_ophelian_message(self):
         self.__build_info()
         self.__build_mask()
 
     def print_info(self, mask):
         if mask:
-            return self.__build_ophelia_message()
+            return self.__build_ophelian_message()
         return self.__build_info()

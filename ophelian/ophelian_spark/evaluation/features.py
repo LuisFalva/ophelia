@@ -26,16 +26,16 @@ class FeatureSelector(Transformer):
         The name of the output column that will contain the selected features.
 
     Example:
-    >>> from pyspark.sql import SparkSession
-    >>> spark = SparkSession.builder.appName("FeatureSelector").getOrCreate()
-    >>> data = [(1.0, 0.1, 0.3, 0.5, 0), (0.2, 0.4, 0.6, 0.8, 1), (0.5, 0.7, 0.9, 0.3, 0), (0.4, 0.9, 0.7, 0.6, 1)]
-    >>> columns = ["feature1", "feature2", "feature3", "feature4", "label"]
-    >>> df = spark.createDataFrame(data, columns)
-    >>> selector = FeatureSelector(method="shap", k=2)
-    >>> pipeline = Pipeline(stages=[selector])
-    >>> model = pipeline.fit(df)
-    >>> selected_df = model.transform(df)
-    >>> selected_df.show()
+        from pyspark.sql import SparkSession
+        spark = SparkSession.builder.appName("FeatureSelector").getOrCreate()
+        data = [(1.0, 0.1, 0.3, 0.5, 0), (0.2, 0.4, 0.6, 0.8, 1), (0.5, 0.7, 0.9, 0.3, 0), (0.4, 0.9, 0.7, 0.6, 1)]
+        columns = ["feature1", "feature2", "feature3", "feature4", "label"]
+        df = spark.createDataFrame(data, columns)
+        selector = FeatureSelector(method="shap", k=2)
+        pipeline = Pipeline(stages=[selector])
+        model = pipeline.fit(df)
+        selected_df = model.transform(df)
+        selected_df.show()
     """
 
     def __init__(self, method="chi2", k=10, output_col="selected_features"):

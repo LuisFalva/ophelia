@@ -4,8 +4,19 @@ import re
 
 import numpy as np
 import pandas as pd
+from _logger import OphelianLogger
 from dask import array as dask_arr
 from dask import dataframe as dask_df
+from ophelian_spark import OpheliaFunctionsException, SparkMethods
+from ophelian_spark._wrapper import DataFrameWrapper
+from ophelian_spark.generic import (
+    feature_pick,
+    regex_expr,
+    remove_duplicate_element,
+    union_all,
+)
+from ophelian_spark.ml.optim.utils import LBFGS
+from ophelian_spark.session.spark import OphelianSpark
 from py4j.protocol import Py4JJavaError
 from pyspark import SparkContext
 from pyspark.ml.feature import VectorAssembler
@@ -30,18 +41,6 @@ from pyspark.sql.functions import round as spark_round
 from pyspark.sql.functions import row_number, stddev, struct, variance, when
 from pyspark.sql.types import StringType, StructField, StructType
 from quadprog import solve_qp
-
-from ophelia_spark import OpheliaFunctionsException, SparkMethods
-from ophelia_spark._logger import OpheliaLogger
-from ophelia_spark._wrapper import DataFrameWrapper
-from ophelia_spark.generic import (
-    feature_pick,
-    regex_expr,
-    remove_duplicate_element,
-    union_all,
-)
-from ophelia_spark.ml.optim.utils import LBFGS
-from ophelia_spark.session.spark import OpheliaSpark
 
 __all__ = [
     "NullDebugWrapper",
@@ -74,8 +73,8 @@ def _wrapper(wrap_object):
 
 class NullDebug:
 
-    __logger = OpheliaLogger()
-    __spark = OpheliaSpark().ophelia_active_session()
+    __logger = OphelianLogger()
+    __spark = OphelianSpark().ophelia_active_session()
 
     @staticmethod
     def __cleansing_list(self, partition_by=None, offset: float = 0.5):
@@ -137,7 +136,7 @@ class NullDebugWrapper:
 
 class CorrMat:
 
-    __spark = OpheliaSpark().ophelia_active_session()
+    __spark = OphelianSpark().ophelia_active_session()
 
     @staticmethod
     def __corr(pair):
@@ -324,7 +323,7 @@ class RollingWrapper:
 
 class DynamicSampling:
 
-    __spark = OpheliaSpark().ophelia_active_session()
+    __spark = OphelianSpark().ophelia_active_session()
 
     @staticmethod
     def empty_scan(self):

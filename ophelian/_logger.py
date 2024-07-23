@@ -1,7 +1,7 @@
 from datetime import datetime
 
 
-class OpheliaLogger:
+class OphelianLogger:
 
     @staticmethod
     def get_current_time():
@@ -10,8 +10,8 @@ class OpheliaLogger:
 
     def get_message(self, message, level):
         time = self.get_current_time()
-        ophelia_name = "Ophelia"
-        return f"{time} {ophelia_name} [{level}] {message}"
+        ophelian_name = "Ophelian"
+        return f"{time} {ophelian_name} [{level}] {message}"
 
     def debug(self, message):
         print(self.get_message(message, "DEBUG"))

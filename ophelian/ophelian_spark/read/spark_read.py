@@ -1,19 +1,17 @@
 from datetime import date
 
 import pandas as pd
+from _logger import OphelianLogger
+from ophelian_spark import FormatRead, OpheliaReadFileException
+from ophelian_spark.generic import union_all
 from pyspark.sql import DataFrame, SparkSession
-
-from ophelia_spark import FormatRead, OpheliaReadFileException
-from ophelia_spark.generic import union_all
-
-from .._logger import OpheliaLogger
 
 __all__ = ["Read", "SparkReadWrapper"]
 
 
 class Read:
 
-    __logger = OpheliaLogger()
+    __logger = OphelianLogger()
     __format = FormatRead()
 
     @staticmethod

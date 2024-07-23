@@ -1,6 +1,8 @@
 from math import log
 
 import numpy as np
+from _logger import OphelianLogger
+from ophelian_spark import OpheliaMLMinerException
 from pyspark.ml import Pipeline, PipelineModel, Transformer
 from pyspark.ml.feature import (
     OneHotEncoder,
@@ -12,9 +14,6 @@ from pyspark.ml.feature import (
 )
 from pyspark.ml.linalg import DenseVector
 from pyspark.sql.types import Row
-
-from ophelia_spark import OpheliaMLMinerException
-from ophelia_spark._logger import OpheliaLogger
 
 
 class BuildStringIndex(Transformer):
@@ -32,7 +31,7 @@ class BuildStringIndex(Transformer):
 
     Example:
 
-        from ophelia_spark.ml.feature_miner import BuildStringIndex
+        from ophelian_spark.ml.feature_miner import BuildStringIndex
         df = spark.createDataFrame(
             [('apple','red'), ('banana','yellow'), ('coconut','brown')],
             ["fruit_type", "fruit_color"]
@@ -44,7 +43,7 @@ class BuildStringIndex(Transformer):
 
     def __init__(self, input_cols, path=None, dir_name=None):
         super().__init__()
-        self.__logger = OpheliaLogger()
+        self.__logger = OphelianLogger()
         self.__input_cols = input_cols
         self.__dir_name = dir_name
         self.__estimator_path = path
@@ -146,7 +145,7 @@ class BuildOneHotEncoder(Transformer):
 
     Example:
 
-        from ophelia_spark.ml.feature_miner import BuildOneHotEncoder
+        from ophelian_spark.ml.feature_miner import BuildOneHotEncoder
         df = spark.createDataFrame(
             [('0.0','0.2'), ('0.1','0.0'), ('0.2','0.1')],
             ["fruit_type_index", "fruit_color_index"]
@@ -167,7 +166,7 @@ class BuildOneHotEncoder(Transformer):
         handle_invalid="error",
     ):
         super().__init__()
-        self.__logger = OpheliaLogger()
+        self.__logger = OphelianLogger()
         self.__input_cols = input_cols
         self.__estimator_path = path
         self.__dir_name = dir_name
@@ -238,7 +237,7 @@ class BuildVectorAssembler(Transformer):
 
     def __init__(self, input_cols, name_vec="features"):
         super().__init__()
-        self.__logger = OpheliaLogger()
+        self.__logger = OphelianLogger()
         self.__input_cols = input_cols
         self.__name_vec = name_vec
 
@@ -279,7 +278,7 @@ class BuildStandardScaler(Transformer):
         output_col="scaled_features",
     ):
         super().__init__()
-        self.__logger = OpheliaLogger()
+        self.__logger = OphelianLogger()
         self.__with_mean = with_mean
         self.__with_std = with_std
         self.__path = path
@@ -339,7 +338,7 @@ class SparkToNumpy(Transformer):
 
     def __init__(self, list_columns=None):
         super().__init__()
-        self.__logger = OpheliaLogger()
+        self.__logger = OphelianLogger()
         self.__list_columns = list_columns
 
     def __spark_to_numpy(self, df, columns=None):
@@ -370,7 +369,7 @@ class NumpyToVector:
     def __init__(self, SparkContext):
         super().__init__()
         self._sc = SparkContext
-        self.__logger = OpheliaLogger()
+        self.__logger = OphelianLogger()
 
     def __numpy_to_vector_assembler(self, np_object, label_t=1):
         """

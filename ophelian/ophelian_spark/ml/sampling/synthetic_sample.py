@@ -1,12 +1,14 @@
 import random
 
 import numpy as np
+from ophelian_spark import InstanceError
+from ophelian_spark.ml.feature_miner import (
+    BuildVectorAssembler,
+    NumpyToVector,
+    SparkToNumpy,
+)
 from pyspark.sql import DataFrame
 from sklearn import neighbors
-
-from ophelia_spark import InstanceError
-
-from ..feature_miner import BuildVectorAssembler, NumpyToVector, SparkToNumpy
 
 
 class SyntheticSample:

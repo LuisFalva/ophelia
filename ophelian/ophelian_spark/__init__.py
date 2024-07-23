@@ -6,11 +6,11 @@ from pyspark.sql.functions import stddev
 from pyspark.sql.functions import sum as spark_sum
 from pyspark.sql.functions import variance
 
-"""Top-level package for ophelia_spark."""
+"""Top-level package for ophelian_spark."""
 
 __author__ = """LuisFalva"""
 __email__ = "falvaluis@gmail.com"
-__version__ = "0.1.0"
+__version__ = "0.1.3"
 __all__ = [
     "SparkMethods",
     "ClassType",
@@ -19,14 +19,14 @@ __all__ = [
     "FormatRead",
     "PathWrite",
     "FormatWrite",
-    "OpheliaMLException",
-    "OpheliaMLMinerException",
-    "OpheliaUtilitiesException",
-    "OpheliaReadFileException",
-    "OpheliaSparkSessionException",
-    "OpheliaSparkWrapperException",
-    "OpheliaWriteFileException",
-    "OpheliaFunctionsException",
+    "OphelianMLException",
+    "OphelianMLMinerException",
+    "OphelianUtilitiesException",
+    "OphelianReadFileException",
+    "OphelianSparkSessionException",
+    "OphelianSparkWrapperException",
+    "OphelianWriteFileException",
+    "OphelianFunctionsException",
 ]
 
 
@@ -82,7 +82,7 @@ class FormatWrite:
 class PathWrite:
     def __init__(self):
         self.root = "data"
-        self.dir = "ophelia_spark"
+        self.dir = "ophelian_spark"
         self.out = "out"
         self.engine = "engine"
         self.model = "model"
@@ -91,65 +91,65 @@ class PathWrite:
         return f"{self.root}/{self.dir}/{self.out}/{opt}/{project}/"
 
 
-class OpheliaMLException(Exception):
+class OphelianMLException(Exception):
     """
-    Ophelia ML Exception
-    """
-
-    pass
-
-
-class OpheliaMLMinerException(Exception):
-    """
-    Ophelia ML Miner Exception
+    Ophelian ML Exception
     """
 
     pass
 
 
-class OpheliaReadFileException(Exception):
+class OphelianMLMinerException(Exception):
     """
-    Ophelia Read File Exception
-    """
-
-    pass
-
-
-class OpheliaSparkSessionException(Exception):
-    """
-    Ophelia Spark Session Exception
+    Ophelian ML Miner Exception
     """
 
     pass
 
 
-class OpheliaUtilitiesException(Exception):
+class OphelianReadFileException(Exception):
     """
-    Ophelia Utilities Exception
-    """
-
-    pass
-
-
-class OpheliaSparkWrapperException(Exception):
-    """
-    Ophelia Spark Wrapper Exception
+    Ophelian Read File Exception
     """
 
     pass
 
 
-class OpheliaWriteFileException(Exception):
+class OphelianSparkSessionException(Exception):
     """
-    Ophelia Write File Exception
+    Ophelian Spark Session Exception
     """
 
     pass
 
 
-class OpheliaFunctionsException(Exception):
+class OphelianUtilitiesException(Exception):
     """
-    Ophelia Functions Exception
+    Ophelian Utilities Exception
+    """
+
+    pass
+
+
+class OphelianSparkWrapperException(Exception):
+    """
+    Ophelian Spark Wrapper Exception
+    """
+
+    pass
+
+
+class OphelianWriteFileException(Exception):
+    """
+    Ophelian Write File Exception
+    """
+
+    pass
+
+
+class OphelianFunctionsException(Exception):
+    """
+    Ophelian Functions Exception
     """
 
     pass

@@ -1,8 +1,7 @@
 import unittest
 
+from ophelian_spark import row_index, split_date, union_all
 from pyspark.sql import SparkSession
-
-from ophelia_spark.generic import row_index, split_date, union_all
 
 
 class GenericTest(unittest.TestCase):
