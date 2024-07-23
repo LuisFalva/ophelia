@@ -23,11 +23,11 @@
   </div>
 </div>
 
-# 👽 Ophelian On Mars
+# Ophelian On Mars
 
 ---
 
-The ultimate destination for ML, Data Science, and AI professionals. Your go-to framework for seamlessly putting prototypes into production.
+'*Ophelian On Mars*' 👽, the ultimate destination for ML, Data Science, and AI professionals. Your go-to framework for seamlessly putting ML prototypes into production—where everyone wants to be, but only a few succeed.
 
 # 🚀 Motivations
 
@@ -55,7 +55,7 @@ These features empower users with the tools they need to handle complex ML tasks
 
 # Getting Started:
 
-### Requirements 📜
+### 📜 Requirements
 
 Before starting, you'll need to have installed: 
 - pyspark >= 3.0.x
@@ -66,7 +66,7 @@ Before starting, you'll need to have installed:
 
 Additionally, if you want to use the Ophelia package, you'll also need Python (supported 3.7 and 3.8 versions) and pip installed.
 
-### Building from the source 🛠️
+### 🛠 Building from the source️
 
 Just clone the `Ophelian` repo and import `Ophelian`:
 ```sh
@@ -79,7 +79,7 @@ After wiring and clone the `Ophelian` repo go to:
 # parent root package name will change soon into 'ophelian'
 cd ophelian_spark
 ```
-### First time installation 📡
+### 📡 First time installation
 > For the very first time running and installing Ophelian in your local machine you need to wire with Ophelian's main repo.
 Just run the following script in order to set up correctly:
 
@@ -105,7 +105,7 @@ Also, you can push new changes to your corresponding version as follows:
 make docker-build
 ```
 
-### Importing and initializing Ophelian 📦
+### 📦 Importing and initializing Ophelian
 
 To initialize `Ophelian` with Spark embedded session use:
 
@@ -289,15 +289,16 @@ dic_to_df.pctChange(partition_by="Product", order_by="Year", pct_cols=["Year", "
 only showing top 5 rows
 ```
  
-### Want to contribute? 🤔
+## 🤔 Contributing to Ophelian On Mars
 
-Bring it on! If you have an idea or want to ask anything, or there is a bug you want fixed, you may open an [issue ticket](https://github.com/LuisFalva/ophilea/issues). You will find the guidelines to make an issue request there. Also, you can get a glimpse of [Open Source Contribution Guide best practices here](https://opensource.guide/).
-Cheers 🍻!
+We welcome contributions from everyone! If you have an idea, a question, or if you've found a bug that needs fixing, please open an [issue ticket](https://github.com/LuisFalva/ophelian/issues).
 
-### Support or Contact 📠
+You can find guidelines for submitting an issue request in our repository. Additionally, you can refer to the [Open Source Contribution Guide best practices](https://opensource.guide/) to get started.
 
-Having trouble with Ophilea? Yo can DM me at [falvaluis@gmail.com](https://mail.google.com/mail/u/0/?tab=rm&ogbl#inbox?compose=CllgCJZZQVJHBJKmdjtXgzlrRcRktFLwFQsvWKqcTRtvQTVcHvgTNSxVzjZqjvDFhZlVJlPKqtg) and I’ll help you sort it out.
+## 📠 Support or Contact
 
-### License 📃
+Having trouble with Ophelian? Yo can DM me at [falvaluis@gmail.com](https://mail.google.com/mail/u/0/?tab=rm&ogbl#inbox?compose=CllgCJZZQVJHBJKmdjtXgzlrRcRktFLwFQsvWKqcTRtvQTVcHvgTNSxVzjZqjvDFhZlVJlPKqtg) and I’ll help you sort it out.
+
+## 📃 License
 
 Released under the Apache License, version 2.0.
