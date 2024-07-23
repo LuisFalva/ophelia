@@ -1,9 +1,31 @@
-<div align="center">
-  <img src="docs/img/ophelian-ai-sticker.png" alt="ophelian-ai-sticker.png" width="200">
+<div align="center" style="padding: 20px;">
+  <img src="docs/img/ophelian-ai-sticker.png" alt="Ophelian AI Sticker" width="200" style="margin-top: 20px;">
+
+  <p style="color: #FFF; font-family: 'Helvetica Neue', Arial, sans-serif; text-align: center; max-width: 600px; margin: 20px auto; font-weight: bold;">
+    — 'Ophelian On Mars' 👽 where the entire world strives to reach, but only a few succeed.
+  </p>
+  
+  <div style="margin-top: 20px;">
+    <a href="https://pypi.org/project/ophelia-spark/" style="margin-right: 10px;">
+      <img src="https://img.shields.io/pypi/v/ophelia-spark.svg" alt="PyPI">
+    </a>
+    <a href="https://hub.docker.com/r/luisfalva/ophelia" style="margin-right: 10px;">
+      <img src="https://img.shields.io/docker/v/luisfalva/ophelia?sort=semver" alt="Docker Hub">
+    </a>
+    <a href="https://github.com/LuisFalva/ophelia/actions/workflows/release.yml" style="margin-right: 10px;">
+      <img src="https://github.com/LuisFalva/ophelia/actions/workflows/release.yml/badge.svg" alt="Release Build Status">
+    </a>
+    <a href="https://github.com/LuisFalva/ophelia/actions/workflows/docker-image.yml" style="margin-right: 10px;">
+      <img src="https://github.com/LuisFalva/ophelia/actions/workflows/docker-image.yml/badge.svg" alt="Docker Image Build Status">
+    </a>
+    <a href="https://ophelian.readme.io/">
+      <img src="https://img.shields.io/badge/docs-Documentation-orange.svg" alt="Docs">
+    </a>
+  </div>
 </div>
 
-# [Ophelian On Mars](https://ophelian.readme.io/)!
-'Ophelian On Mars' 👽, the ultimate destination for ML, Data Science, and AI professionals. Your go-to framework for seamlessly putting prototypes into production—where everyone wants to be, but only a few succeed.
+# Welcome to [Ophelian On Mars](https://ophelian.readme.io/)!
+The ultimate destination for ML, Data Science, and AI professionals. Your go-to framework for seamlessly putting prototypes into production.
 
 
 # 🚀 Motivations
